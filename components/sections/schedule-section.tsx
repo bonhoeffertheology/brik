@@ -61,7 +61,7 @@ export function ScheduleSection() {
       <div className="container px-4 mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground font-serif">
-            연구 및 사역일정
+            사역일정
           </h2>
           <div className="w-12 h-1 bg-amber-600/60 mx-auto mt-4 rounded" />
         </div>

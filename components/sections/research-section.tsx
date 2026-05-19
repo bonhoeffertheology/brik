@@ -305,57 +305,57 @@ export function ResearchSection() {
     return text.length > 100 ? text.substring(0, 100) + "..." : text
   }
 
- return (
-   <section 
-  id="research" 
-  ref={sectionRef} 
-  className="relative overflow-hidden bg-fixed bg-center bg-no-repeat bg-cover py-24 md:py-32"
-  style={{ backgroundImage: "url('/images/back2.jpg')" }}
->
-      {/* Background Elements - 은은하고 깊이감 있는 프리미엄 아카이브 무드 */}
-      <div className="pointer-events-none absolute -left-32 bottom-0 h-[400px] w-[400px] rounded-full bg-primary/3 opacity-[0.4]" />
-      <div className="pointer-events-none absolute -right-32 top-0 h-[300px] w-[300px] rounded-full bg-secondary/3 opacity-[0.4]" />
+return (
+    // 1. bg-fixed와 w-full 속성을 확실하게 주어 화면 전체 꽉 차는 와이드 패럴랙스를 구현합니다.
+    <section 
+      id="research" 
+      ref={sectionRef} 
+      className="relative w-full overflow-hidden bg-fixed bg-center bg-no-repeat bg-cover py-24 md:py-32"
+      style={{ backgroundImage: "url('/images/back2.jpg')" }}
+    >
+      {/* 2. 기존의 둥근 원형 div들을 완벽히 제거하고, 화면 전체에 깔끔한 흑색 오버레이만 투입하여 사진을 웅장하고 깊이감 있게 만듭니다. */}
+      <div className="absolute inset-0 bg-stone-900/40 z-0 pointer-events-none" />
 
+      {/* 3. 내부 콘텐츠를 z-10으로 들어올려 오버레이 필터 위로 명확히 배치합니다. */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      {/* 배경 이미지 위에 어두운 톤을 깔아 텍스트 가독성을 완벽하게 보장합니다 */}
-<div className="absolute inset-0 bg-black/50 z-0" />
-        {/* Section Header */}
+        
+        {/* Section Header - 대제목과 소제목 가독성을 위해 text-white 계열로 고정 */}
         <div
-          className={`mb-20 text-center transition-all duration-1000 ${
+          className={`mb-20 text-center transition-all duration-1000 transform ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
           }`}
         >
-          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">연구활동</h2>
-          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-600/60">
+          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
+          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500">
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
-          <p className="mt-5 font-sans text-base font-light tracking-wide text-muted-foreground">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
+          <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
         </div>
 
         {/* Loading State */}
         {isLoading && allPosts.length === 0 && (
           <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-700 border-t-transparent" />
-            <span className="ml-3 font-sans text-sm font-light text-muted-foreground">블로그 글을 불러오는 중...</span>
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
+            <span className="ml-3 font-sans text-sm font-light text-stone-300">블로그 글을 불러오는 중...</span>
           </div>
         )}
 
         {/* Error State */}
         {error && allPosts.length === 0 && (
           <div className="py-16 text-center">
-            <p className="mb-5 font-sans text-sm text-muted-foreground">{error}</p>
+            <p className="mb-5 font-sans text-sm text-stone-300">{error}</p>
             <a
               href={`https://blog.naver.com/${blogId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-xl bg-amber-800 px-6 py-3 font-sans text-sm font-medium text-white shadow-sm transition-all duration-300 hover:bg-amber-900 hover:scale-105"
+              className="inline-block rounded-xl bg-amber-600 px-6 py-3 font-sans text-sm font-medium text-white shadow-sm transition-all duration-300 hover:bg-amber-700 hover:scale-105"
             >
               블로그에서 직접 보기
             </a>
           </div>
         )}
 
-        {/* Blog Posts Grid - 프리미엄 오리지널 격자 디자인 인터랙션 */}
+        {/* Blog Posts Grid */}
         {allPosts.length > 0 && (
           <div
             ref={gridRef}
@@ -374,11 +374,8 @@ export function ResearchSection() {
               const postDate = new Date(post.pubDate)
               const shouldShow = !isExpanded || index <= expandAnimationIndex || index < 3
 
-              // 제목에서 에피소드 번호 패턴 검출 로직 보완
               const epMatch = post.title.match(/EPISODE\s*\d+/i) || post.description.match(/EPISODE\s*\d+/i)
               const cleanEpisode = epMatch ? epMatch[0].toUpperCase() : "RESEARCH"
-              
-              // 제목 및 본문 텍스트 내 중복 텍스트 파싱 처리
               const cleanTitle = post.title.replace(/<[^>]*>/g, "").replace(/EPISODE\s*\d+\s*/i, "").trim()
 
               return (
@@ -387,7 +384,7 @@ export function ResearchSection() {
                   href={post.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-card p-8 ring-1 ring-border/40 transition-all ease-out hover:-translate-y-2 hover:shadow-[0_22px_50px_rgba(139,92,26,0.06)] ${
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white/95 p-8 ring-1 ring-black/5 transition-all ease-out hover:-translate-y-2 hover:shadow-[0_22px_50px_rgba(0,0,0,0.3)] ${
                     shouldShow 
                       ? "translate-y-0 opacity-100 scale-100 duration-500" 
                       : "translate-y-8 opacity-0 scale-95 duration-300"
@@ -396,11 +393,9 @@ export function ResearchSection() {
                     transitionDelay: isExpanded ? "0ms" : `${index * 80}ms`,
                   }}
                 >
-                  {/* 고급스러운 오렌지-브라운 상단 액센트 라인 모션 효과 */}
-                  <div className="absolute top-0 left-0 h-[3px] w-0 bg-amber-700/50 transition-all duration-500 group-hover:w-full" />
+                  <div className="absolute top-0 left-0 h-[3px] w-0 bg-amber-600 transition-all duration-500 group-hover:w-full" />
                   
                   <div>
-                    {/* 카드 메타 영역: 아카이브 넘버링 배지와 세련된 날짜 표현 */}
                     <div className="mb-5 flex items-center justify-between">
                       <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold tracking-wider text-amber-900 font-serif ring-1 ring-stone-200/60">
                         {cleanEpisode}
@@ -410,18 +405,15 @@ export function ResearchSection() {
                       </span>
                     </div>
                     
-                    {/* 명조 서체(font-serif) 결을 입힌 진중한 아카데믹 타이틀 */}
                     <h3 className="mb-4 font-serif text-lg font-bold leading-snug tracking-tight text-foreground transition-colors duration-300 group-hover:text-amber-800 line-clamp-2">
                       {cleanTitle}
                     </h3>
 
-                    {/* 가독성을 높인 본문 요약 단락 */}
                     <p className="font-sans text-sm font-light leading-relaxed text-muted-foreground/90 line-clamp-4">
                       {formatDescription(post.description).replace(/EPISODE\s*\d+\s*/i, "")}
                     </p>
                   </div>
 
-                  {/* 하단 디테일 링크 시각 효과 포인트 */}
                   <div className="mt-6 flex items-center gap-1.5 text-xs font-medium text-amber-800/0 opacity-0 transition-all duration-500 transform -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 group-hover:text-amber-800 font-sans">
                     자세히 읽기 <span className="text-sm transition-transform duration-300 group-hover:translate-x-0.5">→</span>
                   </div>
@@ -431,13 +423,13 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* Show More / Collapse Button */}
+        {/* Show More / Collapse Button - z-index와 relative를 확실히 주어 레이어 씹힘 현상을 완벽 방지합니다 */}
         {allPosts.length > 3 && (
-          <div className="mt-12 text-center">
+          <div className="relative z-20 mt-12 text-center">
             {!isExpanded ? (
               <button
                 onClick={handleShowMore}
-                className="inline-flex items-center gap-2 rounded-xl border border-amber-800/40 bg-transparent px-6 py-3 font-sans text-sm font-medium text-amber-900 transition-all duration-300 hover:bg-amber-800 hover:text-white hover:scale-105 shadow-sm"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/40 bg-white/10 backdrop-blur-sm px-6 py-3 font-sans text-sm font-medium text-white transition-all duration-300 hover:bg-white hover:text-black hover:scale-105 shadow-md cursor-pointer"
               >
                 더보기
                 <svg
@@ -458,7 +450,7 @@ export function ResearchSection() {
             ) : (
               <button
                 onClick={handleCollapse}
-                className="inline-flex items-center gap-2 rounded-xl border border-muted-foreground/20 bg-transparent px-6 py-3 font-sans text-sm font-medium text-muted-foreground transition-all duration-300 hover:border-amber-800 hover:text-amber-900 hover:scale-105 shadow-sm"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm px-6 py-3 font-sans text-sm font-medium text-stone-300 transition-all duration-300 hover:border-white hover:text-white hover:scale-105 shadow-md cursor-pointer"
               >
                 접기
                 <svg
@@ -480,16 +472,16 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* Pagination - only visible when expanded */}
+        {/* Pagination */}
         {isExpanded && totalPages > 1 && (
-          <div className="mt-10 flex items-center justify-center gap-5">
+          <div className="relative z-20 mt-10 flex items-center justify-center gap-5">
             <button
               onClick={goToPrevPage}
               disabled={currentPage === 1}
-              className="flex items-center gap-1.5 rounded-xl border border-amber-800/30 bg-card px-4 py-2 font-sans text-xs font-medium text-amber-900 transition-all duration-300 hover:bg-amber-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
+              className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 font-sans text-xs font-medium text-white transition-all duration-300 hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
             >
               <svg
-                xmlns="http://www.w3.org/2000/xl"
+                xmlns="http://www.w3.org/2000/svg"
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"
@@ -503,17 +495,17 @@ export function ResearchSection() {
               </svg>
               이전
             </button>
-            <span className="font-serif text-sm font-medium text-foreground tracking-wide">
+            <span className="font-serif text-sm font-medium text-white tracking-wide">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={goToNextPage}
               disabled={currentPage === totalPages}
-              className="flex items-center gap-1.5 rounded-xl border border-amber-800/30 bg-card px-4 py-2 font-sans text-xs font-medium text-amber-900 transition-all duration-300 hover:bg-amber-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
+              className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 font-sans text-xs font-medium text-white transition-all duration-300 hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
             >
               다음
               <svg
-                xmlns="http://www.w3.org/2000/xl"
+                xmlns="http://www.w3.org/2000/svg"
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"

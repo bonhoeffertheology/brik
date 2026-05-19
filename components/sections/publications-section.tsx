@@ -222,7 +222,7 @@ export function PublicationsSection() {
                       <div className={`relative flex aspect-[2/3] items-center justify-center overflow-hidden ${bgColor}`}>
                         {pub.image ? (
                           <Image
-                            src={pub.image.startsWith('http') ? pub.image : pub.image.startsWith('/') ? `/brik${pub.image}` : pub.image.startsWith('images/') ? `/brik/${pub.image}` : `/brik/images/${pub.image}`}
+                            src={pub.image.startswith('http') ? pub.image : pub.image.startswith('/') ? `/brik${pub.image}` : pub.image.startswith('images/') ? `/brik/${pub.image}` : `/brik/images/${pub.image}`}
                             alt={pub.title}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-105"

@@ -5,12 +5,7 @@ const nextConfig = {
     unoptimized: true,
   },
   basePath: '/brik',
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  assetPrefix: '/brik/',
 };
 
-export default nextConfig;
+module.exports = nextConfig;

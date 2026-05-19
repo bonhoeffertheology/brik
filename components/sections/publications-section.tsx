@@ -227,7 +227,7 @@ export function PublicationsSection() {
   pub.title.includes("Vol. 1") ? "/brik/images/vol1.jpg" : 
   pub.title.includes("개정판") ? "/brik/images/withr.jpg" : 
   (pub.image.startsWith('http') ? pub.image : pub.image.startsWith('/') ? `/brik${pub.image}` : `/brik/images/${pub.image}`)
-                            }
+}
  
                             alt={pub.title}
                             fill

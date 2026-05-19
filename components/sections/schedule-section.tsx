@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useSiteSettings, type ScheduleItem } from "@/hooks/use-site-settings"
+import { useSiteSettings } from "@hooks/use-site-settings"
 
 const scheduleColors = ["bg-primary", "bg-secondary", "bg-accent"]
 
@@ -10,6 +10,7 @@ export function ScheduleSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
+  // 모든 기기에서 동일하게 작동하도록 일정을 고정 데이터로 강제 지정합니다.
   const schedules = [
     {
       id: "sch-1",
@@ -25,7 +26,7 @@ export function ScheduleSection() {
       month: "5월",
       title: "한국본회퍼연구소 홈페이지 관리",
       dateInfo: "2026년 5월 22일 · 오전 11시",
-      description: "홈페이지 시스템 정비 및 리뉴얼"
+      description: "홈페이지 구축 및 리뉴얼"
     },
     {
       id: "sch-3",
@@ -33,9 +34,9 @@ export function ScheduleSection() {
       month: "6월",
       title: "본회퍼 원서 구입",
       dateInfo: "2026년 6월 10일 · 3일간",
-      description: "본회퍼 원서 시리즈 구입, 독일 배송"
+      description: "본회퍼 원서 자료들 구입 독일 배송"
     }
-  ];
+  ]
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -59,61 +60,45 @@ export function ScheduleSection() {
   }
 
   return (
-    <section id="schedule" ref={sectionRef} className="relative overflow-hidden bg-muted py-20 md:py-28">
-      {/* Parallax Background with Fixed Effect - Bonhoeffer portrait */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-fixed bg-cover bg-center opacity-10"
-        style={{
-          backgroundImage: `url('${settings.scheduleBackgroundImage}')`,
-        }}
-      />
-      
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div
-          className={`mb-16 text-center transition-all duration-700 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-        >
-          <h2 className="mb-4 font-serif text-3xl font-bold text-primary md:text-4xl">연구일정</h2>
-          <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
-            <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-          </div>
+    <section ref={sectionRef} className="py-20 bg-muted/30" id="schedule">
+      <div className="container px-4 mx-auto">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground font-serif">
+            연구일정
+          </h2>
+          <div className="w-12 h-1 bg-amber-600/60 mx-auto mt-4 rounded" />
         </div>
 
-        <div className="mx-auto max-w-3xl space-y-6">
-          {schedules.map((schedule: ScheduleItem, index: number) => {
-            const date = new Date(schedule.date)
-            const day = date.getDate()
-            const month = date.getMonth() + 1
-            const color = scheduleColors[index % 3]
+        <div className="max-w-4xl mx-auto space-y-6">
+          {schedules.map((sch, index) => {
+            // 기존에 정의된 색상 배열을 순환하며 부드럽게 매칭합니다.
+            const colorClass = scheduleColors[index % scheduleColors.length]
             
-            // Format date for display
-            const displayDate = schedule.date 
-              ? date.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })
-              : ""
-
             return (
               <div
-                key={schedule.title + index}
-                className={`flex gap-6 rounded-lg bg-card p-6 shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
-                  isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-                }`}
+                key={sch.id}
+                className={`flex flex-col sm:flex-row items-start gap-6 p-6 rounded-xl bg-card shadow-md ring-1 ring-border/50 transition-all duration-700 transform ${
+                  isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+                } hover:shadow-lg`}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <div className="flex-shrink-0">
-                  <div
-                    className={`flex h-16 w-16 flex-col items-center justify-center rounded-lg text-white ${color}`}
-                  >
-                    <div className="text-2xl font-bold">{day || "-"}</div>
-                    <div className="text-xs">{month || "-"}월</div>
-                  </div>
+                {/* 날짜 배지 (기존 고유 디자인 색상 적용) */}
+                <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl text-white shrink-0 shadow-sm ${colorClass}`}>
+                  <span className="text-xl font-bold leading-none">{sch.day}</span>
+                  <span className="text-xs mt-1 opacity-90">{sch.month}</span>
                 </div>
-                <div className="flex-1">
-                  <h3 className="mb-2 text-xl font-bold text-foreground">{schedule.title}</h3>
-                  <p className="mb-2 text-sm text-accent">
-                    {displayDate} {schedule.time && `· ${schedule.time}`}
+
+                {/* 일정 내용 */}
+                <div className="space-y-1 text-left">
+                  <h3 className="text-lg font-bold text-foreground">
+                    {sch.title}
+                  </h3>
+                  <p className="text-sm text-primary/90 font-medium">
+                    {sch.dateInfo}
                   </p>
-                  <p className="leading-relaxed text-muted-foreground">{schedule.description}</p>
+                  <p className="text-base text-muted-foreground pt-1">
+                    {sch.description}
+                  </p>
                 </div>
               </div>
             )

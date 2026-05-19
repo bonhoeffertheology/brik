@@ -306,12 +306,19 @@ export function ResearchSection() {
   }
 
  return (
-    <section id="research" ref={sectionRef} className="relative overflow-hidden bg-muted/30 py-24 md:py-32">
+   <section 
+  id="research" 
+  ref={sectionRef} 
+  className="relative overflow-hidden bg-fixed bg-center bg-no-repeat bg-cover py-24 md:py-32"
+  style={{ backgroundImage: "url('/images/back2.jpg')" }}
+>
       {/* Background Elements - 은은하고 깊이감 있는 프리미엄 아카이브 무드 */}
       <div className="pointer-events-none absolute -left-32 bottom-0 h-[400px] w-[400px] rounded-full bg-primary/3 opacity-[0.4]" />
       <div className="pointer-events-none absolute -right-32 top-0 h-[300px] w-[300px] rounded-full bg-secondary/3 opacity-[0.4]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* 배경 이미지 위에 어두운 톤을 깔아 텍스트 가독성을 완벽하게 보장합니다 */}
+<div className="absolute inset-0 bg-black/50 z-0" />
         {/* Section Header */}
         <div
           className={`mb-20 text-center transition-all duration-1000 ${

@@ -21,7 +21,7 @@ function BookIcon() {
 }
 
 export function PublicationsSection() {
-  // 대시보드(로컬스토리지) 에러를 방지하고 모든 기기에서 동일하게 출력되도록 책 데이터를 코드에 직접 박아넣습니다.
+  
   const staticPublications = [
     {
       id: "pub-1",

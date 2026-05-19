@@ -14,9 +14,9 @@ export function Footer() {
 
           <div>
             <h4 className="mb-4 text-lg font-bold">주소</h4>
-            <p className="mb-2 text-sm leading-relaxed opacity-80">서울시 마포구 잔다리로 6길 12, 501호</p>
+            <p className="mb-2 text-sm leading-relaxed opacity-80">서울시 마포구 잔다리로 6길 12</p>
             <p className="text-sm leading-relaxed opacity-80">
-              501, 12, Jandari-ro 6-gil, Mapo-gu, Seoul, Republic of Korea
+              12, Jandari-ro 6-gil, Mapo-gu, Seoul, Republic of Korea
             </p>
           </div>
 

@@ -21,262 +21,86 @@ function BookIcon() {
 }
 
 export function PublicationsSection() {
-  const { settings } = useSiteSettings()
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const carouselRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  const [mouseStart, setMouseStart] = useState<number | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-
-  const publications = settings.publications || []
-  const minSwipeDistance = 50
-  const totalBooks = publications.length
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
+  // 대시보드(로컬스토리지) 에러를 방지하고 모든 기기에서 동일하게 출력되도록 책 데이터를 코드에 직접 박아넣습니다.
+  const staticPublications = [
+    {
+      id: "pub-1",
+      title: "하나님과 함께 (초판)",
+      author: "양석진",
+      publisher: "한국본회퍼연구소",
+      description: "본회퍼의 신학을 통해 공적신학의 통전적인 기초를 확립한 저자의 논문을 책으로 출판하였습니다.",
+      image: "/brik/images/vol1.jpg",
+      link: "https://smartstore.naver.com/bonhoeffer/products/6989898386"
+    },
+    {
+      id: "pub-2",
+      title: "그리스도를 따라서 Vol. 1",
+      author: "디트리히 본회퍼",
+      publisher: "한국본회퍼연구소",
+      description: "제자도에 대한 본회퍼의 탁월한 통찰을 만나보실 수 있습니다. 이번에 새롭게 번역하고 출판하게 되었습니다.",
+      image: "/brik/images/with.jpg",
+      link: ""
+    },
+    {
+      id: "pub-3",
+      title: "하나님과 함께 (전면개정판)",
+      author: "양석진",
+      publisher: "한국본회퍼연구소",
+      description: "<하나님과 함께>를 전면개정하여 새롭게 만나보실 수 있습니다.",
+      image: "/brik/images/withr.jpg",
+      link: ""
     }
-
-    return () => observer.disconnect()
-  }, [])
-
-  const goToNext = useCallback(() => {
-    if (totalBooks <= 0) return
-    setCurrentIndex((prev) => (prev + 1) % totalBooks)
-  }, [totalBooks])
-
-  const goToPrev = useCallback(() => {
-    if (totalBooks <= 0) return
-    setCurrentIndex((prev) => (prev - 1 + totalBooks) % totalBooks)
-  }, [totalBooks])
-
-  // Touch handlers
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-    const distance = touchStart - touchEnd
-    if (distance > minSwipeDistance) {
-      goToNext()
-    } else if (distance < -minSwipeDistance) {
-      goToPrev()
-    }
-  }
-
-  // Mouse drag handlers
-  const onMouseDown = (e: React.MouseEvent) => {
-    setMouseStart(e.clientX)
-    setIsDragging(true)
-  }
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
-    e.preventDefault()
-  }
-
-  const onMouseUp = (e: React.MouseEvent) => {
-    if (!isDragging || !mouseStart) {
-      setIsDragging(false)
-      return
-    }
-    const distance = mouseStart - e.clientX
-    if (distance > minSwipeDistance) {
-      goToNext()
-    } else if (distance < -minSwipeDistance) {
-      goToPrev()
-    }
-    setMouseStart(null)
-    setIsDragging(false)
-  }
-
-  const onMouseLeave = () => {
-    setMouseStart(null)
-    setIsDragging(false)
-  }
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        goToPrev()
-      } else if (e.key === "ArrowRight") {
-        goToNext()
-      }
-    }
-
-    const section = sectionRef.current
-    if (section) {
-      section.addEventListener("keydown", handleKeyDown)
-    }
-    return () => {
-      if (section) {
-        section.removeEventListener("keydown", handleKeyDown)
-      }
-    }
-  }, [goToNext, goToPrev])
-
-  if (publications.length === 0) {
-    return null
-  }
+  ];
 
   return (
-    <section id="publications" ref={sectionRef} className="relative overflow-hidden bg-card py-20 md:py-28" tabIndex={0}>
-      {/* Parallax Background */}
-      <div className="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5" />
-      
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div
-          className={`mb-16 text-center transition-all duration-700 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-        >
-          <h2 className="mb-4 font-serif text-3xl font-bold text-primary md:text-4xl">주요 출판물</h2>
-          <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
-            <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-          </div>
+    <section className="py-20 bg-background" id="publications">
+      <div className="container px-4 mx-auto">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground font-serif">
+            연구소 출판물
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            한국본회퍼연구소에서 발행한 도서와 연구 자료들을 소개합니다.
+          </p>
         </div>
 
-        {/* Carousel Container */}
-        <div className="relative">
-          {/* Navigation Arrows */}
-          {totalBooks > 3 && (
-            <>
-              <button
-                onClick={goToPrev}
-                className="absolute -left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-card p-3 shadow-lg ring-1 ring-border transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110 md:-left-6"
-                aria-label="이전"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m15 18-6-6 6-6"/>
-                </svg>
-              </button>
-              <button
-                onClick={goToNext}
-                className="absolute -right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-card p-3 shadow-lg ring-1 ring-border transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110 md:-right-6"
-                aria-label="다음"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6"/>
-                </svg>
-              </button>
-            </>
-          )}
-
-          {/* Carousel Track */}
-          <div
-            ref={carouselRef}
-            className={`overflow-hidden ${isDragging ? "cursor-grabbing" : totalBooks > 3 ? "cursor-grab" : ""}`}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseLeave}
-          >
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+          {staticPublications.map((pub, index) => (
             <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentIndex * (100 / 3)}%)` }}
+              key={pub.id}
+              className="group block overflow-hidden rounded-xl bg-card shadow-md ring-1 ring-border/50 transition-all duration-500 hover:-translate-y-1 cursor-pointer"
+              onClick={() => pub.link && window.open(pub.link, '_blank')}
             >
-              {/* Render all books in a single row */}
-              {publications.map((pub: Publication, index: number) => {
-                const CardWrapper = pub.link ? Link : "div"
-                const cardProps = pub.link
-                  ? { href: pub.link, target: "_blank" as const, rel: "noopener noreferrer" }
-                  : {}
-                const bgColor = pub.bgColor || bgColors[index % 3]
-
-                return (
-                  <div
-                    key={pub.title + index}
-                    className="w-full flex-shrink-0 px-3 md:w-1/2 lg:w-1/3"
-                  >
-                    <CardWrapper
-                      href="#"
-                      {...cardProps}
-                      className={`group block overflow-hidden rounded-xl bg-card shadow-md ring-1 ring-border/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:ring-border ${
-                        isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-                      } ${pub.link ? "cursor-pointer" : ""}`}
-                      style={{ transitionDelay: `${index * 150}ms` }}
-                    >
-                      {/* Book Cover - Vertical format for 신국판 (152x225mm ratio ≈ 2:3) */}
-                      <div className={`relative flex aspect-[2/3] items-center justify-center overflow-hidden ${bgColor}`}>
-                        {pub.image ? (
-                          <Image
-                            src={
-  pub.title.includes("초판") ? "/brik/images/with.jpg" : 
-  pub.title.includes("Vol. 1") ? "/brik/images/vol1.jpg" : 
-  pub.title.includes("개정판") ? "/brik/images/withr.jpg" : 
-  (pub.image.startsWith('http') ? pub.image : pub.image.startsWith('/') ? `/brik${pub.image}` : `/brik/images/${pub.image}`)
-}
- 
-                            alt={pub.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center gap-4 animate-float">
-                            <BookIcon />
-                            <span className="text-lg font-serif text-white/70 text-center px-4">{pub.title}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <h3 className="mb-2 text-lg font-bold text-foreground transition-colors group-hover:text-primary line-clamp-1">
-                          {pub.title}
-                        </h3>
-                        {/* 저자와 출판사를 한 줄에 나란히 배치 */}
-                        <p className="mb-3 flex items-center gap-2 text-sm text-accent">
-                          <span className="truncate">{pub.author}</span>
-                          <span className="text-muted-foreground">|</span>
-                          <span className="truncate text-muted-foreground">{pub.publisher}</span>
-                        </p>
-                        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-2">{pub.description}</p>
-                      </div>
-                    </CardWrapper>
+              <div className="relative flex aspect-[2/3] items-center justify-center overflow-hidden bg-muted">
+                {pub.image ? (
+                  <img
+                    src={pub.image}
+                    alt={pub.title}
+                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-4">
+                    <span className="text-lg font-serif text-muted-foreground px-4 text-center">{pub.title}</span>
                   </div>
-                )
-              })}
+                )}
+              </div>
+              <div className="p-5">
+                <h3 className="mb-2 text-lg text-left font-bold text-foreground transition-colors group-hover:text-primary line-clamp-1">
+                  {pub.title}
+                </h3>
+                <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <span className="truncate">{pub.author}</span>
+                  <span>|</span>
+                  <span className="truncate">{pub.publisher}</span>
+                </div>
+                <p className="text-sm text-left leading-relaxed text-muted-foreground line-clamp-2">
+                  {pub.description}
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* Page Indicators */}
-          {totalBooks > 3 && (
-            <div className="mt-8 flex justify-center gap-2">
-              {publications.map((_: Publication, idx: number) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentIndex(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    idx === currentIndex ? "w-6 bg-primary" : "w-2 bg-primary/30 hover:bg-primary/50"
-                  }`}
-                  aria-label={`${idx + 1}번째 책으로 이동`}
-                />
-              ))}
-            </div>
-          )}
+          ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

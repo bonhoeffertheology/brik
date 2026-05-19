@@ -211,6 +211,7 @@ export function PublicationsSection() {
                     className="w-full flex-shrink-0 px-3 md:w-1/2 lg:w-1/3"
                   >
                     <CardWrapper
+                      href="#"
                       {...cardProps}
                       className={`group block overflow-hidden rounded-xl bg-card shadow-md ring-1 ring-border/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:ring-border ${
                         isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"

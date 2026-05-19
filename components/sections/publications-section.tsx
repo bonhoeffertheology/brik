@@ -222,7 +222,7 @@ export function PublicationsSection() {
                       <div className={`relative flex aspect-[2/3] items-center justify-center overflow-hidden ${bgColor}`}>
                         {pub.image ? (
                           <Image
-                            src={pub.image}
+                            src={`/brik${pub.image}`}
                             alt={pub.title}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-105"

@@ -28,6 +28,7 @@ export function ResearchSection() {
   const [isAnimating, setIsAnimating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [expandAnimationIndex, setExpandAnimationIndex] = useState(-1)
   
   // Swipe state
   const [touchStart, setTouchStart] = useState<number | null>(null)
@@ -180,13 +181,30 @@ export function ResearchSection() {
   const handleShowMore = () => {
     setIsExpanded(true)
     setCurrentPage(1)
+    setExpandAnimationIndex(0)
+    
+    // Animate items appearing one by one
+    const totalItems = Math.min(allPosts.length, POSTS_PER_PAGE)
+    for (let i = 0; i <= totalItems; i++) {
+      setTimeout(() => {
+        setExpandAnimationIndex(i)
+      }, i * 120)
+    }
   }
 
   const handleCollapse = () => {
-    setIsExpanded(false)
-    setCurrentPage(1)
-    // Scroll back to section
-    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    // Animate items disappearing in reverse
+    const currentDisplayCount = displayPosts.length
+    for (let i = currentDisplayCount; i >= 0; i--) {
+      setTimeout(() => {
+        setExpandAnimationIndex(i - 1)
+        if (i === 0) {
+          setIsExpanded(false)
+          setCurrentPage(1)
+          sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+      }, (currentDisplayCount - i) * 80)
+    }
   }
 
   const goToPrevPage = useCallback(() => {
@@ -348,6 +366,7 @@ export function ResearchSection() {
             {displayPosts.map((post, index) => {
               const postDate = new Date(post.pubDate)
               const colorStyle = accentColors[index % 3]
+              const shouldShow = !isExpanded || index <= expandAnimationIndex || index < 3
 
               return (
                 <a
@@ -355,12 +374,13 @@ export function ResearchSection() {
                   href={post.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`group block transition-all duration-700 ease-out hover:scale-[1.02] hover:-translate-y-1 ${
-                    isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-                  }`}
+                  className={`group block transition-all ease-out hover:scale-[1.02] hover:-translate-y-1 ${
+                    shouldShow 
+                      ? "translate-y-0 opacity-100 scale-100 duration-500" 
+                      : "translate-y-8 opacity-0 scale-95 duration-300"
+                  } ${isVisible ? "" : "translate-y-10 opacity-0"}`}
                   style={{ 
-                    transitionDelay: `${index * 100}ms`,
-                    animationDelay: `${index * 80}ms`
+                    transitionDelay: isExpanded ? "0ms" : `${index * 100}ms`,
                   }}
                 >
                   <div className={`relative h-full overflow-hidden rounded-xl ${colorStyle.bg} p-6 shadow-sm ring-1 ring-border/50 transition-all duration-300 hover:shadow-lg hover:ring-border`}>

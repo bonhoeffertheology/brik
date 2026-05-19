@@ -352,7 +352,6 @@ export function ResearchSection() {
         {allPosts.length > 0 && (
           <div
             ref={gridRef}
-            on smugglers-={onTouchStart} // 기존 이벤트 핸들러 온전히 유지
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -483,7 +482,7 @@ export function ResearchSection() {
               className="flex items-center gap-1.5 rounded-xl border border-amber-800/30 bg-card px-4 py-2 font-sans text-xs font-medium text-amber-900 transition-all duration-300 hover:bg-amber-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 shadow-sm"
             >
               <svg
-                xmlns="http://www.w3.org/2000/svg"
+                xmlns="http://www.w3.org/2000/xl"
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"
@@ -507,7 +506,7 @@ export function ResearchSection() {
             >
               다음
               <svg
-                xmlns="http://www.w3.org/2000/svg"
+                xmlns="http://www.w3.org/2000/xl"
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"

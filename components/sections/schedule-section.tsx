@@ -10,7 +10,32 @@ export function ScheduleSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
-  const schedules = settings.schedules || []
+  const schedules = [
+    {
+      id: "sch-1",
+      day: "19",
+      month: "5월",
+      title: "<그리스도를 따라서> 2권 번역",
+      dateInfo: "2026년 5월 19일 · 오전 7시",
+      description: "1권에 이어 2권 번역이 계속됩니다."
+    },
+    {
+      id: "sch-2",
+      day: "22",
+      month: "5월",
+      title: "한국본회퍼연구소 홈페이지 관리",
+      dateInfo: "2026년 5월 22일 · 오전 11시",
+      description: "홈페이지 시스템 정비 및 리뉴얼"
+    },
+    {
+      id: "sch-3",
+      day: "10",
+      month: "6월",
+      title: "본회퍼 원서 구입",
+      dateInfo: "2026년 6월 10일 · 3일간",
+      description: "본회퍼 원서 시리즈 구입, 독일 배송"
+    }
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

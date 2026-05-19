@@ -23,7 +23,7 @@ export function ScheduleSection() {
       month: "5월",
       title: "한국본회퍼연구소 홈페이지 관리",
       dateInfo: "2026년 5월 22일 · 오전 11시",
-      description: "시스템 정비 및 리뉴얼 제작비 250,000원"
+      description: "홈페이지 시스템 정비 및 리뉴얼"
     },
     {
       id: "sch-3",
@@ -31,7 +31,7 @@ export function ScheduleSection() {
       month: "6월",
       title: "본회퍼 원서 구입",
       dateInfo: "2026년 6월 10일 · 3일간",
-      description: "본회퍼 원서 독일 배송 구입비 360,000원"
+      description: "본회퍼 저작 세트 구입 독일 배송"
     }
   ]
 

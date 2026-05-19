@@ -228,11 +228,7 @@ export function PublicationsSection() {
   pub.title.includes("개정판") ? "/brik/images/withr.jpg" : 
   (pub.image.startsWith('http') ? pub.image : pub.image.startsWith('/') ? `/brik${pub.image}` : `/brik/images/${pub.image}`)
                             }
-  pub.title.includes("초판") ? "/brik/images/vol1.jpg" : 
-  pub.title.includes("Vol. 1") ? "/brik/images/with.jpg" : 
-  pub.title.includes("개정판") ? "/brik/images/withr.jpg" : 
-  (pub.image.startsWith('http') ? pub.image : `/brik/${pub.image}`)
-                            }
+ 
                             alt={pub.title}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-105"

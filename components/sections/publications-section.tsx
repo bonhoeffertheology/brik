@@ -29,7 +29,7 @@ export function PublicationsSection() {
       author: "양석진",
       publisher: "한국본회퍼연구소",
       description: "본회퍼의 신학을 통해 공적신학의 통전적인 기초를 확립한 저자의 논문을 책으로 출판하였습니다.",
-      image: "/brik/images/vol1.jpg",
+      image: "/brik/images/with.jpg",
       link: "https://smartstore.naver.com/bonhoeffer/products/6989898386"
     },
     {
@@ -38,7 +38,7 @@ export function PublicationsSection() {
       author: "디트리히 본회퍼",
       publisher: "한국본회퍼연구소",
       description: "제자도에 대한 본회퍼의 탁월한 통찰을 만나보실 수 있습니다. 이번에 새롭게 번역하고 출판하게 되었습니다.",
-      image: "/brik/images/with.jpg",
+      image: "/brik/images/vol1.jpg",
       link: ""
     },
     {

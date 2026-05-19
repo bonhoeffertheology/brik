@@ -311,7 +311,7 @@ return (
       id="research" 
       ref={sectionRef} 
       className="relative w-full overflow-hidden bg-fixed bg-center bg-no-repeat bg-cover py-24 md:py-32"
-      style={{ backgroundImage: "url('/images/back2.jpg')" }}
+      style={{ backgroundImage: "url('/images/back2.png')" }}
     >
       {/* 2. 기존의 둥근 원형 div들을 완벽히 제거하고, 화면 전체에 깔끔한 흑색 오버레이만 투입하여 사진을 웅장하고 깊이감 있게 만듭니다. */}
       <div className="absolute inset-0 bg-stone-900/40 z-0 pointer-events-none" />

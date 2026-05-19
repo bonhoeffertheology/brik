@@ -22,7 +22,7 @@ import {
   Menu,
   ChevronLeft,
 } from "lucide-react"
-import { useSiteSettings } from "@/hooks/use-site-settings"
+import { useSiteSettings, type Publication, type ScheduleItem } from "@/hooks/use-site-settings"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -31,29 +31,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 const STORAGE_KEYS = {
   intro: "brik_intro",
   quote: "brik_quote",
-  publications: "brik_publications",
-  schedule: "brik_schedule",
   support: "brik_support",
   footer: "brik_footer",
 }
 
 type Section = "intro" | "quote" | "publications" | "schedule" | "support" | "footer" | "parallax" | "settings"
-
-interface Publication {
-  title: string
-  author: string
-  publisher: string
-  description: string
-  link: string
-  image: string
-}
-
-interface ScheduleItem {
-  title: string
-  date: string
-  time: string
-  description: string
-}
 
 const sectionInfo: Record<Section, { title: string; desc: string }> = {
   intro: { title: "연구소 소개 관리", desc: "메인 페이지의 연구소 소개 섹션을 편집합니다." },
@@ -68,7 +50,7 @@ const sectionInfo: Record<Section, { title: string; desc: string }> = {
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const { settings, updateSettings, resetSettings } = useSiteSettings()
+  const { settings, updateSettings, resetSettings, DEFAULT_PUBLICATIONS, DEFAULT_SCHEDULES } = useSiteSettings()
   const [activeSection, setActiveSection] = useState<Section>("intro")
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -81,8 +63,8 @@ export default function AdminDashboard() {
     aboutParagraph2: "",
   })
   const [quoteData, setQuoteData] = useState({ quoteText: "", quoteSource: "" })
-  const [publications, setPublications] = useState<Publication[]>([])
-  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([])
+  const [publications, setPublications] = useState<Publication[]>(settings.publications || [])
+  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>(settings.schedules || [])
   const [supportData, setSupportData] = useState({
     supportIntro: "",
     supportUsage: "",
@@ -119,6 +101,7 @@ export default function AdminDashboard() {
     description: "",
     link: "",
     image: "",
+    bgColor: "bg-primary",
   })
   const [schedForm, setSchedForm] = useState<ScheduleItem>({
     title: "",
@@ -151,13 +134,11 @@ export default function AdminDashboard() {
         break
       }
       case "publications": {
-        const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.publications) || "[]")
-        setPublications(data)
+        setPublications(settings.publications || DEFAULT_PUBLICATIONS)
         break
       }
       case "schedule": {
-        const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.schedule) || "[]")
-        setScheduleItems(data)
+        setScheduleItems(settings.schedules || DEFAULT_SCHEDULES)
         break
       }
       case "support": {
@@ -237,12 +218,12 @@ export default function AdminDashboard() {
     if (index >= 0) {
       setPubForm(publications[index])
     } else {
-      setPubForm({ title: "", author: "", publisher: "", description: "", link: "", image: "" })
+      setPubForm({ title: "", author: "", publisher: "", description: "", link: "", image: "", bgColor: "bg-primary" })
     }
     setPubModal(true)
   }
 
-  const savePub = () => {
+  const savePub = async () => {
     const newPubs = [...publications]
     if (editPubIndex >= 0) {
       newPubs[editPubIndex] = pubForm
@@ -250,16 +231,16 @@ export default function AdminDashboard() {
       newPubs.push(pubForm)
     }
     setPublications(newPubs)
-    localStorage.setItem(STORAGE_KEYS.publications, JSON.stringify(newPubs))
+    await updateSettings({ publications: newPubs })
     setPubModal(false)
     showToast("출판물이 저장되었습니다.")
   }
 
-  const deletePub = (index: number) => {
+  const deletePub = async (index: number) => {
     if (confirm("이 출판물을 삭제하시겠습니까?")) {
       const newPubs = publications.filter((_, i) => i !== index)
       setPublications(newPubs)
-      localStorage.setItem(STORAGE_KEYS.publications, JSON.stringify(newPubs))
+      await updateSettings({ publications: newPubs })
       showToast("출판물이 삭제되었습니다.")
     }
   }
@@ -275,7 +256,7 @@ export default function AdminDashboard() {
     setSchedModal(true)
   }
 
-  const saveSched = () => {
+  const saveSched = async () => {
     const newScheds = [...scheduleItems]
     if (editSchedIndex >= 0) {
       newScheds[editSchedIndex] = schedForm
@@ -283,16 +264,16 @@ export default function AdminDashboard() {
       newScheds.push(schedForm)
     }
     setScheduleItems(newScheds)
-    localStorage.setItem(STORAGE_KEYS.schedule, JSON.stringify(newScheds))
+    await updateSettings({ schedules: newScheds })
     setSchedModal(false)
     showToast("일정이 저장되었습니다.")
   }
 
-  const deleteSched = (index: number) => {
+  const deleteSched = async (index: number) => {
     if (confirm("이 일정을 삭제하시겠습니까?")) {
       const newScheds = scheduleItems.filter((_, i) => i !== index)
       setScheduleItems(newScheds)
-      localStorage.setItem(STORAGE_KEYS.schedule, JSON.stringify(newScheds))
+      await updateSettings({ schedules: newScheds })
       showToast("일정이 삭제되었습니다.")
     }
   }
@@ -321,11 +302,14 @@ export default function AdminDashboard() {
   }
 
   // Data reset
-  const resetAllData = () => {
+  const resetAllData = async () => {
     if (confirm("정말로 모든 데이터를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.")) {
       Object.values(STORAGE_KEYS).forEach((key) => {
         localStorage.removeItem(key)
       })
+      await resetSettings()
+      setPublications(DEFAULT_PUBLICATIONS)
+      setScheduleItems(DEFAULT_SCHEDULES)
       showToast("모든 데이터가 초기화되었습니다.")
       loadSectionData("intro")
     }
@@ -338,6 +322,8 @@ export default function AdminDashboard() {
       backup[name] = JSON.parse(localStorage.getItem(key) || "null")
     })
     backup.parallax = parallaxData
+    backup.publications = publications
+    backup.schedules = scheduleItems
 
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
@@ -351,12 +337,12 @@ export default function AdminDashboard() {
   }
 
   // Restore
-  const handleRestore = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRestore = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
         const backup = JSON.parse(ev.target?.result as string)
         Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
@@ -365,9 +351,19 @@ export default function AdminDashboard() {
           }
         })
         if (backup.parallax) {
-          updateSettings(backup.parallax)
           setParallaxData(backup.parallax)
         }
+        if (backup.publications) {
+          setPublications(backup.publications)
+        }
+        if (backup.schedules) {
+          setScheduleItems(backup.schedules)
+        }
+        await updateSettings({
+          ...backup.parallax,
+          publications: backup.publications || DEFAULT_PUBLICATIONS,
+          schedules: backup.schedules || DEFAULT_SCHEDULES,
+        })
         showToast("데이터가 복원되었습니다.")
         loadSectionData(activeSection)
       } catch {
@@ -915,13 +911,28 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">구매 링크</label>
+                <label className="mb-2 block text-sm font-medium">구매 링크 (선택사항)</label>
                 <Input
                   type="url"
                   value={pubForm.link}
                   onChange={(e) => setPubForm({ ...pubForm, link: e.target.value })}
-                  placeholder="https://..."
+                  placeholder="https://smartstore.naver.com/..."
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  링크를 입력하면 책 표지를 클릭했을 때 해당 페이지로 이동합니다.
+                </p>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium">배경색 (이미지가 없을 때 표시)</label>
+                <select
+                  value={pubForm.bgColor || "bg-primary"}
+                  onChange={(e) => setPubForm({ ...pubForm, bgColor: e.target.value })}
+                  className="w-full rounded-lg border-2 border-border px-4 py-3 outline-none transition-all focus:border-primary"
+                >
+                  <option value="bg-primary">파랑 (Primary)</option>
+                  <option value="bg-secondary">청록 (Secondary)</option>
+                  <option value="bg-accent">갈색 (Accent)</option>
+                </select>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium">표지 이미지</label>

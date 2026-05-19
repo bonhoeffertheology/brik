@@ -1,16 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useSiteSettings } from "@hooks/use-site-settings"
 
 const scheduleColors = ["bg-primary", "bg-secondary", "bg-accent"]
 
 export function ScheduleSection() {
-  const { settings } = useSiteSettings()
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
-  // 모든 기기에서 동일하게 작동하도록 일정을 고정 데이터로 강제 지정합니다.
   const schedules = [
     {
       id: "sch-1",
@@ -71,7 +68,6 @@ export function ScheduleSection() {
 
         <div className="max-w-4xl mx-auto space-y-6">
           {schedules.map((sch, index) => {
-            // 기존에 정의된 색상 배열을 순환하며 부드럽게 매칭합니다.
             const colorClass = scheduleColors[index % scheduleColors.length]
             
             return (
@@ -82,13 +78,11 @@ export function ScheduleSection() {
                 } hover:shadow-lg`}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
-                {/* 날짜 배지 (기존 고유 디자인 색상 적용) */}
                 <div className={`flex flex-col items-center justify-center w-16 h-16 rounded-xl text-white shrink-0 shadow-sm ${colorClass}`}>
                   <span className="text-xl font-bold leading-none">{sch.day}</span>
                   <span className="text-xs mt-1 opacity-90">{sch.month}</span>
                 </div>
 
-                {/* 일정 내용 */}
                 <div className="space-y-1 text-left">
                   <h3 className="text-lg font-bold text-foreground">
                     {sch.title}

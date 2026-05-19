@@ -1,42 +1,16 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useSiteSettings } from "@/hooks/use-site-settings"
+import { useSiteSettings, type ScheduleItem } from "@/hooks/use-site-settings"
 
-const schedules = [
-  {
-    title: "본회퍼 신학 세미나",
-    date: "2026년 4월 15일",
-    time: "오후 2시",
-    description: "\"현대 사회에서의 본회퍼 윤리학\"을 주제로 진행되는 학술 세미나입니다.",
-    day: 15,
-    month: 4,
-    color: "bg-primary",
-  },
-  {
-    title: "연구소 정기 모임",
-    date: "2026년 5월 22일",
-    time: "오후 3시",
-    description: "연구원들이 모여 최근 연구 성과를 공유하고 토론하는 정기 모임입니다.",
-    day: 22,
-    month: 5,
-    color: "bg-secondary",
-  },
-  {
-    title: "국제 본회퍼 학술대회",
-    date: "2026년 7월 10-12일",
-    time: "3일간",
-    description: "국내외 본회퍼 연구자들이 모이는 대규모 국제 학술대회가 개최됩니다.",
-    day: 10,
-    month: 7,
-    color: "bg-accent",
-  },
-]
+const scheduleColors = ["bg-primary", "bg-secondary", "bg-accent"]
 
 export function ScheduleSection() {
   const { settings } = useSiteSettings()
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
+
+  const schedules = settings.schedules || []
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -54,6 +28,10 @@ export function ScheduleSection() {
 
     return () => observer.disconnect()
   }, [])
+
+  if (schedules.length === 0) {
+    return null
+  }
 
   return (
     <section id="schedule" ref={sectionRef} className="relative overflow-hidden bg-muted py-20 md:py-28">
@@ -78,31 +56,43 @@ export function ScheduleSection() {
         </div>
 
         <div className="mx-auto max-w-3xl space-y-6">
-          {schedules.map((schedule, index) => (
-            <div
-              key={schedule.title}
-              className={`flex gap-6 rounded-lg bg-card p-6 shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
-                isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-              }`}
-              style={{ transitionDelay: `${index * 150}ms` }}
-            >
-              <div className="flex-shrink-0">
-                <div
-                  className={`flex h-16 w-16 flex-col items-center justify-center rounded-lg text-white ${schedule.color}`}
-                >
-                  <div className="text-2xl font-bold">{schedule.day}</div>
-                  <div className="text-xs">{schedule.month}월</div>
+          {schedules.map((schedule: ScheduleItem, index: number) => {
+            const date = new Date(schedule.date)
+            const day = date.getDate()
+            const month = date.getMonth() + 1
+            const color = scheduleColors[index % 3]
+            
+            // Format date for display
+            const displayDate = schedule.date 
+              ? date.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" })
+              : ""
+
+            return (
+              <div
+                key={schedule.title + index}
+                className={`flex gap-6 rounded-lg bg-card p-6 shadow-md transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
+                  isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+                }`}
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                <div className="flex-shrink-0">
+                  <div
+                    className={`flex h-16 w-16 flex-col items-center justify-center rounded-lg text-white ${color}`}
+                  >
+                    <div className="text-2xl font-bold">{day || "-"}</div>
+                    <div className="text-xs">{month || "-"}월</div>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="mb-2 text-xl font-bold text-foreground">{schedule.title}</h3>
+                  <p className="mb-2 text-sm text-accent">
+                    {displayDate} {schedule.time && `· ${schedule.time}`}
+                  </p>
+                  <p className="leading-relaxed text-muted-foreground">{schedule.description}</p>
                 </div>
               </div>
-              <div className="flex-1">
-                <h3 className="mb-2 text-xl font-bold text-foreground">{schedule.title}</h3>
-                <p className="mb-2 text-sm text-accent">
-                  {schedule.date} · {schedule.time}
-                </p>
-                <p className="leading-relaxed text-muted-foreground">{schedule.description}</p>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

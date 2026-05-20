@@ -9,10 +9,6 @@ interface BlogPost {
   pubDate: string
 }
 
-const POSTS_PER_PAGE = 9
-const CACHE_KEY = "brik_blog_cache"
-const CACHE_DURATION = 10 * 60 * 1000 
-
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
@@ -22,7 +18,7 @@ export function ResearchSection() {
 
   const blogId = "jelsayou"
 
-  // RSS 파싱 및 로딩 로직
+  // 데이터 로딩 함수
   const loadBlogPosts = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -39,7 +35,7 @@ export function ResearchSection() {
       }))
       setAllPosts(items)
     } catch (err) {
-      console.error(err)
+      console.error("데이터 로딩 실패:", err)
     } finally {
       setIsLoading(false)
     }
@@ -61,9 +57,9 @@ export function ResearchSection() {
     <section 
       id="research" 
       ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32"
+      className="relative w-full py-24 md:py-32 overflow-hidden"
     >
-      {/* 패럴렉스 배경 레이어 (연구활동 섹션 내부에서만 고정) */}
+      {/* 배경 레이어: 패럴랙스 효과 적용 */}
       <div className="absolute inset-0 z-0">
         <div 
           className="absolute inset-0 w-full h-full"
@@ -75,15 +71,15 @@ export function ResearchSection() {
             backgroundRepeat: "no-repeat"
           }}
         />
-        {/* 어두운 오버레이를 통해 텍스트 가독성 확보 */}
+        {/* 어두운 오버레이 */}
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
-      {/* 실제 콘텐츠 영역 */}
+      {/* 콘텐츠 영역 */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className={`mb-20 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
-          <div className="mx-auto h-0.5 w-12 bg-amber-500 overflow-hidden" />
+        <div className={`mb-20 text-center transition-all duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+          <h2 className="mb-4 font-serif text-3xl font-bold text-white sm:text-4xl">연구활동</h2>
+          <div className="mx-auto h-0.5 w-12 bg-amber-500" />
           <p className="mt-5 text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
         </div>
 

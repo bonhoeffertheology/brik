@@ -20,7 +20,6 @@ export function ResearchSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  // Swipe / Drag 로직용 상태
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [mouseStart, setMouseStart] = useState<number | null>(null)
@@ -29,7 +28,6 @@ export function ResearchSection() {
   const blogId = "jelsayou"
   const minSwipeDistance = 50
 
-  // 캐시 및 RSS 로딩 로직
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
       const cached = localStorage.getItem(CACHE_KEY)
@@ -125,7 +123,6 @@ export function ResearchSection() {
 
   const displayPosts = allPosts
 
-  // 터치/마우스 스와이프 액션
   const onTouchStart = (e: React.TouchEvent) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX) }
   const onTouchMove = (e: React.TouchEvent) => { setTouchEnd(e.targetTouches[0].clientX) }
   const onTouchEnd = () => {
@@ -162,7 +159,7 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
-      {/* 스타일 태그 보정: 배경 공백 안전 인코딩 처리 및 상단 헤드라인 호버 애니메이션 추가 */}
+      {/* 스타일 태그: 고품격 학술 카드 디자인 및 타이포그래피 (격조 있는 명조 기반) */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes customShimmer {
           0% { transform: translateX(-100%); }
@@ -175,9 +172,9 @@ export function ResearchSection() {
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
-        /* 공백문자를 %20으로 안전하게 치환하여 브라우저 인식 우회 */
+        /* 공백문자 안전 인코딩 처리된 패럴렉스 배경 (유지) */
         .parallax-bg-fixed {
-          background-image: url('images/back21.png');
+          background-image: url('images/Front%20%26%20back%20cover.webp');
           background-attachment: fixed;
           background-position: center;
           background-repeat: no-repeat;
@@ -185,10 +182,10 @@ export function ResearchSection() {
         }
         .research-grid-container {
           transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-          max-height: 550px;
+          max-height: 580px; /* 카드가 더 격식 있게 커져서 기본 높이를 살짝 높임 */
         }
         .research-grid-container.expanded {
-          max-height: 3000px;
+          max-height: 4000px;
         }
         .motion-card {
           opacity: 0;
@@ -196,23 +193,15 @@ export function ResearchSection() {
         .research-grid-container.visible .motion-card {
           animation: cardFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        /* 배너 윗부분(RESEARCH 태그 레이블) 호버 인터랙션 모션 */
-        .card-top-label {
-          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
-        }
-        .group:hover .card-top-label {
-          transform: translateY(-4px) scale(1.05);
-          color: #d97706; /* 더 산뜻한 주황빛으로 강조 */
-        }
         @media (max-width: 768px) {
           .parallax-bg-fixed {
             background-attachment: scroll;
           }
           .research-grid-container {
-            max-height: 1500px;
+            max-height: 1800px;
           }
           .research-grid-container.expanded {
-            max-height: 6000px;
+            max-height: 8000px;
           }
         }
       `}} />
@@ -226,7 +215,7 @@ export function ResearchSection() {
       {/* 내부 콘텐츠 실체 */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* 서서히 올라오는 헤더 애니메이션 */}
+        {/* 격조 있는 고딕 헤더 디자인 (유지) */}
         <div 
           className="mb-20 text-center transition-all duration-1000 transform"
           style={{
@@ -249,7 +238,7 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구 목록 카드 그리드 */}
+        {/* 연구 목록 카드 그리드: 전문적인 학술 카드 디자인 기반 */}
         {allPosts.length > 0 && (
           <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
             {displayPosts.map((post, index) => {
@@ -260,30 +249,34 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1.5 motion-card"
+                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-10 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-stone-200/50 hover:border-amber-700/50 motion-card"
                   style={{
                     animationDelay: `${(index % 3) * 0.15}s`,
                     display: isHidden ? "none" : "flex",
                   }}
                 >
-                  {/* 상단 레이블 구역: 커서 올리면 사뿐하게 들리는 모션 추가 */}
-                  <div className="overflow-hidden pt-1">
-                    <span className="card-top-label inline-block text-[10px] font-semibold text-amber-700 uppercase tracking-widest font-sans origin-left">
-                      RESEARCH
-                    </span>
-                  </div>
+                  {/* 제목: 더 묵직하고 고풍스러운 명조체 기반 (예: Noto Serif KR, Batang) */}
+                  <h3 className="font-serif text-xl font-extrabold leading-tight text-stone-950 group-hover:text-amber-900 transition-colors line-clamp-2">
+                    {post.title}
+                  </h3>
                   
-                  <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-800 transition-colors">{post.title}</h3>
-                  <p className="mt-2 font-sans text-sm text-stone-600 leading-relaxed line-clamp-3">
+                  {/* 본문: 가독성 좋은 전문적인 웹 명조체 기반 */}
+                  <p className="mt-5 flex-1 font-serif text-base font-light leading-relaxed text-stone-700 line-clamp-4">
                     {formatDescription(post.description)}
                   </p>
+
+                  {/* 하단 세부 정보 영역: 고딕으로 가볍게 처리하여 균형 유지 */}
+                  <div className="mt-8 flex items-center justify-between border-t border-stone-200/50 pt-5 text-xs text-stone-500 font-sans tracking-wide">
+                    <span>{pub.publisher} (Bonhoeffer Theology)</span>
+                    <span>{pub.author || '연구소'}</span>
+                  </div>
                 </a>
               );
             })}
           </div>
         )}
 
-        {/* 더보기 버튼 */}
+        {/* 더보기 버튼 (유지) */}
         {allPosts.length > 3 && (
           <div className="mt-12 text-center">
             <button 

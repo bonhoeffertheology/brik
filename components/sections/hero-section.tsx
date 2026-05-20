@@ -27,7 +27,6 @@ export function HeroSection() {
           backgroundImage: "url('/images/open.png')",
         }}
       />
-      />
       
       {/* Animated Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-secondary/70 to-primary/90" />

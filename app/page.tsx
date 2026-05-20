@@ -15,10 +15,10 @@ export default function HomePage() {
     <main className="min-h-screen">
       <Navigation />
       <HeroSection />
+      <PublicationsSection />
       <QuoteSection />
       <AboutSection />
       <ResearchSection />
-      <PublicationsSection />
       <ScheduleSection />
       <SupportSection />
       <Footer />

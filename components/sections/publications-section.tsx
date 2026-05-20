@@ -16,17 +16,17 @@ export function PublicationsSection() {
   const books: PublicationBook[] = [
     {
       title: "하나님과 함께 (초판)",
-      imageSrc: "images/book1.webp", // 실제 프로젝트 내 이미지 경로에 맞춤
+      imageSrc: "images/with.jpg", // 실제 프로젝트 내 이미지 경로에 맞춤
       purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386"
     },
     {
       title: "그리스도를 따라서 Vol. 1",
-      imageSrc: "images/book2.webp",
+      imageSrc: "images/vol1.jpg",
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719" // 해당 도서의 고유 몰 링크로 대체 가능
     },
     {
       title: "하나님과 함께 (전면개정판)",
-      imageSrc: "images/book3.webp",
+      imageSrc: "images/withr.jpg",
       purchaseLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681"
     }
   ]

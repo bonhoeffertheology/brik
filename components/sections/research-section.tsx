@@ -172,7 +172,7 @@ export function ResearchSection() {
           animation: customShimmer 2.5s infinite linear;
         }
         .parallax-bg-fixed {
-          background-image: url('images/back2.png');
+          background-image: url('images/back21.png');
           background-attachment: fixed;
           background-position: center;
           background-repeat: no-repeat;

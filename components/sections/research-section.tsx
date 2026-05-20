@@ -9,6 +9,7 @@ interface BlogPost {
   pubDate: string
 }
 
+// 빌드 에러를 방지하기 위해 애니메이션에 사용되지 않는 accentColors는 제거했습니다.
 const POSTS_PER_PAGE = 3
 const CACHE_KEY = "brik_blog_cache"
 const CACHE_DURATION = 10 * 60 * 1000 // 10분 캐시
@@ -21,7 +22,7 @@ export function ResearchSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  // Swipe & Drag State
+  // Swipe & Drag State (기존 로직 보존)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [mouseStart, setMouseStart] = useState<number | null>(null)
@@ -30,7 +31,7 @@ export function ResearchSection() {
   const blogId = "jelsayou"
   const minSwipeDistance = 50
 
-  // 로컬 스토리지 캐시 관리
+  // 로컬 스토리지 캐시 관리 로직
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
       const cached = localStorage.getItem(CACHE_KEY)
@@ -140,7 +141,7 @@ export function ResearchSection() {
   // 더보기 여부에 따라 3개 또는 전체 표기
   const displayPosts = isExpanded ? allPosts : allPosts.slice(0, 3)
 
-  // Touch & Mouse 드래그/스와이프 제어 로직
+  // Touch & Mouse 드래그/스와이프 제어 로직 (기존 로직 보존)
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null)
     setTouchStart(e.targetTouches[0].clientX)
@@ -175,6 +176,7 @@ export function ResearchSection() {
     setIsDragging(false)
   }
 
+  // HTML 태그 제거 및 글자수 제한 함수
   const formatDescription = (html: string) => {
     const text = html.replace(/<[^>]*>/g, "")
     return text.length > 100 ? text.substring(0, 100) + "..." : text
@@ -193,7 +195,7 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
-      {/* 패럴렉스 배경 효과 레이어 */}
+      {/* 고정 배경 패럴렉스 효과 레이어: 확실한 적용을 위해 CSS 직접 선언 */}
       <div className="absolute inset-0 z-0">
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
@@ -202,20 +204,23 @@ export function ResearchSection() {
             backgroundAttachment: "fixed"
           }}
         />
+        {/* 어두운 오버레이 레이어: 텍스트 가독성 확보 */}
         <div className="absolute inset-0 bg-black/65" />
       </div>
 
       {/* 실 콘텐츠 레이어 */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* 헤더 */}
+        {/* 애니메이션 효과가 적용된 섹션 헤더 */}
         <div className={`mb-20 text-center transition-all duration-1000 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
-          <div className="mx-auto h-0.5 w-12 bg-amber-500" />
+          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500">
+            <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+          </div>
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
         </div>
 
-        {/* 로딩 및 에러 핸들링 */}
+        {/* 로딩 및 에러 핸들링 상태 표기 */}
         {isLoading && allPosts.length === 0 && (
           <div className="text-center text-white py-16">블로그 데이터를 불러오는 중입니다...</div>
         )}
@@ -223,7 +228,7 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16">{error}</div>
         )}
 
-        {/* 연구글 카드 그리드 리스트 */}
+        {/* 연구글 카드 그리드 리스트: 호버 시 애니메이션 효과 추가 */}
         {allPosts.length > 0 && (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {displayPosts.map((post, index) => (
@@ -244,12 +249,12 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 제어 버튼 */}
+        {/* 애니메이션 효과가 적용된 제어 버튼 */}
         {allPosts.length > 3 && (
           <div className="mt-12 text-center">
             <button 
               onClick={() => setIsExpanded(!isExpanded)} 
-              className="rounded-xl border border-white/40 bg-white/10 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-black transition-all duration-300"
+              className="rounded-xl border border-white/40 bg-white/10 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105 active:scale-95"
             >
               {isExpanded ? "접기" : "연구글 더보기"}
             </button>

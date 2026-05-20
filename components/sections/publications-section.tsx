@@ -94,7 +94,7 @@ export function PublicationsSection() {
         >
           <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500" />
-          <p className="mt-4 font-sans text-base font-light text-stone-300">바른 신학의 발자취를 책으로 전합니다</p>
+          <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
 
         {/* 출판물 정렬 그리드 구역 (80% 크기 컴팩트 레이아웃) */}

@@ -25,7 +25,7 @@ export function HeroSection() {
         className="absolute inset-0 h-full w-full object-cover fixed z-0"
         preload="auto"
       >
-        <source src="/open4.mp4" type="video/mp4" />
+        <source src="/images/open4.mp4" type="video/mp4" />
         브라우저가 비디오 태그를 지원하지 않습니다.
       </video>
 

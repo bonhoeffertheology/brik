@@ -1,11 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useSiteSettings } from "@/hooks/use-site-settings"
+// 1. 상단에서 public 폴더의 open.png 이미지를 직접 import 합니다.
+import openBg from "@/public/images/open.png"
 
 export function HeroSection() {
-  const { settings } = useSiteSettings()
-  
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault()
     const target = document.querySelector(href)
@@ -20,16 +19,18 @@ export function HeroSection() {
       className="relative flex min-h-[70vh] items-center overflow-hidden bg-gradient-to-br from-primary to-secondary pt-20 text-white"
     >
       {/* Parallax Background with fixed position - Bonhoeffer with students */}
-     <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-70"
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80" 
         style={{
-          // 대시보드 변수 대신, 깃허브 public/images/open.png 경로를 직접 고정합니다.
-          backgroundImage: "url('/images/open.png')",
+          // 2. 문자열 경로 대신 import한 변수의 .src 속성을 주입하여 배포 주소 문제를 해결합니다.
+          backgroundImage: `url(${openBg.src})`,
         }}
       />
       
       {/* Animated Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-secondary/70 to-primary/90" />
+      <div 
+        className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20" 
+      />
       
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-24 sm:px-6 md:py-32 lg:px-8">
         <div className="max-w-3xl">

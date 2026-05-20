@@ -306,38 +306,60 @@ export function ResearchSection() {
   }
 
 return (
-    <section 
-      id="research" 
-      ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32"
-    >
-      {/* 배경 이미지가 뚫리지 않도록 투명 배경 제거 및 이미지 고정 레이어 */}
-      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-        <img 
-          src="/images/back2.png" 
-          alt="배경" 
-          className="w-full h-full object-cover object-center"
-        />
-        {/* 사진 위에 어두운 오버레이만 살짝 얹어 텍스트 가독성 확보 */}
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
+  <section 
+    id="research" 
+    ref={sectionRef} 
+    className="relative w-full overflow-hidden py-24 md:py-32"
+  >
+    {/* 배경 이미지 레이어: 화면 전체를 덮도록 설정 */}
+    <div className="absolute inset-0 z-0">
+      <img 
+        src="/images/back2.png" 
+        alt="배경" 
+        className="w-full h-full object-cover object-center"
+      />
+      {/* 어두운 오버레이 레이어 */}
+      <div className="absolute inset-0 bg-black/60" />
+    </div>
 
-      {/* 내부 콘텐츠 영역 */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className={`mb-20 text-center transition-all duration-1000 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
-          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
-          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500">
-            <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-          </div>
-          <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
+    {/* 콘텐츠 영역: 기존 로직을 모두 복원 */}
+    <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      
+      {/* 섹션 헤더 */}
+      <div className={`mb-20 text-center transition-all duration-1000 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+        <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
+        <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500">
+          <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
         </div>
-
-        {/* ... (이하 블로그 포스트 리스트 및 버튼 코드는 기존과 동일하게 유지) ... */}
-        {/* 위 코드를 붙여넣으신 후, 아래에 기존에 가지고 계시던 블로그 카드 출력 로직(displayPosts.map...)을 그대로 붙여주시면 됩니다. */}
-        
+        <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
       </div>
-    </section>
-  )
-}
+
+      {/* 블로그 데이터 로딩/에러 처리 로직 */}
+      {isLoading && allPosts.length === 0 && (
+        <div className="flex items-center justify-center py-16 text-white">로딩 중...</div>
+      )}
+
+      {/* 블로그 포스트 그리드 (복원된 핵심 로직) */}
+      {allPosts.length > 0 && (
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {displayPosts.map((post, index) => (
+            <a key={index} href={post.link} target="_blank" rel="noopener noreferrer" className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-lg hover:shadow-2xl transition-all">
+              <span className="text-[10px] font-semibold text-amber-800 uppercase tracking-widest">RESEARCH</span>
+              <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2">{post.title}</h3>
+              <p className="mt-2 text-sm text-stone-600 line-clamp-3">{post.description}</p>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* 더보기 버튼 */}
+      {allPosts.length > 3 && (
+        <div className="mt-12 text-center">
+          <button onClick={isExpanded ? handleCollapse : handleShowMore} className="rounded-xl border border-white/40 bg-white/10 px-6 py-3 text-sm font-medium text-white hover:bg-white hover:text-black transition-all">
+            {isExpanded ? "접기" : "더보기"}
+          </button>
+        </div>
+      )}
+    </div>
+  </section>
+)

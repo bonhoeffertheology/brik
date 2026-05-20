@@ -9,10 +9,8 @@ interface BlogPost {
   pubDate: string
 }
 
-// 빌드 에러를 방지하기 위해 애니메이션에 사용되지 않는 accentColors는 제거했습니다.
-const POSTS_PER_PAGE = 3
 const CACHE_KEY = "brik_blog_cache"
-const CACHE_DURATION = 10 * 60 * 1000 // 10분 캐시
+const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -22,7 +20,7 @@ export function ResearchSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  // Swipe & Drag State (기존 로직 보존)
+  // Swipe / Drag 로직용 상태
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [mouseStart, setMouseStart] = useState<number | null>(null)
@@ -31,7 +29,7 @@ export function ResearchSection() {
   const blogId = "jelsayou"
   const minSwipeDistance = 50
 
-  // 로컬 스토리지 캐시 관리 로직
+  // 캐시 및 RSS 로딩 로직 (유지)
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
       const cached = localStorage.getItem(CACHE_KEY)
@@ -41,21 +39,16 @@ export function ResearchSection() {
           return posts
         }
       }
-    } catch {
-      // 캐시 에러 무시
-    }
+    } catch { /* 무시 */ }
     return null
   }, [])
 
   const setCachedPosts = useCallback((posts: BlogPost[]) => {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ posts, timestamp: Date.now() }))
-    } catch {
-      // 캐시 에러 무시
-    }
+    } catch { /* 무시 */ }
   }, [])
 
-  // Naver RSS 파싱
   const parseRSS = useCallback((xmlText: string): BlogPost[] | null => {
     try {
       const parser = new DOMParser()
@@ -69,9 +62,7 @@ export function ResearchSection() {
         description: item.querySelector("description")?.textContent || "",
         pubDate: item.querySelector("pubDate")?.textContent || new Date().toISOString(),
       }))
-    } catch {
-      return null
-    }
+    } catch { return null }
   }, [blogId])
 
   const fetchWithTimeout = useCallback(async (url: string, timeout = 5000): Promise<string> => {
@@ -91,13 +82,11 @@ export function ResearchSection() {
   const loadBlogPosts = useCallback(async () => {
     setIsLoading(true)
     setError(null)
-
     const cached = getCachedPosts()
     if (cached) {
       setAllPosts(cached)
       setIsLoading(false)
     }
-
     try {
       const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
       const xmlText = await Promise.any([
@@ -105,17 +94,15 @@ export function ResearchSection() {
         fetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`),
         fetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`),
       ])
-
       const posts = parseRSS(xmlText)
       if (posts && posts.length > 0) {
         setAllPosts(posts)
         setCachedPosts(posts)
         setIsLoading(false)
       } else if (!cached) {
-        throw new Error("블로그 데이터를 파싱할 수 없습니다.")
+        throw new Error("파싱 불가")
       }
     } catch (err) {
-      console.error("블로그 로딩 실패:", err)
       if (!cached) {
         setError("최신 글을 불러오는 중 문제가 발생했습니다.")
         setIsLoading(false)
@@ -129,54 +116,34 @@ export function ResearchSection() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true)
-      },
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
       { threshold: 0.1 }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
-  // 더보기 여부에 따라 3개 또는 전체 표기
   const displayPosts = isExpanded ? allPosts : allPosts.slice(0, 3)
 
-  // Touch & Mouse 드래그/스와이프 제어 로직 (기존 로직 보존)
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
+  // 터치/마우스 스와이프 액션
+  const onTouchStart = (e: React.TouchEvent) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX) }
+  const onTouchMove = (e: React.TouchEvent) => { setTouchEnd(e.targetTouches[0].clientX) }
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return
     const distance = touchStart - touchEnd
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
     if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
   }
-
-  const onMouseDown = (e: React.MouseEvent) => {
-    setMouseStart(e.clientX)
-    setIsDragging(true)
-  }
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) e.preventDefault()
-  }
-
+  const onMouseDown = (e: React.MouseEvent) => { setMouseStart(e.clientX); setIsDragging(true) }
+  const onMouseMove = (e: React.MouseEvent) => { if (isDragging) e.preventDefault() }
   const onMouseUp = (e: React.MouseEvent) => {
     if (!isDragging || !mouseStart) return
     const distance = mouseStart - e.clientX
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
     if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
-    setMouseStart(null)
-    setIsDragging(false)
+    setMouseStart(null); setIsDragging(false)
   }
 
-  // HTML 태그 제거 및 글자수 제한 함수
   const formatDescription = (html: string) => {
     const text = html.replace(/<[^>]*>/g, "")
     return text.length > 100 ? text.substring(0, 100) + "..." : text
@@ -195,40 +162,63 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
-      {/* 고정 배경 패럴렉스 효과 레이어: 확실한 적용을 위해 CSS 직접 선언 */}
+      {/* 고유 스타일 태그 주입: Tailwind 미등록 애니메이션 및 완벽 패럴렉스 보장 */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes customShimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-shimmer-core {
+          animation: customShimmer 2.5s infinite linear;
+        }
+        .parallax-bg-fixed {
+          background-image: url('images/back2.png');
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: cover;
+        }
+        /* 모바일 기기 배려 (iOS 등 고정 배경 오작동 방지) */
+        @media (max-width: 768px) {
+          .parallax-bg-fixed {
+            background-attachment: scroll;
+          }
+        }
+      `}} />
+
+      {/* 패럴렉스 이미지 배경 레이어 */}
       <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('/images/back2.png')",
-            backgroundAttachment: "fixed"
-          }}
-        />
-        {/* 어두운 오버레이 레이어: 텍스트 가독성 확보 */}
-        <div className="absolute inset-0 bg-black/65" />
+        <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
+        <div className="absolute inset-0 bg-stone-900/75" /> {/* 가독성을 위한 어두운 오버레이 */}
       </div>
 
-      {/* 실 콘텐츠 레이어 */}
+      {/* 내부 콘텐츠 실체 */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* 애니메이션 효과가 적용된 섹션 헤더 */}
-        <div className={`mb-20 text-center transition-all duration-1000 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+        {/* 서서히 올라오는 헤더 애니메이션 */}
+        <div 
+          className="mb-20 text-center transition-all duration-1000 transform"
+          style={{
+            transform: isVisible ? "translateY(0)" : "translateY(40px)",
+            opacity: isVisible ? 1 : 0
+          }}
+        >
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
-          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500">
-            <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
+            <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
           </div>
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
         </div>
 
-        {/* 로딩 및 에러 핸들링 상태 표기 */}
+        {/* 로딩 및 에러 처리 */}
         {isLoading && allPosts.length === 0 && (
-          <div className="text-center text-white py-16">블로그 데이터를 불러오는 중입니다...</div>
+          <div className="text-center text-white/70 py-16 font-sans">블로그 데이터를 매칭하는 중입니다...</div>
         )}
         {error && !isLoading && (
-          <div className="text-center text-amber-400 py-16">{error}</div>
+          <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구글 카드 그리드 리스트: 호버 시 애니메이션 효과 추가 */}
+        {/* 연구 목록 카드 그리드 */}
         {allPosts.length > 0 && (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {displayPosts.map((post, index) => (
@@ -237,10 +227,10 @@ export function ResearchSection() {
                 href={post.link} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 duration-300"
+                className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <span className="text-[10px] font-semibold text-amber-800 uppercase tracking-widest">RESEARCH</span>
-                <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2">{post.title}</h3>
+                <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-widest font-sans">RESEARCH</span>
+                <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-800 transition-colors">{post.title}</h3>
                 <p className="mt-2 font-sans text-sm text-stone-600 leading-relaxed line-clamp-3">
                   {formatDescription(post.description)}
                 </p>
@@ -249,14 +239,14 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 애니메이션 효과가 적용된 제어 버튼 */}
+        {/* 더보기 버튼 */}
         {allPosts.length > 3 && (
           <div className="mt-12 text-center">
             <button 
               onClick={() => setIsExpanded(!isExpanded)} 
-              className="rounded-xl border border-white/40 bg-white/10 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105 active:scale-95"
+              className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
             >
-              {isExpanded ? "접기" : "연구글 더보기"}
+              {isExpanded ? "연구글 접기" : "연구글 더보기"}
             </button>
           </div>
         )}

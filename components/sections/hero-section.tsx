@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+// 1. 상단에서 public 폴더의 open.png 이미지를 직접 import 합니다.
+import openBg from "@/public/images/open.png"
 
 export function HeroSection() {
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -12,41 +14,66 @@ export function HeroSection() {
   }
 
   return (
-    <section id="home" className="relative min-h-[70vh] flex items-center pt-20 text-white">
-      {/* 1. 비디오 배경: 부모 섹션의 영향을 받지 않도록 fixed로 별도 분리 */}
-      <div className="fixed inset-0 w-full h-full -z-10 overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/images/open4.mp4" type="video/mp4" />
-        </video>
-        {/* 비디오 위의 어두운 오버레이 */}
-        <div className="absolute inset-0 bg-black/50" />
-      </div>
-
-      {/* 2. 콘텐츠 영역: z-10을 주어 비디오 위로 배치 */}
+    <section
+      id="home"
+      className="relative flex min-h-[70vh] items-center overflow-hidden bg-gradient-to-br from-primary to-secondary pt-20 text-white"
+    >
+      {/* Parallax Background with fixed position - Bonhoeffer with students */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-50" 
+        style={{
+          // 2. 문자열 경로 대신 import한 변수의 .src 속성을 주입하여 배포 주소 문제를 해결합니다.
+          backgroundImage: `url(${openBg.src})`,
+        }}
+      />
+      
+      {/* Animated Gradient Overlay */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/20 to-primary/20" 
+      />
+      
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-24 sm:px-6 md:py-32 lg:px-8">
         <div className="max-w-3xl">
-          <h1 className="mb-6 font-serif text-4xl font-bold leading-relaxed md:text-5xl lg:text-6xl" style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.3)" }}>
-            오늘 우리에게<br /> 예수 그리스도는 누구신가?
+          <h1
+            className="mb-6 font-serif text-4xl font-bold leading-relaxed md:text-5xl lg:text-6xl"
+            style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.3)" }}
+          >
+            오늘 우리에게
+            <br />
+            예수 그리스도는 누구신가?
           </h1>
           <p className="mb-8 text-lg leading-relaxed text-white/90 md:text-xl">
             한국본회퍼연구소는 본회퍼가 던진 이 질문에 대답하기 위해, 오늘날 교회가 걸어가야 할 바른 길을 제시하고, 예수
             그리스도의 참된 제자들을 양성하는 일에 기여하고 있습니다.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link href="#about" onClick={(e) => scrollToSection(e, "#about")} className="btn-primary rounded-lg bg-accent px-6 py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:shadow-lg">연구소 알아보기</Link>
-            <Link href="#publications" onClick={(e) => scrollToSection(e, "#publications")} className="rounded-lg border border-white/20 bg-white/10 px-6 py-3 font-medium backdrop-blur-sm transition-all hover:bg-white/20">출판물 보기</Link>
-            <Link href="#support" onClick={(e) => scrollToSection(e, "#support")} className="rounded-lg border border-white/20 bg-white/10 px-6 py-3 font-medium backdrop-blur-sm transition-all hover:bg-white/20">후원하기</Link>
+            <Link
+              href="#about"
+              onClick={(e) => scrollToSection(e, "#about")}
+              className="btn-primary rounded-lg bg-accent px-6 py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              연구소 알아보기
+            </Link>
+            <Link
+              href="#publications"
+              onClick={(e) => scrollToSection(e, "#publications")}
+              className="rounded-lg border border-white/20 bg-white/10 px-6 py-3 font-medium backdrop-blur-sm transition-all hover:bg-white/20"
+            >
+              출판물 보기
+            </Link>
+            <Link
+              href="#support"
+              onClick={(e) => scrollToSection(e, "#support")}
+              className="rounded-lg border border-white/20 bg-white/10 px-6 py-3 font-medium backdrop-blur-sm transition-all hover:bg-white/20"
+            >
+              후원하기
+            </Link>
           </div>
         </div>
       </div>
-
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10">
+      
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <svg className="h-8 w-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>

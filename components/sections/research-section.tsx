@@ -189,7 +189,7 @@ export function ResearchSection() {
       {/* 패럴렉스 이미지 배경 레이어 */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
-        <div className="absolute inset-0 bg-stone-900/75" /> {/* 가독성을 위한 어두운 오버레이 */}
+        <div className="absolute inset-0 bg-stone-900/50" /> {/* 가독성을 위한 어두운 오버레이 */}
       </div>
 
       {/* 내부 콘텐츠 실체 */}

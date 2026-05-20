@@ -184,7 +184,7 @@ export function ResearchSection() {
           animation: customShimmer 2.5s infinite linear;
         }
         .parallax-bg-fixed {
-          background-image: url('images/Front%20%26%20back%20cover.webp');
+          background-image: url('images/back21.png');
           background-attachment: fixed;
           background-position: center;
           background-repeat: no-repeat;
@@ -264,12 +264,12 @@ export function ResearchSection() {
                     display: isHidden ? "none" : "flex",
                   }}
                 >
-                  {/* 제목: 중후하고 고풍스러운 명조체 적용 */}
+                  {/* 제목: 중후하고 고풍스러운 고딕체 적용 */}
                   <h3 className="font-serif text-xl font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
                   
-                  {/* 본문: 가독성이 뛰어난 학술 스타일 웹 명조체 적용 */}
+                  {/* 본문: 가독성이 뛰어난 학술 스타일 웹 고딕체 적용 */}
                   <p className="mt-4 flex-1 font-serif text-[15px] font-normal leading-relaxed text-stone-600 line-clamp-4">
                     {formatDescription(post.description)}
                   </p>
@@ -292,7 +292,7 @@ export function ResearchSection() {
               onClick={() => setIsExpanded(!isExpanded)} 
               className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
             >
-              {isExpanded ? "연구글 접기" : "연구글 더보기"}
+              {isExpanded ? "접기" : "더보기"}
             </button>
           </div>
         )}

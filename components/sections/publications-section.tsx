@@ -12,24 +12,22 @@ export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
-  // 도서 데이터 구성 (이미지와 구매 링크만 매칭)
+  // 도서 데이터 구성 (정확한 한글 타이틀 명시 및 링크 매칭)
   const books: PublicationBook[] = [
     {
       title: "하나님과 함께 (초판)",
-      imageSrc: "images/with.jpg",
-      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386"
+      imageSrc: "images/book1.webp",
+      purchaseLink: "https://mall.godpeople.com/?G=9791198144003"
     },
     {
       title: "그리스도를 따라서 Vol. 1",
-      imageSrc: "images/vol1.jpg",
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719"
+      imageSrc: "images/book2.webp",
+      purchaseLink: "https://mall.godpeople.com/"
     },
     {
       title: "하나님과 함께 (전면개정판)",
-      imageSrc: "images/withr.jpg",
-      purchaseLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681
-
-"
+      imageSrc: "images/book3.webp",
+      purchaseLink: "https://mall.godpeople.com/"
     }
   ]
 
@@ -84,7 +82,7 @@ export function PublicationsSection() {
           <p className="mt-4 font-sans text-base font-light text-stone-600">바른 신학의 발자취를 책으로 전합니다</p>
         </div>
 
-        {/* 출판물 카드 그리드 (이전 배너처럼 직관적인 정렬) */}
+        {/* 출판물 카드 그리드 */}
         <div className={`publications-grid grid gap-10 md:grid-cols-2 lg:grid-cols-3 ${isVisible ? "visible" : ""}`}>
           {books.map((book, index) => (
             <div
@@ -92,7 +90,7 @@ export function PublicationsSection() {
               className="book-motion-card flex flex-col items-center rounded-3xl bg-white p-8 shadow-md hover:shadow-xl transition-all duration-300 border border-stone-200/60"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              {/* 이미지 영역: 고정 비율 박스를 완전히 없애고, 이미지 본연의 가로세로 크기에 맞춤으로써 바깥쪽 흰색 테두리 여백을 완전히 청소 */}
+              {/* 이미지 영역: 흰색 테두리 여백 없이 이미지 본연의 크기로 표출 */}
               <div className="relative w-full flex items-center justify-center overflow-hidden rounded-xl">
                 <img
                   src={book.imageSrc}
@@ -102,7 +100,7 @@ export function PublicationsSection() {
                 />
               </div>
 
-              {/* 버튼 영역: 책 이미지 바로 밑에 여백 없이 꽉 물리도록 배치하여 이전 배너의 레이아웃 완벽 재현 */}
+              {/* 버튼 영역: 책 이미지 바로 밑에 깔끔하게 밀착 정렬 */}
               <div className="mt-6 w-full">
                 <a
                   href={book.purchaseLink}

@@ -20,11 +20,13 @@ export function HeroSection() {
       className="relative flex min-h-[70vh] items-center overflow-hidden bg-gradient-to-br from-primary to-secondary pt-20 text-white"
     >
       {/* Parallax Background with fixed position - Bonhoeffer with students */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40"
+     <div
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-70"
         style={{
-          backgroundImage: `url('${settings.heroBackgroundImage}')`,
+          // 대시보드 변수 대신, 깃허브 public/images/open.png 경로를 직접 고정합니다.
+          backgroundImage: "url('/images/open.png')",
         }}
+      />
       />
       
       {/* Animated Gradient Overlay */}

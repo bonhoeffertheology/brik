@@ -9,7 +9,7 @@ interface BlogPost {
   pubDate: string
 }
 
-const POSTS_PER_PAGE = 9
+const POSTS_PER_PAGE = 3
 const CACHE_KEY = "brik_blog_cache"
 const CACHE_DURATION = 10 * 60 * 1000 // 10분 캐시
 
@@ -18,11 +18,10 @@ export function ResearchSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  // Swipe state
+  // Swipe & Drag State
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [mouseStart, setMouseStart] = useState<number | null>(null)
@@ -31,7 +30,7 @@ export function ResearchSection() {
   const blogId = "jelsayou"
   const minSwipeDistance = 50
 
-  // Get cached posts from localStorage
+  // 로컬 스토리지 캐시 관리
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
       const cached = localStorage.getItem(CACHE_KEY)
@@ -42,21 +41,20 @@ export function ResearchSection() {
         }
       }
     } catch {
-      // Ignore cache errors
+      // 캐시 에러 무시
     }
     return null
   }, [])
 
-  // Set cached posts to localStorage
   const setCachedPosts = useCallback((posts: BlogPost[]) => {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ posts, timestamp: Date.now() }))
     } catch {
-      // Ignore cache errors
+      // 캐시 에러 무시
     }
   }, [])
 
-  // Parse RSS XML to blog posts
+  // Naver RSS 파싱
   const parseRSS = useCallback((xmlText: string): BlogPost[] | null => {
     try {
       const parser = new DOMParser()
@@ -75,7 +73,6 @@ export function ResearchSection() {
     }
   }, [blogId])
 
-  // Fetch with timeout
   const fetchWithTimeout = useCallback(async (url: string, timeout = 5000): Promise<string> => {
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
@@ -83,16 +80,13 @@ export function ResearchSection() {
       const response = await fetch(url, { signal: controller.signal })
       clearTimeout(id)
       if (!response.ok) throw new Error("Response not OK")
-      const text = await response.text()
-      if (!text.includes("<item>")) throw new Error("No items")
-      return text
+      return await response.text()
     } catch (e) {
       clearTimeout(id)
       throw e
     }
   }, [])
 
-  // Load blog posts from RSS
   const loadBlogPosts = useCallback(async () => {
     setIsLoading(true)
     setError(null)
@@ -117,10 +111,10 @@ export function ResearchSection() {
         setCachedPosts(posts)
         setIsLoading(false)
       } else if (!cached) {
-        throw new Error("블로그 데이터를 불러올 수 없습니다")
+        throw new Error("블로그 데이터를 파싱할 수 없습니다.")
       }
     } catch (err) {
-      console.error("블로그 글 로딩 실패:", err)
+      console.error("블로그 로딩 실패:", err)
       if (!cached) {
         setError("최신 글을 불러오는 중 문제가 발생했습니다.")
         setIsLoading(false)
@@ -135,43 +129,18 @@ export function ResearchSection() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
+        if (entry.isIntersecting) setIsVisible(true)
       },
       { threshold: 0.1 }
     )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
-  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
+  // 더보기 여부에 따라 3개 또는 전체 표기
+  const displayPosts = isExpanded ? allPosts : allPosts.slice(0, 3)
 
-  const displayPosts = isExpanded
-    ? allPosts.slice((currentPage - 1) * POSTS_PER_PAGE, currentPage * POSTS_PER_PAGE)
-    : allPosts.slice(0, 3)
-
-  const handlePageChange = useCallback((newPage: number) => {
-    setCurrentPage(newPage)
-    sectionRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [])
-
-  const handleShowMore = () => {
-    setIsExpanded(true)
-    setCurrentPage(1)
-  }
-
-  const handleCollapse = () => {
-    setIsExpanded(false)
-    setCurrentPage(1)
-    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
-
-  // Touch & Mouse Swipe Handlers
+  // Touch & Mouse 드래그/스와이프 제어 로직
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null)
     setTouchStart(e.targetTouches[0].clientX)
@@ -184,10 +153,8 @@ export function ResearchSection() {
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return
     const distance = touchStart - touchEnd
-    if (isExpanded && totalPages > 1) {
-      if (distance > minSwipeDistance && currentPage < totalPages) handlePageChange(currentPage + 1)
-      if (distance < -minSwipeDistance && currentPage > 1) handlePageChange(currentPage - 1)
-    }
+    if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
+    if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
   }
 
   const onMouseDown = (e: React.MouseEvent) => {
@@ -202,15 +169,12 @@ export function ResearchSection() {
   const onMouseUp = (e: React.MouseEvent) => {
     if (!isDragging || !mouseStart) return
     const distance = mouseStart - e.clientX
-    if (isExpanded && totalPages > 1) {
-      if (distance > minSwipeDistance && currentPage < totalPages) handlePageChange(currentPage + 1)
-      if (distance < -minSwipeDistance && currentPage > 1) handlePageChange(currentPage - 1)
-    }
+    if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
+    if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
     setMouseStart(null)
     setIsDragging(false)
   }
 
-  // HTML 태그 제거 및 글자수 제한 안전 장치
   const formatDescription = (html: string) => {
     const text = html.replace(/<[^>]*>/g, "")
     return text.length > 100 ? text.substring(0, 100) + "..." : text
@@ -229,7 +193,70 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
-      {/* 고정 배경 패럴렉스 레이어 (연구활동 섹션 스코프 내 작동) */}
+      {/* 패럴렉스 배경 효과 레이어 */}
       <div className="absolute inset-0 z-0">
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/back2.png')",
+            backgroundAttachment: "fixed"
+          }}
+        />
+        <div className="absolute inset-0 bg-black/65" />
+      </div>
+
+      {/* 실 콘텐츠 레이어 */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
+        {/* 헤더 */}
+        <div className={`mb-20 text-center transition-all duration-1000 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"}`}>
+          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
+          <div className="mx-auto h-0.5 w-12 bg-amber-500" />
+          <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
+        </div>
+
+        {/* 로딩 및 에러 핸들링 */}
+        {isLoading && allPosts.length === 0 && (
+          <div className="text-center text-white py-16">블로그 데이터를 불러오는 중입니다...</div>
+        )}
+        {error && !isLoading && (
+          <div className="text-center text-amber-400 py-16">{error}</div>
+        )}
+
+        {/* 연구글 카드 그리드 리스트 */}
+        {allPosts.length > 0 && (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {displayPosts.map((post, index) => (
+              <a 
+                key={index} 
+                href={post.link} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 duration-300"
+              >
+                <span className="text-[10px] font-semibold text-amber-800 uppercase tracking-widest">RESEARCH</span>
+                <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2">{post.title}</h3>
+                <p className="mt-2 font-sans text-sm text-stone-600 leading-relaxed line-clamp-3">
+                  {formatDescription(post.description)}
+                </p>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* 제어 버튼 */}
+        {allPosts.length > 3 && (
+          <div className="mt-12 text-center">
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)} 
+              className="rounded-xl border border-white/40 bg-white/10 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-black transition-all duration-300"
+            >
+              {isExpanded ? "접기" : "연구글 더보기"}
+            </button>
+          </div>
+        )}
+
+      </div>
+    </section>
+  )
+}

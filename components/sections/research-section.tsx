@@ -34,7 +34,7 @@ export function ResearchSection() {
       if (cached) {
         const { posts, timestamp } = JSON.parse(cached)
         if (Date.now() - timestamp < CACHE_DURATION && posts.length > 0) {
-          return posts
+          return posts as BlogPost[]
         }
       }
     } catch { /* 무시 */ }
@@ -141,8 +141,9 @@ export function ResearchSection() {
     setMouseStart(null); setIsDragging(false)
   }
 
-  // 날짜 포맷팅 함수 추가 (고급스러운 하단 마무리를 위해 사용)
-  const formatDate = (dateString: string) => {
+  // 안전성이 검증된 날짜 출력용 로직
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return ""
     try {
       const d = new Date(dateString)
       if (isNaN(d.getTime())) return ""
@@ -215,7 +216,7 @@ export function ResearchSection() {
         }
       `}} />
 
-      {/* 배경 레이어 및 반투명 50% 막 적용 */}
+      {/* 패럴렉스 배경 및 어두운 레이어 오버레이 */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
         <div className="absolute inset-0 bg-stone-900/50" />
@@ -240,4 +241,63 @@ export function ResearchSection() {
 
         {/* 로딩 / 에러 */}
         {isLoading && allPosts.length === 0 && (
-          <div className="text
+          <div className="text-center text-white/70 py-16 font-sans">블로그 데이터를 불러오는 중입니다...</div>
+        )}
+        {error && !isLoading && (
+          <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
+        )}
+
+        {/* 연구활동 배너 그리드 목록 */}
+        {allPosts.length > 0 && (
+          <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
+            {displayPosts.map((post, index) => {
+              const isHidden = !isExpanded && index >= 3;
+              return (
+                <a 
+                  key={index} 
+                  href={post.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-stone-200/40 hover:border-amber-700/40 motion-card"
+                  style={{
+                    animationDelay: `${(index % 3) * 0.15}s`,
+                    display: isHidden ? "none" : "flex",
+                  }}
+                >
+                  {/* 제목: 중후하고 고풍스러운 명조체 적용 */}
+                  <h3 className="font-serif text-xl font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
+                    {post.title}
+                  </h3>
+                  
+                  {/* 본문: 가독성이 뛰어난 학술 스타일 웹 명조체 적용 */}
+                  <p className="mt-4 flex-1 font-serif text-[15px] font-normal leading-relaxed text-stone-600 line-clamp-4">
+                    {formatDescription(post.description)}
+                  </p>
+
+                  {/* 하단 영역: 단조로움을 없애는 장식선 및 데이터 표기 */}
+                  <div className="mt-6 flex items-center justify-between border-t border-stone-200/60 pt-4 text-xs font-sans tracking-wider text-stone-400">
+                    <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">Bonhoeffer Institute</span>
+                    <span>{formatDate(post.pubDate)}</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 더보기 버튼 구역 */}
+        {allPosts.length > 3 && (
+          <div className="mt-12 text-center">
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)} 
+              className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
+            >
+              {isExpanded ? "연구글 접기" : "연구글 더보기"}
+            </button>
+          </div>
+        )}
+
+      </div>
+    </section>
+  )
+}

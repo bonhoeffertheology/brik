@@ -123,7 +123,6 @@ export function ResearchSection() {
     return () => observer.disconnect()
   }, [])
 
-  // 더보기 여부에 관계없이 전체 리스트를 렌더링하되, CSS로 제어하여 모션을 살립니다.
   const displayPosts = allPosts
 
   // 터치/마우스 스와이프 액션
@@ -163,7 +162,7 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
-      {/* 스타일 태그 고도화: 카드 등장 및 더보기 확장 모션 추가 */}
+      {/* 스타일 태그 보정: 배경 공백 안전 인코딩 처리 및 상단 헤드라인 호버 애니메이션 추가 */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes customShimmer {
           0% { transform: translateX(-100%); }
@@ -176,27 +175,34 @@ export function ResearchSection() {
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
+        /* 공백문자를 %20으로 안전하게 치환하여 브라우저 인식 우회 */
         .parallax-bg-fixed {
-          background-image: url('images/Front & back cover.webp');
+          background-image: url('images/Front%20%26%20back%20cover.webp');
           background-attachment: fixed;
           background-position: center;
           background-repeat: no-repeat;
           background-size: cover;
         }
-        /* 더보기 확장 시 부드러운 높이 전환 애니메이션 */
         .research-grid-container {
-          transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-          max-height: 550px; /* 기본 3개 노출 높이 제한 */
+          transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          max-height: 550px;
         }
         .research-grid-container.expanded {
-          max-height: 3000px; /* 확장 시 넉넉한 높이 부여 */
+          max-height: 3000px;
         }
-        /* 새로 등장하는 카드에 순차적 딜레이 부여 */
         .motion-card {
           opacity: 0;
         }
         .research-grid-container.visible .motion-card {
           animation: cardFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        /* 배너 윗부분(RESEARCH 태그 레이블) 호버 인터랙션 모션 */
+        .card-top-label {
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+        }
+        .group:hover .card-top-label {
+          transform: translateY(-4px) scale(1.05);
+          color: #d97706; /* 더 산뜻한 주황빛으로 강조 */
         }
         @media (max-width: 768px) {
           .parallax-bg-fixed {
@@ -214,8 +220,7 @@ export function ResearchSection() {
       {/* 패럴렉스 이미지 배경 레이어 */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
-        {/* 요청하신 대로 오버레이 음영을 살짝 더 밝게(50%) 조정했습니다 */}
-        <div className="absolute inset-0 bg-stone-900/50 transition-colors duration-500" />
+        <div className="absolute inset-0 bg-stone-900/50" />
       </div>
 
       {/* 내부 콘텐츠 실체 */}
@@ -244,11 +249,10 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구 목록 카드 그리드 (모션 애니메이션 컨테이너) */}
+        {/* 연구 목록 카드 그리드 */}
         {allPosts.length > 0 && (
           <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
             {displayPosts.map((post, index) => {
-              // 더보기 안 눌렀을 때 3번째 이후 카드들은 숨김 처리 및 페이드 인 효과 지정
               const isHidden = !isExpanded && index >= 3;
               return (
                 <a 
@@ -256,13 +260,19 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 motion-card"
+                  className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1.5 motion-card"
                   style={{
                     animationDelay: `${(index % 3) * 0.15}s`,
                     display: isHidden ? "none" : "flex",
                   }}
                 >
-                  <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-widest font-sans">RESEARCH</span>
+                  {/* 상단 레이블 구역: 커서 올리면 사뿐하게 들리는 모션 추가 */}
+                  <div className="overflow-hidden pt-1">
+                    <span className="card-top-label inline-block text-[10px] font-semibold text-amber-700 uppercase tracking-widest font-sans origin-left">
+                      RESEARCH
+                    </span>
+                  </div>
+                  
                   <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-800 transition-colors">{post.title}</h3>
                   <p className="mt-2 font-sans text-sm text-stone-600 leading-relaxed line-clamp-3">
                     {formatDescription(post.description)}

@@ -12,22 +12,24 @@ export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
-  // 박사님의 소중한 출판물 데이터 구조 정의 (불필요한 텍스트를 제거하고 링크와 이미지만 매칭)
+  // 도서 데이터 구성 (이미지와 구매 링크만 매칭)
   const books: PublicationBook[] = [
     {
       title: "하나님과 함께 (초판)",
-      imageSrc: "images/with.jpg", // 실제 프로젝트 내 이미지 경로에 맞춤
+      imageSrc: "images/with.jpg",
       purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386"
     },
     {
       title: "그리스도를 따라서 Vol. 1",
       imageSrc: "images/vol1.jpg",
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719" // 해당 도서의 고유 몰 링크로 대체 가능
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719"
     },
     {
       title: "하나님과 함께 (전면개정판)",
       imageSrc: "images/withr.jpg",
-      purchaseLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681"
+      purchaseLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681
+
+"
     }
   ]
 
@@ -69,7 +71,7 @@ export function PublicationsSection() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* 섹션 헤더 타이틀 */}
+        {/* 섹션 헤더 */}
         <div 
           className="mb-20 text-center transition-all duration-1000 transform"
           style={{
@@ -82,7 +84,7 @@ export function PublicationsSection() {
           <p className="mt-4 font-sans text-base font-light text-stone-600">바른 신학의 발자취를 책으로 전합니다</p>
         </div>
 
-        {/* 출판물 카드 그리드 영역 */}
+        {/* 출판물 카드 그리드 (이전 배너처럼 직관적인 정렬) */}
         <div className={`publications-grid grid gap-10 md:grid-cols-2 lg:grid-cols-3 ${isVisible ? "visible" : ""}`}>
           {books.map((book, index) => (
             <div
@@ -90,18 +92,18 @@ export function PublicationsSection() {
               className="book-motion-card flex flex-col items-center rounded-3xl bg-white p-8 shadow-md hover:shadow-xl transition-all duration-300 border border-stone-200/60"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              {/* 이미지 영역: 주변 텍스트 가림 처리를 없애고 이미지만 온전히 돋보이도록 마진 조정 */}
-              <div className="relative w-full overflow-hidden rounded-2xl bg-stone-50 aspect-[3/4] flex items-center justify-center border border-stone-100">
+              {/* 이미지 영역: 고정 비율 박스를 완전히 없애고, 이미지 본연의 가로세로 크기에 맞춤으로써 바깥쪽 흰색 테두리 여백을 완전히 청소 */}
+              <div className="relative w-full flex items-center justify-center overflow-hidden rounded-xl">
                 <img
                   src={book.imageSrc}
                   alt={book.title}
-                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-103"
+                  className="w-full h-auto object-contain transition-transform duration-500 hover:scale-102"
                   loading="lazy"
                 />
               </div>
 
-              {/* 버튼 영역: 중간 텍스트 소개글을 전부 탈락시키고 즉시 구매하기 버튼 배치 */}
-              <div className="mt-8 w-full">
+              {/* 버튼 영역: 책 이미지 바로 밑에 여백 없이 꽉 물리도록 배치하여 이전 배너의 레이아웃 완벽 재현 */}
+              <div className="mt-6 w-full">
                 <a
                   href={book.purchaseLink}
                   target="_blank"

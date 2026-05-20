@@ -16,18 +16,18 @@ export function PublicationsSection() {
   const books: PublicationBook[] = [
     {
       title: "하나님과 함께 (초판)",
-      imageSrc: "images/book1.webp",
-      purchaseLink: "https://mall.godpeople.com/?G=9791198144003"
+      imageSrc: "images/with.jpg",
+      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/"
     },
     {
       title: "그리스도를 따라서 Vol. 1",
-      imageSrc: "images/book2.webp",
-      purchaseLink: "https://mall.godpeople.com/"
+      imageSrc: "images/vol1.jpg",
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/"
     },
     {
       title: "하나님과 함께 (전면개정판)",
-      imageSrc: "images/book3.webp",
-      purchaseLink: "https://mall.godpeople.com/"
+      imageSrc: "images/withr.jpg",
+      purchaseLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681/"
     }
   ]
 

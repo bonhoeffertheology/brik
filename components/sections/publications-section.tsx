@@ -5,16 +5,17 @@ import { useEffect, useRef, useState } from "react"
 interface PublicationBook {
   title: string
   imageSrc: string
+  purchaseLink: string
 }
 
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
-  // 도서 데이터 구성 (버튼이 제거됨에 따라 링크 데이터 제외)
+  // 박사님의 새로운 이미지 경로 및 구매 링크 데이터 완전 매칭
   const books: PublicationBook[] = [
     {
-    title: "하나님과 함께 (초판)",
+      title: "하나님과 함께 (초판)",
       imageSrc: "images/with.jpg",
       purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/"
     },
@@ -81,28 +82,33 @@ export function PublicationsSection() {
           <p className="mt-4 font-sans text-base font-light text-stone-600">바른 신학의 발자취를 책으로 전합니다</p>
         </div>
 
-        {/* 출판물 정렬 그리드 구역 */}
+        {/* 출판물 정렬 그리드 구역 (80% 크기 컴팩트 레이아웃) */}
         <div className="flex justify-center w-full">
-          {/* max-w-5xl 및 gap 조정을 통해 기존 그리드 레이아웃 대비 전체 크기를 80%로 축소 컴팩트화 */}
-          <div className={`publications-grid grid gap-8 sm:gap-10 grid-cols-1 md:grid-cols-3 w-full max-w-5xl ${isVisible ? "visible" : ""}`}>
+          <div className={`publications-grid grid gap-10 grid-cols-1 md:grid-cols-3 w-full max-w-4xl ${isVisible ? "visible" : ""}`}>
             {books.map((book, index) => (
               <div
                 key={index}
                 className="book-pure-card flex flex-col items-center justify-center transition-all duration-300 transform hover:-translate-y-2"
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
-                {/* [세 책의 사이즈 균일화 모델]
-                  - aspect-[3/4] 고정 비율 박스를 통해 세 도서의 출력 크기를 완전히 일치시켰습니다.
-                  - shadow와 미세한 라운드(rounded-2xl) 처리를 이미지 자체에만 부여하여 테두리 없이 깔끔하게 떨어집니다.
+                {/* [이미지 자체를 링크로 일체화]
+                  - 버튼 없이 책 이미지를 누르면 각 구매 사이트로 안전하게 창이 열립니다.
+                  - h-[400px] 고정 높이와 object-contain 구조로 세 권의 책 크기가 완벽히 통일됩니다.
                 */}
-                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-stone-200/30 bg-stone-50">
+                <a
+                  href={book.purchaseLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative w-full h-[400px] flex items-center justify-center overflow-hidden rounded-xl cursor-pointer"
+                  title={`${book.title} 구매페이지로 이동`}
+                >
                   <img
                     src={book.imageSrc}
                     alt={book.title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-102"
+                    className="h-full w-auto object-contain drop-shadow-md transition-transform duration-500 hover:scale-103"
                     loading="lazy"
                   />
-                </div>
+                </a>
               </div>
             ))}
           </div>

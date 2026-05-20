@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 // 1. 💡 깃허브 public/images/hero2.jpg 파일을 안전하게 직접 import 합니다.
-import hero2Bg from "@/public/images/hero2.jpg"
+import hero2Bg from "@/public/images/hero3.png"
 
 interface PublicationBook {
   title: string

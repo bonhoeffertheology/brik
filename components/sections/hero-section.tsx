@@ -20,7 +20,7 @@ export function HeroSection() {
     >
       {/* Parallax Background with fixed position - Bonhoeffer with students */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-60" 
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-50" 
         style={{
           // 2. 문자열 경로 대신 import한 변수의 .src 속성을 주입하여 배포 주소 문제를 해결합니다.
           backgroundImage: `url(${openBg.src})`,

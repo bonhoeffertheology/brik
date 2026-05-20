@@ -29,7 +29,7 @@ export function ResearchSection() {
   const blogId = "jelsayou"
   const minSwipeDistance = 50
 
-  // 캐시 및 RSS 로딩 로직 (유지)
+  // 캐시 및 RSS 로딩 로직
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
       const cached = localStorage.getItem(CACHE_KEY)
@@ -123,7 +123,8 @@ export function ResearchSection() {
     return () => observer.disconnect()
   }, [])
 
-  const displayPosts = isExpanded ? allPosts : allPosts.slice(0, 3)
+  // 더보기 여부에 관계없이 전체 리스트를 렌더링하되, CSS로 제어하여 모션을 살립니다.
+  const displayPosts = allPosts
 
   // 터치/마우스 스와이프 액션
   const onTouchStart = (e: React.TouchEvent) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX) }
@@ -162,26 +163,50 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
-      {/* 고유 스타일 태그 주입: Tailwind 미등록 애니메이션 및 완벽 패럴렉스 보장 */}
+      {/* 스타일 태그 고도화: 카드 등장 및 더보기 확장 모션 추가 */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes customShimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
+        @keyframes cardFadeInUp {
+          0% { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
         .parallax-bg-fixed {
-          background-image: url('images/back21.png');
+          background-image: url('images/Front & back cover.webp');
           background-attachment: fixed;
           background-position: center;
           background-repeat: no-repeat;
           background-size: cover;
         }
-        /* 모바일 기기 배려 (iOS 등 고정 배경 오작동 방지) */
+        /* 더보기 확장 시 부드러운 높이 전환 애니메이션 */
+        .research-grid-container {
+          transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+          max-height: 550px; /* 기본 3개 노출 높이 제한 */
+        }
+        .research-grid-container.expanded {
+          max-height: 3000px; /* 확장 시 넉넉한 높이 부여 */
+        }
+        /* 새로 등장하는 카드에 순차적 딜레이 부여 */
+        .motion-card {
+          opacity: 0;
+        }
+        .research-grid-container.visible .motion-card {
+          animation: cardFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         @media (max-width: 768px) {
           .parallax-bg-fixed {
             background-attachment: scroll;
+          }
+          .research-grid-container {
+            max-height: 1500px;
+          }
+          .research-grid-container.expanded {
+            max-height: 6000px;
           }
         }
       `}} />
@@ -189,7 +214,8 @@ export function ResearchSection() {
       {/* 패럴렉스 이미지 배경 레이어 */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
-        <div className="absolute inset-0 bg-stone-900/50" /> {/* 가독성을 위한 어두운 오버레이 */}
+        {/* 요청하신 대로 오버레이 음영을 살짝 더 밝게(50%) 조정했습니다 */}
+        <div className="absolute inset-0 bg-stone-900/50 transition-colors duration-500" />
       </div>
 
       {/* 내부 콘텐츠 실체 */}
@@ -212,30 +238,38 @@ export function ResearchSection() {
 
         {/* 로딩 및 에러 처리 */}
         {isLoading && allPosts.length === 0 && (
-          <div className="text-center text-white/70 py-16 font-sans">블로그 데이터를 매칭하는 중입니다...</div>
+          <div className="text-center text-white/70 py-16 font-sans">블로그 데이터를 불러오는 중입니다...</div>
         )}
         {error && !isLoading && (
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구 목록 카드 그리드 */}
+        {/* 연구 목록 카드 그리드 (모션 애니메이션 컨테이너) */}
         {allPosts.length > 0 && (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {displayPosts.map((post, index) => (
-              <a 
-                key={index} 
-                href={post.link} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-widest font-sans">RESEARCH</span>
-                <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-800 transition-colors">{post.title}</h3>
-                <p className="mt-2 font-sans text-sm text-stone-600 leading-relaxed line-clamp-3">
-                  {formatDescription(post.description)}
-                </p>
-              </a>
-            ))}
+          <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
+            {displayPosts.map((post, index) => {
+              // 더보기 안 눌렀을 때 3번째 이후 카드들은 숨김 처리 및 페이드 인 효과 지정
+              const isHidden = !isExpanded && index >= 3;
+              return (
+                <a 
+                  key={index} 
+                  href={post.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group flex flex-col rounded-2xl bg-white/95 p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 motion-card"
+                  style={{
+                    animationDelay: `${(index % 3) * 0.15}s`,
+                    display: isHidden ? "none" : "flex",
+                  }}
+                >
+                  <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-widest font-sans">RESEARCH</span>
+                  <h3 className="mt-4 font-serif text-lg font-bold text-stone-900 line-clamp-2 group-hover:text-amber-800 transition-colors">{post.title}</h3>
+                  <p className="mt-2 font-sans text-sm text-stone-600 leading-relaxed line-clamp-3">
+                    {formatDescription(post.description)}
+                  </p>
+                </a>
+              );
+            })}
           </div>
         )}
 

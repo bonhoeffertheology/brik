@@ -177,7 +177,7 @@ export function ResearchSection() {
         }
         /* 공백문자를 %20으로 안전하게 치환하여 브라우저 인식 우회 */
         .parallax-bg-fixed {
-          background-image: url('images/Front%20%26%20back%20cover.webp');
+          background-image: url('images/back21.png');
           background-attachment: fixed;
           background-position: center;
           background-repeat: no-repeat;

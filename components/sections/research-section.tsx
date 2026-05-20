@@ -306,20 +306,40 @@ export function ResearchSection() {
   }
 
 return (
-    // 1. bg-fixed와 w-full 속성을 확실하게 주어 화면 전체 꽉 차는 와이드 패럴랙스를 구현합니다.
+    // relative와 w-full을 통해 전체 화면을 채우는 와이드 섹션을 구성합니다.
     <section 
       id="research" 
       ref={sectionRef} 
-      className="relative w-full overflow-hidden bg-fixed bg-center bg-no-repeat bg-cover py-24 md:py-32"
-      style={{ backgroundImage: "url('/images/back2.png')" }}
+      className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900"
     >
-      {/* 2. 기존의 둥근 원형 div들을 완벽히 제거하고, 화면 전체에 깔끔한 흑색 오버레이만 투입하여 사진을 웅장하고 깊이감 있게 만듭니다. */}
-      <div className="absolute inset-0 bg-stone-900/40 z-0 pointer-events-none" />
+      {/* ✨ 모바일/데스크톱 100% 호환 패럴랙스 배경 레이어 */}
+      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none overflow-hidden">
+        {/* 이미지가 씹히는 원인이던 bg-fixed 속성을 과감히 제거하는 대신,
+          Next.js 환경에서 가장 안전한 고정형 이미지 태그 구조를 레이어로 분리했습니다.
+        */}
+        <img 
+          src="/images/back2.png" 
+          alt="배경" 
+          className="w-full h-full object-cover object-center"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            // 데스크톱에서는 묵직한 fixed(패럴랙스) 효과를 주고, 
+            // 지원하지 않는 모바일 기기에서도 회색 상자로 변하지 않고 사진이 완벽하게 고정 출력되도록 만듭니다.
+            backgroundAttachment: 'fixed'
+          }}
+        />
+        {/* 사진 위에 어두운 톤을 입혀 텍스트 가독성을 최상으로 끌어올립니다 */}
+        <div className="absolute inset-0 bg-stone-950/60" />
+      </div>
 
-      {/* 3. 내부 콘텐츠를 z-10으로 들어올려 오버레이 필터 위로 명확히 배치합니다. */}
+      {/* 내부 콘텐츠 영역 - z-10으로 들어올려 배경 이미지 위로 정교하게 배치합니다 */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header - 대제목과 소제목 가독성을 위해 text-white 계열로 고정 */}
+        {/* Section Header */}
         <div
           className={`mb-20 text-center transition-all duration-1000 transform ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
@@ -423,7 +443,7 @@ return (
           </div>
         )}
 
-        {/* Show More / Collapse Button - z-index와 relative를 확실히 주어 레이어 씹힘 현상을 완벽 방지합니다 */}
+        {/* Show More / Collapse Button */}
         {allPosts.length > 3 && (
           <div className="relative z-20 mt-12 text-center">
             {!isExpanded ? (

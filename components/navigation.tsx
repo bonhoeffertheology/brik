@@ -38,56 +38,53 @@ export function Navigation() {
         isScrolled ? "shadow-lg" : "shadow-sm"
       }`}
     >
-      {/* 💡 Custom Triangle Util classes defined here for compatibility with primary color */}
-      <style>
-        {`
-          .triangle-diag-down-left {
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 100% 100% 0; /* Creates pointing down-left triangle */
-            border-color: transparent transparent transparent currentcolor; /* Fills using currentcolor, inherit from parent text-primary */
-          }
-          .triangle-diag-up-right {
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 100% 100% 0 0; /* Creates pointing up-right triangle */
-            border-color: currentcolor transparent transparent transparent; /* Fills using currentcolor, inherit from parent text-primary */
-          }
-        `}
-      </style>
+      {/* Turbopack 빌드 오류를 방지하기 위해 dangerouslySetInnerHTML 형태로 CSS를 주입합니다 */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .triangle-diag-down-left {
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 0 18px 18px 0;
+          border-color: transparent transparent transparent #1E3A8A;
+        }
+        .triangle-diag-up-right {
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 18px 18px 0 0;
+          border-color: #1E3A8A transparent transparent transparent;
+        }
+      `}} />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
           {/* 로고 영역 (4분할 격자 심볼 적용: 좌상 삼각형, 우하 삼각형 구조) */}
           <div className="flex items-center gap-3">
             
-            {/* 💡 BRIK 원형 마크를 대체하는 코드로 짠 4분할 격자 마크 */}
+            {/* 💡 4분할 격자 마크 부모 컨테이너 */}
             <div className="flex h-11 w-11 flex-col justify-between p-[2px] transition-transform duration-300 hover:scale-105 cursor-pointer text-primary">
               
               {/* 상단 2개 조각 */}
               <div className="flex justify-between h-[45%] w-full">
-                {/* 💡 왼쪽 위 (TL): 좌상단만 뾰족한 삼각형 (Pointing Down-Left) */}
-                <div className="h-full w-[45%] overflow-hidden">
-                  <div className="triangle-diag-down-left h-full w-full" style={{ borderColor: 'transparent transparent transparent #1E3A8A' }}>
-                    {/* In a real project, replace '#1E3A8A' with your actual primary color variable if border-color can't inherit text color */}
-                  </div>
+                {/* 왼쪽 위 (TL): 좌상단만 뾰족한 삼각형 */}
+                <div className="h-full w-[45%] overflow-hidden flex items-start justify-start">
+                  <div className="triangle-diag-down-left" />
                 </div>
-                {/* 💡 오른쪽 위 (TR): 우상단만 둥글게 (Rounded Square) */}
+                {/* 오른쪽 위 (TR): 우상단만 둥근 사각형 */}
                 <div className="h-full w-[45%] rounded-tr-[5px] bg-primary" />
               </div>
               
               {/* 하단 2개 조각 */}
               <div className="flex justify-between h-[45%] w-full">
-                {/* 💡 왼쪽 아래 (BL): 좌하단만 둥글게 (Rounded Square) */}
+                {/* 왼쪽 아래 (BL): 좌하단만 둥근 사각형 */}
                 <div className="h-full w-[45%] rounded-bl-[5px] bg-primary" />
-                {/* 💡 오른쪽 아래 (BR): 우하단만 뾰족한 삼각형 (Pointing Up-Right) */}
-                <div className="h-full w-[45%] overflow-hidden">
-                  <div className="triangle-diag-up-right h-full w-full" style={{ borderColor: '#1E3A8A transparent transparent transparent' }}>
-                  </div>
+                {/* 오른쪽 아래 (BR): 우하단만 뾰족한 삼각형 */}
+                <div className="h-full w-[45%] overflow-hidden flex items-end justify-end">
+                  <div className="triangle-diag-up-right" />
                 </div>
               </div>
+
             </div>
 
             {/* 연구소 명칭 */}
@@ -95,3 +92,48 @@ export function Navigation() {
               <div className="text-xl font-bold text-primary">한국본회퍼연구소</div>
               <div className="text-xs text-muted-foreground">Bonhoeffer Research Institute of Korea</div>
             </div>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden items-center gap-8 md:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={(e) => scrollToSection(e, link.href)}
+                className="nav-link relative text-lg font-medium text-foreground transition-colors hover:text-primary"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button className="p-2 md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div
+          className={`overflow-hidden transition-all duration-300 md:hidden ${
+            isMobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
+          }`}
+        >
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={(e) => scrollToSection(e, link.href)}
+              className="block py-2 text-lg font-medium text-foreground transition-colors hover:text-primary"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
+  )
+}

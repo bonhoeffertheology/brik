@@ -40,10 +40,30 @@ export function Navigation() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
+          
+          {/* 로고 영역 (4분할 격자 심볼 적용) */}
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground transition-transform hover:scale-105">
-              BRIK
+            
+            {/* 💡 BRIK 원형 마크를 대체하는 코드로 짠 4분할 마크 */}
+            <div className="flex h-11 w-11 flex-col justify-between p-[2px] transition-transform duration-300 hover:scale-105 cursor-pointer">
+              {/* 상단 2개 조각 */}
+              <div className="flex justify-between h-[45%] w-full">
+                {/* 왼쪽 위: 좌상단만 둥글게 */}
+                <div className="h-full w-[45%] rounded-tl-[5px] bg-primary" />
+                {/* 오른쪽 위: 우상단만 둥글게 */}
+                <div className="h-full w-[45%] rounded-tr-[5px] bg-primary" />
+              </div>
+              
+              {/* 하단 2개 조각 */}
+              <div className="flex justify-between h-[45%] w-full">
+                {/* 왼쪽 아래: 좌하단만 둥글게 */}
+                <div className="h-full w-[45%] rounded-bl-[5px] bg-primary" />
+                {/* 오른쪽 아래: 우상단만 둥글게 */}
+                <div className="h-full w-[45%] rounded-br-[5px] bg-primary" />
+              </div>
             </div>
+
+            {/* 연구소 명칭 */}
             <div>
               <div className="text-xl font-bold text-primary">한국본회퍼연구소</div>
               <div className="text-xs text-muted-foreground">Bonhoeffer Research Institute of Korea</div>

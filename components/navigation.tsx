@@ -67,19 +67,19 @@ export function Navigation() {
               
               {/* 상단 2개 조각 */}
               <div className="flex justify-between h-[45%] w-full">
-                {/* 왼쪽 위 (TL): 좌상단만 뾰족한 삼각형 */}
+                {/* 💡 왼쪽 위 (TL): 좌상단 삼각형 추가 */}
                 <div className="h-full w-[45%] overflow-hidden flex items-start justify-start">
                   <div className="triangle-diag-down-left" />
                 </div>
-                {/* 오른쪽 위 (TR): 우상단만 둥근 사각형 */}
-                <div className="h-full w-[45%] rounded-tr-[5px] bg-primary" />
+                {/* 💡 오른쪽 위 (TR): 각진 사각형 */}
+                <div className="h-full w-[45%] bg-primary" />
               </div>
               
               {/* 하단 2개 조각 */}
               <div className="flex justify-between h-[45%] w-full">
-                {/* 왼쪽 아래 (BL): 좌하단만 둥근 사각형 */}
-                <div className="h-full w-[45%] rounded-bl-[5px] bg-primary" />
-                {/* 오른쪽 아래 (BR): 우하단만 뾰족한 삼각형 */}
+                {/* 💡 왼쪽 아래 (BL): 각진 사각형 */}
+                <div className="h-full w-[45%] bg-primary" />
+                {/* 오른쪽 아래 (BR): 우하단 삼각형 */}
                 <div className="h-full w-[45%] overflow-hidden flex items-end justify-end">
                   <div className="triangle-diag-up-right" />
                 </div>
@@ -101,39 +101,3 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => scrollToSection(e, link.href)}
-                className="nav-link relative text-lg font-medium text-foreground transition-colors hover:text-primary"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button className="p-2 md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div
-          className={`overflow-hidden transition-all duration-300 md:hidden ${
-            isMobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
-          }`}
-        >
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={(e) => scrollToSection(e, link.href)}
-              className="block py-2 text-lg font-medium text-foreground transition-colors hover:text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-    </nav>
-  )
-}

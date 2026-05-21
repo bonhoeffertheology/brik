@@ -38,50 +38,50 @@ export function Navigation() {
         isScrolled ? "shadow-lg" : "shadow-sm"
       }`}
     >
-      {/* Turbopack 빌드 오류를 방지하기 위해 dangerouslySetInnerHTML 형태로 CSS를 주입합니다 */}
+      {/* Turbopack 구문 오류 방지를 위해 dangerouslySetInnerHTML 사용 */}
       <style dangerouslySetInnerHTML={{ __html: `
-        .triangle-diag-down-left {
-          width: 0;
-          height: 0;
-          border-style: solid;
-          border-width: 0 18px 18px 0;
-          border-color: transparent transparent transparent #1E3A8A;
-        }
-        .triangle-diag-up-right {
+        .logo-triangle-tl {
           width: 0;
           height: 0;
           border-style: solid;
           border-width: 18px 18px 0 0;
           border-color: #1E3A8A transparent transparent transparent;
         }
+        .logo-triangle-br {
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 0 0 18px 18px;
+          border-color: transparent transparent #1E3A8A transparent;
+        }
       `}} />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
-          {/* 로고 영역 (4분할 격자 심볼 적용: 좌상 삼각형, 우하 삼각형 구조) */}
+          {/* 로고 영역 */}
           <div className="flex items-center gap-3">
             
-            {/* 💡 4분할 격자 마크 부모 컨테이너 */}
-            <div className="flex h-11 w-11 flex-col justify-between p-[2px] transition-transform duration-300 hover:scale-105 cursor-pointer text-primary">
+            {/* 4분할 격자 심볼 (정확히 정렬된 2x2 구조) */}
+            <div className="flex h-10 w-10 flex-col justify-between transition-transform duration-300 hover:scale-105 cursor-pointer">
               
-              {/* 상단 2개 조각 */}
+              {/* 상단 레이어 (좌상 삼각형, 우상 각진 사각형) */}
               <div className="flex justify-between h-[45%] w-full">
-                {/* 💡 왼쪽 위 (TL): 좌상단 삼각형 추가 */}
-                <div className="h-full w-[45%] overflow-hidden flex items-start justify-start">
-                  <div className="triangle-diag-down-left" />
+                {/* 좌상단(TL): 삼각형 */}
+                <div className="h-full w-[45%] flex items-start justify-start">
+                  <div className="logo-triangle-tl" />
                 </div>
-                {/* 💡 오른쪽 위 (TR): 각진 사각형 */}
-                <div className="h-full w-[45%] bg-primary" />
+                {/* 우상단(TR): 각진 사각형 (rounded 제거) */}
+                <div className="h-full w-[45%] bg-[#1E3A8A]" />
               </div>
               
-              {/* 하단 2개 조각 */}
+              {/* 하단 레이어 (좌하 각진 사각형, 우하 삼각형) */}
               <div className="flex justify-between h-[45%] w-full">
-                {/* 💡 왼쪽 아래 (BL): 각진 사각형 */}
-                <div className="h-full w-[45%] bg-primary" />
-                {/* 오른쪽 아래 (BR): 우하단 삼각형 */}
-                <div className="h-full w-[45%] overflow-hidden flex items-end justify-end">
-                  <div className="triangle-diag-up-right" />
+                {/* 좌하단(BL): 각진 사각형 (rounded 제거) */}
+                <div className="h-full w-[45%] bg-[#1E3A8A]" />
+                {/* 우하단(BR): 삼각형 */}
+                <div className="h-full w-[45%] flex items-end justify-end">
+                  <div className="logo-triangle-br" />
                 </div>
               </div>
 
@@ -101,3 +101,5 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => scrollToSection(e, link.href)}
+                className="nav-link relative text-lg font-medium text-foreground transition-colors hover:text-primary"
+              >

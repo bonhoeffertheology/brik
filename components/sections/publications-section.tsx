@@ -69,7 +69,7 @@ export function PublicationsSection() {
       ref={sectionRef} 
       className="relative w-full overflow-hidden py-24 md:py-32"
     >
-      {/* 2. 💡 패럴랙스 이미지 레이어 추가 (윤곽 선명도를 위해 opacity-80 적용) */}
+      {/* 2. 💡 패럴랙스 이미지 레이어 추가 (윤곽 선명도를 위해 opacity-90 적용) */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80"
         style={{

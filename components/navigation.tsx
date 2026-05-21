@@ -39,50 +39,63 @@ export function Navigation() {
       }`}
     >
       <style dangerouslySetInnerHTML={{ __html: `
-        .logo-triangle-tl {
+        .logo-triangle-tr {
           width: 0;
           height: 0;
           border-style: solid;
-          border-width: 18px 18px 0 0;
-          border-color: #1E3A8A transparent transparent transparent;
+          border-width: 0 18px 18px 0;
+          border-color: transparent transparent transparent #1E3A8A;
         }
-        .logo-triangle-br {
+        .logo-triangle-bl {
           width: 0;
           height: 0;
           border-style: solid;
-          border-width: 0 0 18px 18px;
-          border-color: transparent transparent #1E3A8A transparent;
+          border-width: 18px 0 0 18px;
+          border-color: #1E3A8A transparent transparent transparent;
         }
       `}} />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
+          {/* 로고 영역 (4분할 격자 심볼 적용: TL 각진사각, TR 삼각형, BL 삼각형, BR 각진사각 구조) */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-col justify-between transition-transform duration-300 hover:scale-105 cursor-pointer">
+            
+            {/* 💡 4분할 격자 마크 부모 컨테이너 */}
+            <div className="flex h-11 w-11 flex-col justify-between p-[2px] transition-transform duration-300 hover:scale-105 cursor-pointer text-primary">
               
+              {/* 상단 2개 조각 레이어 */}
               <div className="flex justify-between h-[45%] w-full">
-                <div className="h-full w-[45%] flex items-start justify-start">
-                  <div className="logo-triangle-tl"></div>
+                {/* 💡 왼쪽 위 (TL): 삼각형 대신 각진 사각형 배치 */}
+                <div className="h-full w-[45%] bg-primary"></div>
+                
+                {/* 💡 오른쪽 위 (TR): 사각형 대신 삼각형 배치 */}
+                <div className="h-full w-[45%] overflow-hidden flex items-start justify-end">
+                  <div className="logo-triangle-tr"></div>
                 </div>
-                <div className="h-full w-[45%] bg-[#1E3A8A]"></div>
               </div>
               
+              {/* 하단 2개 조각 레이어 */}
               <div className="flex justify-between h-[45%] w-full">
-                <div className="h-full w-[45%] bg-[#1E3A8A]"></div>
-                <div className="h-full w-[45%] flex items-end justify-end">
-                  <div className="logo-triangle-br"></div>
+                {/* 💡 왼쪽 아래 (BL): 사각형 대신 삼각형 배치 */}
+                <div className="h-full w-[45%] overflow-hidden flex items-end justify-start">
+                  <div className="logo-triangle-bl"></div>
                 </div>
+                
+                {/* 💡 오른쪽 아래 (BR): 삼각형 대신 각진 사각형 배치 */}
+                <div className="h-full w-[45%] bg-primary"></div>
               </div>
 
             </div>
 
+            {/* 연구소 명칭 */}
             <div>
               <div className="text-xl font-bold text-primary">한국본회퍼연구소</div>
               <div className="text-xs text-muted-foreground">Bonhoeffer Research Institute of Korea</div>
             </div>
           </div>
 
+          {/* Desktop Navigation */}
           <div className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) => (
               <Link
@@ -96,6 +109,7 @@ export function Navigation() {
             ))}
           </div>
 
+          {/* Mobile Menu Button */}
           <button className="p-2 md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -103,6 +117,7 @@ export function Navigation() {
           </button>
         </div>
 
+        {/* Mobile Navigation */}
         <div
           className={`overflow-hidden transition-all duration-300 md:hidden ${
             isMobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"

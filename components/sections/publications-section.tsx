@@ -161,7 +161,7 @@ export function PublicationsSection() {
                             className="w-full max-w-[160px] py-3 text-center font-sans text-sm font-medium text-white bg-transparent border border-white/80 rounded-lg shadow-md hover:bg-white hover:text-slate-900 transition-all duration-300"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            종이책 구매하기
+                            종이책
                           </a>
                           <a
                             href={book.ebookLink}
@@ -170,7 +170,7 @@ export function PublicationsSection() {
                             className="w-full max-w-[160px] py-3 text-center font-sans text-sm font-medium text-white bg-transparent border border-white/80 rounded-lg shadow-md hover:bg-white hover:text-slate-900 transition-all duration-300"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            전자책(eBook) 구매
+                            전자책(eBook)
                           </a>
                         </>
                       ) : (
@@ -182,7 +182,7 @@ export function PublicationsSection() {
                           className="w-full max-w-[160px] py-3 text-center font-sans text-sm font-medium text-white bg-transparent border border-white/80 rounded-lg shadow-md hover:bg-white hover:text-slate-900 transition-all duration-300"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          종이책 구매하기
+                          종이책
                         </a>
                       )}
                     </div>

@@ -41,17 +41,19 @@ export function Navigation() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
-          {/* 로고 영역: 원형 BRIK 마크 */}
+          {/* 로고 영역 */}
           <div className="flex items-center gap-3">
-            {/* 💡 원형 배경에 흰색 BRIK 글자 */}
-            <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#1E3A8A] text-sm font-bold text-white transition-transform hover:scale-105">
+            {/* 원형 로고: 히어로 섹션 분위기의 딥 네이비(#1E2D3D) 적용 */}
+            <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#1E2D3D] text-sm font-bold text-white transition-transform hover:scale-105">
               BRIK
             </div>
             
-            {/* 연구소 명칭 */}
+            {/* 연구소 명칭: 굵기는 semibold 유지, 색상은 로고와 맞춤 */}
             <div>
-              <div className="text-xl font-bold text-[#1E3A8A]">한국본회퍼연구소</div>
-              <div className="text-xs text-muted-foreground font-medium">Bonhoeffer Research Institute of Korea</div>
+              <div className="text-xl font-semibold text-[#1E2D3D] tracking-tight">한국본회퍼연구소</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground font-normal opacity-80">
+                Bonhoeffer Research Institute of Korea
+              </div>
             </div>
           </div>
 
@@ -62,7 +64,7 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => scrollToSection(e, link.href)}
-                className="relative text-lg font-medium text-foreground transition-colors hover:text-[#1E3A8A]"
+                className="relative text-lg font-medium text-foreground transition-colors hover:text-[#1E2D3D]"
               >
                 {link.label}
               </Link>
@@ -73,7 +75,6 @@ export function Navigation() {
           <button 
             className="p-2 md:hidden" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
           >
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -92,7 +93,7 @@ export function Navigation() {
               key={link.href}
               href={link.href}
               onClick={(e) => scrollToSection(e, link.href)}
-              className="block py-2 text-lg font-medium text-foreground transition-colors hover:text-[#1E3A8A]"
+              className="block py-2 text-lg font-medium text-foreground transition-colors hover:text-[#1E2D3D]"
             >
               {link.label}
             </Link>

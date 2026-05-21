@@ -7,29 +7,36 @@ import hero2Bg from "@/public/images/hero3.png"
 interface PublicationBook {
   title: string
   imageSrc: string
-  purchaseLink: string
+  purchaseLink: string // 종이책 링크
+  ebookLink?: string    // 전자책 링크 (옵션)
 }
 
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
+  
+  // 모바일 및 클릭 인터랙션을 위해 현재 어떤 책의 오버레이가 열려있는지 관리하는 상태
+  const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
 
-  // 박사님의 새로운 이미지 경로 및 구매 링크 데이터 완전 매칭
+  // 박사님의 새로운 이미지 경로 및 구매 링크 데이터 완전 매칭 (전자책 링크 추가)
   const books: PublicationBook[] = [
     {
       title: "하나님과 함께 (초판)",
       imageSrc: "images/with.jpg",
-      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/"
+      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/",
+      ebookLink: "https://jelsayou.upaper.kr/content/1153861" // 예시 전자책 링크 (필요시 실제 주소로 변경 가능)
     },
     {
       title: "그리스도를 따라서 Vol. 1",
       imageSrc: "images/vol1.jpg",
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/"
+      // 전자책이 없는 경우 ebookLink 생략 -> 자동으로 기본 단일 링크 또는 종이책 유도 처리
     },
     {
       title: "하나님과 함께 (전면개정판)",
       imageSrc: "images/withr.jpg",
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/"
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/",
+      ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" // 예시 전자책 링크 (필요시 실제 주소로 변경 가능)
     }
   ]
 
@@ -50,11 +57,17 @@ export function PublicationsSection() {
     return () => observer.disconnect()
   }, [])
 
+  // 외부 클릭 시 오버레이 닫기 기능
+  useEffect(() => {
+    const handleOutsideClick = () => setActiveBookIndex(null)
+    window.addEventListener("click", handleOutsideClick)
+    return () => window.removeEventListener("click", handleOutsideClick)
+  }, [])
+
   return (
     <section 
       id="publications" 
       ref={sectionRef} 
-      // bg-stone-100 대신 relative overflow-hidden을 주어 패럴랙스 배경 영역을 격리합니다.
       className="relative w-full overflow-hidden py-24 md:py-32"
     >
       {/* 2. 💡 패럴랙스 이미지 레이어 추가 (윤곽 선명도를 위해 opacity-80 적용) */}
@@ -100,29 +113,83 @@ export function PublicationsSection() {
         {/* 출판물 정렬 그리드 구역 (80% 크기 컴팩트 레이아웃) */}
         <div className="flex justify-center w-full">
           <div className={`publications-grid grid gap-10 grid-cols-1 md:grid-cols-3 w-full max-w-4xl ${isVisible ? "visible" : ""}`}>
-            {books.map((book, index) => (
-              <div
-                key={index}
-                className="book-pure-card flex flex-col items-center justify-center transition-all duration-300 transform hover:-translate-y-2"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                {/* [이미지 자체를 링크로 일체화] */}
-                <a
-                  href={book.purchaseLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative w-full h-[400px] flex items-center justify-center overflow-hidden rounded-xl cursor-pointer"
-                  title={`${book.title} 구매페이지로 이동`}
+            {books.map((book, index) => {
+              const isSelected = activeBookIndex === index;
+              
+              return (
+                <div
+                  key={index}
+                  className="book-pure-card group flex flex-col items-center justify-center transition-all duration-300 transform hover:-translate-y-2"
+                  style={{ animationDelay: `${index * 0.2}s` }}
+                  onClick={(e) => {
+                    // 이벤트 전파를 막아 window click 이벤트로 인해 바로 닫히는 현상 방지
+                    e.stopPropagation();
+                    setActiveBookIndex(isSelected ? null : index);
+                  }}
                 >
-                  <img
-                    src={book.imageSrc}
-                    alt={book.title}
-                    className="h-full w-auto object-contain drop-shadow-xl transition-transform duration-500 hover:scale-103"
-                    loading="lazy"
-                  />
-                </a>
-              </div>
-            ))}
+                  {/* 책 카드 영역 (클래스 내부 hover 및 state 결합으로 반응형 인터랙션 구현) */}
+                  <div
+                    className="relative w-full h-[400px] flex items-center justify-center overflow-hidden rounded-xl cursor-pointer select-none"
+                    title={`${book.title} 구매 옵션 보기`}
+                  >
+                    {/* 오리지널 책 이미지 */}
+                    <img
+                      src={book.imageSrc}
+                      alt={book.title}
+                      className="h-full w-auto object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-103"
+                      loading="lazy"
+                    />
+
+                    {/* 💡 핵심 추가: 부드러운 모션의 어두운 회색 음영 오버레이 막 */}
+                    <div 
+                      className={`absolute inset-0 bg-stone-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center gap-4 p-6 transition-all duration-300 ease-out
+                        ${isSelected ? "opacity-100 visible" : "opacity-0 invisible group-hover:opacity-100 group-hover:visible"}`}
+                    >
+                      {/* 책 제목 안내 */}
+                      <p className="text-white font-serif text-lg font-medium text-center mb-2 px-2 translate-y-2 transition-transform duration-300 group-hover:translate-y-0">
+                        {book.title}
+                      </p>
+
+                      {/* 전자책 링크가 존재하는 경우 분기 처리 */}
+                      {book.ebookLink ? (
+                        <>
+                          <a
+                            href={book.purchaseLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full max-w-[160px] py-3 text-center font-sans text-sm font-medium text-stone-900 bg-white rounded-lg shadow-md hover:bg-stone-100 transition-colors duration-200"
+                            onClick={(e) => e.stopPropagation()} // 버튼 클릭 시 토글 방지
+                          >
+                            종이책 구매하기
+                          </a>
+                          <a
+                            href={book.ebookLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full max-w-[160px] py-3 text-center font-sans text-sm font-medium text-white bg-amber-600 rounded-lg shadow-md hover:bg-amber-500 transition-colors duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            전자책(eBook) 구매
+                          </a>
+                        </>
+                      ) : (
+                        // 전자책이 없는 경우 단일 대형 버튼 노출
+                        <a
+                          href={book.purchaseLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full max-w-[160px] py-3 text-center font-sans text-sm font-medium text-stone-900 bg-white rounded-lg shadow-md hover:bg-stone-100 transition-colors duration-200"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          종이책 구매하기
+                        </a>
+                      )}
+                    </div>
+
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 

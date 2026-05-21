@@ -40,20 +40,14 @@ export function Navigation() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
-          
-          {/* 로고 영역 */}
           <div className="flex items-center gap-3">
-            {/* 원형 로고: 히어로 섹션 분위기의 딥 네이비(#1E2D3D) 적용 */}
-            <div className="flex h-12 w-12 ... bg-primary text-sm font-bold text-primary-foreground ...">
-  BRIK
-</div>
-            
-            {/* 연구소 명칭: 굵기는 semibold 유지, 색상은 로고와 맞춤 */}
+            {/* 💡 FIX: Added rounded-full class to ensure the logo is a perfect circle */}
+            <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground transition-transform hover:scale-105">
+              BRIK
+            </div>
             <div>
               <div className="text-xl font-bold text-primary">한국본회퍼연구소</div>
-              <div className="text-[10px] sm:text-xs text-muted-foreground font-normal opacity-80">
-                Bonhoeffer Research Institute of Korea
-              </div>
+              <div className="text-xs text-muted-foreground">Bonhoeffer Research Institute of Korea</div>
             </div>
           </div>
 
@@ -64,7 +58,7 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={(e) => scrollToSection(e, link.href)}
-                className="relative text-lg font-medium text-foreground transition-colors hover:text-[#1E2D3D]"
+                className="nav-link relative text-lg font-medium text-foreground transition-colors hover:text-primary"
               >
                 {link.label}
               </Link>
@@ -72,10 +66,7 @@ export function Navigation() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            className="p-2 md:hidden" 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
+          <button className="p-2 md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -93,7 +84,7 @@ export function Navigation() {
               key={link.href}
               href={link.href}
               onClick={(e) => scrollToSection(e, link.href)}
-              className="block py-2 text-lg font-medium text-foreground transition-colors hover:text-[#1E2D3D]"
+              className="block py-2 text-lg font-medium text-foreground transition-colors hover:text-primary"
             >
               {link.label}
             </Link>

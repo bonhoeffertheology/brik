@@ -44,13 +44,13 @@ export function Navigation() {
           {/* 로고 영역 */}
           <div className="flex items-center gap-3">
             {/* 원형 로고: 히어로 섹션 분위기의 딥 네이비(#1E2D3D) 적용 */}
-            <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[#1E2D3D] text-sm font-bold text-white transition-transform hover:scale-105">
-              BRIK
-            </div>
+            <div className="flex h-12 w-12 ... bg-primary text-sm font-bold text-primary-foreground ...">
+  BRIK
+</div>
             
             {/* 연구소 명칭: 굵기는 semibold 유지, 색상은 로고와 맞춤 */}
             <div>
-              <div className="text-xl font-semibold text-[#1E2D3D] tracking-tight">한국본회퍼연구소</div>
+              <div className="text-xl font-bold text-primary">한국본회퍼연구소</div>
               <div className="text-[10px] sm:text-xs text-muted-foreground font-normal opacity-80">
                 Bonhoeffer Research Institute of Korea
               </div>

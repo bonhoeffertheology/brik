@@ -71,7 +71,7 @@ export function PublicationsSection() {
     >
       {/* 2. 💡 패럴랙스 이미지 레이어 추가 (윤곽 선명도를 위해 opacity-80 적용) */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80"
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-60"
         style={{
           backgroundImage: `url(${hero2Bg.src})`,
         }}

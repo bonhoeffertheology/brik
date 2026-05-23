@@ -61,7 +61,7 @@ export function AboutSection() {
               <span className="font-bold text-primary">한국본회퍼연구소</span>는 디트리히 본회퍼의 신학사상을 체계적으로 연구하고, 그의 삶과 신학을 한국 교회와 사회에 전해주기 위해 설립되었습니다.
             </p>
             <p className="text-lg leading-relaxed text-muted-foreground">
-              본 연구소는 학술 연구, 번역, 출판, 강의 등을 통해 본회퍼 신학의 깊이와 실천적 의미를 전함으로써 문서 선교의 사명을 감당하고 있습니다. 
+              본 연구소는 학술 연구, 번역, 출판, 강의 등을 통해 본회퍼 신학의 깊이와 실천적 의미를 전함으로써 예수 그리스도의 제자들을 세우고, 건강한 교회들을 세웨가는 문서 선교의 사명을 감당하고 있습니다. 
             </p>
           </div>
 

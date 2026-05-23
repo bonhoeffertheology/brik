@@ -20,13 +20,7 @@ export function PublicationsSection() {
 
   // 박사님의 새로운 이미지 경로 및 구매 링크 데이터 완전 매칭 (전자책 링크 추가)
   const books: PublicationBook[] = [
-    {
-      title: "하나님과 함께 (초판)",
-      imageSrc: "images/with.jpg",
-      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/",
-      ebookLink: "https://jelsayou.upaper.kr/content/1153861"
-    },
-    {
+   {
       title: "그리스도를 따라서 Vol. 1",
       imageSrc: "images/vol1.jpg",
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/"
@@ -36,6 +30,12 @@ export function PublicationsSection() {
       imageSrc: "images/withr.jpg",
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/",
       ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681"
+    },
+     {
+      title: "하나님과 함께 (초판)",
+      imageSrc: "images/with.jpg",
+      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/",
+      ebookLink: "https://jelsayou.upaper.kr/content/1153861"
     }
   ]
 

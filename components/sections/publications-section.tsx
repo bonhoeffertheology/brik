@@ -10,8 +10,9 @@ interface PublicationBook {
   ebookLink?: string
 }
 
-// 💡 글자수 제한을 피하기 위해 중복되는 버튼 스타일을 상단 변수로 완전히 분리하여 가볍게 압축
+// 💡 긴 클래스명들을 상단 변수로 완전히 분리하여 마크업 가로 길이를 대폭 압축
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
+const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-20 p-2 text-white/50 hover:text-white bg-black/40 hover:bg-black/70 border border-white/10 rounded-full transition-all duration-300 backdrop-blur-sm flex items-center justify-center font-bold text-lg"
 
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -108,18 +109,5 @@ export function PublicationsSection() {
                       <div className="relative h-full w-full overflow-hidden shadow-2xl border border-stone-800/50 rounded-sm">
                         <img src={book.imageSrc} alt={book.title} className="h-full w-full object-cover pointer-events-none" loading="lazy" />
                         
-                        {/* 링크 카드 레이어 */}
                         <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${showOverlay ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
-                          <p className="text-white font-serif text-sm md:text-base font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
-                          <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
-                          {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          <button onClick={(e) => { e.stopPropagation(); moveSlider("prev") }} className="absolute -left-4 sm:left-4 top
+                          <p className="text-white font-serif text-sm md:text-base font-medium text-center mb-1 px-1 leading-snug">{book

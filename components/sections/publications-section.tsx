@@ -105,6 +105,13 @@ export function PublicationsSection() {
     return () => observer.disconnect()
   }, [])
 
+  // 💡 [수정] 깨져 있던 윈도우 클릭 이벤트 리스너 문자열 및 구문을 정상 마감 처리
   useEffect(() => {
     const handleOutsideClick = () => setActiveBookIndex(null)
-    window.addEventListener("click
+    window.addEventListener("click", handleOutsideClick)
+    return () => window.removeEventListener("click", handleOutsideClick)
+  }, [])
+
+  return (
+    <section 
+      id="publications

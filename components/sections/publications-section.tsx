@@ -15,7 +15,6 @@ export function PublicationsSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
 
-  // 기본 책 데이터
   const baseBooks: PublicationBook[] = [
     {
       title: "그리스도를 따라서 Vol. 1",
@@ -36,30 +35,18 @@ export function PublicationsSection() {
     }
   ]
 
-  // 양방향 무한 루프 구현을 위해 앞뒤로 데이터를 복제
-  const books = [
-    baseBooks[baseBooks.length - 1], 
-    ...baseBooks,                    
-    baseBooks[0]                     
-  ]
+  const books = [baseBooks[baseBooks.length - 1], ...baseBooks, baseBooks[0]]
 
-  // 슬라이더 상태 관리
   const [currentIndex, setCurrentIndex] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  
-  // 드래그 및 스와이프 관련 상태
   const [startX, setStartX] = useState(0)
   const [currentTranslate, setCurrentTranslate] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
 
-  // 인덱스 이동 함수 (무한 루프 제어)
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    if (currentIndex === 0) {
-      setCurrentIndex(books.length - 2)
-    } else if (currentIndex === books.length - 1) {
-      setCurrentIndex(1)
-    }
+    if (currentIndex === 0) setCurrentIndex(books.length - 2)
+    else if (currentIndex === books.length - 1) setCurrentIndex(1)
   }
 
   const moveSlider = useCallback((direction: "prev" | "next") => {
@@ -68,51 +55,35 @@ export function PublicationsSection() {
     setCurrentIndex((prev) => (direction === "next" ? prev + 1 : prev - 1))
   }, [isTransitioning])
 
-  // 마우스/터치 드래그 로직
   const handleStart = (clientX: number) => {
     if (isTransitioning) return
     setIsDragging(true)
     setStartX(clientX)
-    setActiveBookIndex(null) 
+    setActiveBookIndex(null)
   }
 
   const handleMove = (clientX: number) => {
     if (!isDragging) return
-    const currentX = clientX
-    const diff = currentX - startX
-    setCurrentTranslate(diff)
+    setCurrentTranslate(clientX - startX)
   }
 
   const handleEnd = () => {
     if (!isDragging) return
     setIsDragging(false)
-    
-    const swipeThreshold = 50
-    if (currentTranslate < -swipeThreshold) {
-      moveSlider("next")
-    } else if (currentTranslate > swipeThreshold) {
-      moveSlider("prev")
-    }
+    if (currentTranslate < -50) moveSlider("next")
+    else if (currentTranslate > 50) moveSlider("prev")
     setCurrentTranslate(0)
   }
 
-  // 💡 [교정] 컴파일러 에러를 유발했던 IntersectionObserver 구문을 완벽히 매칭 및 폐쇄
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { 
-        if (entry.isIntersecting) {
-          setIsVisible(true) 
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
       { threshold: 0.1 }
     )
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
+    if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
-  // 외부 클릭 시 오버레이 초기화 이벤트 리스너 리셋 구문 마감 완결
   useEffect(() => {
     const handleOutsideClick = () => setActiveBookIndex(null)
     window.addEventListener("click", handleOutsideClick)
@@ -122,4 +93,34 @@ export function PublicationsSection() {
   return (
     <section 
       id="publications" 
-      ref
+      ref={sectionRef} 
+      className="relative w-full overflow-hidden py-24 md:py-32 select-none"
+    >
+      <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
+      <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-20 text-center transition-all duration-1000 transform" style={{ transform: isVisible ? "translateY(0)" : "translateY(30px)", opacity: isVisible ? 1 : 0 }}>
+          <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
+          <div className="mx-auto mt-4 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
+            <div className="absolute inset-0 h-full w-full animate-pulse bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+          </div>
+          <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
+        </div>
+
+        <div className="relative group mx-auto w-full max-w-sm sm:max-w-md md:max-w-xl overflow-hidden px-4">
+          <div 
+            className="flex"
+            style={{
+              transform: `translateX(calc(-${currentIndex * 100}% + ${currentTranslate}px))`,
+              transition: isTransitioning ? "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)" : "none"
+            }}
+            onTransitionEnd={handleTransitionEnd}
+            onMouseDown={(e) => handleStart(e.clientX)}
+            onMouseMove={(e) => handleMove(e.clientX)}
+            onMouseUp={handleEnd}
+            onMouseLeave={handleEnd}
+            onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+            onTouchMove={(e) => handleMove(e.touches[0].clientX)}
+            onTouchEnd={handleEnd}
+          >

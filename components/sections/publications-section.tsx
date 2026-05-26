@@ -51,19 +51,4 @@ export function PublicationsSection() {
   const handleEnd = () => {
     if (!isDragging) return
     setIsDragging(false)
-    if (currentTranslate < -50) moveSlider("next")
-    else if (currentTranslate > 50) moveSlider("prev")
-    setCurrentTranslate(0)
-  }
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setIsVisible(true) }, { threshold: 0.1 })
-    if (sectionRef.current) obs.observe(sectionRef.current)
-    return () => obs.disconnect()
-  }, [])
-
-  useEffect(() => {
-    const cls = () => setActiveBookIndex(null)
-    window.addEventListener("click", cls)
-    return () => window.removeEventListener("click", cls)
-  }, [])
+    if (currentTranslate < -50)

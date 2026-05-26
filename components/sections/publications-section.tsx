@@ -10,7 +10,6 @@ interface PublicationBook {
   ebookLink?: string
 }
 
-// 💡 긴 클래스명들을 상단 변수로 완전히 분리하여 마크업 가로 길이를 대폭 압축
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-20 p-2 text-white/50 hover:text-white bg-black/40 hover:bg-black/70 border border-white/10 rounded-full transition-all duration-300 backdrop-blur-sm flex items-center justify-center font-bold text-lg"
 
@@ -68,46 +67,3 @@ export function PublicationsSection() {
     window.addEventListener("click", cls)
     return () => window.removeEventListener("click", cls)
   }, [])
-
-  return (
-    <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 select-none">
-      <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
-      <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
-
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-20 text-center transition-all duration-1000 transform" style={{ transform: isVisible ? "translateY(0)" : "translateY(30px)", opacity: isVisible ? 1 : 0 }}>
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
-            <div className="absolute inset-0 h-full w-full animate-pulse bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-          </div>
-          <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
-        </div>
-
-        <div className="relative group mx-auto w-full max-w-5xl overflow-visible px-4">
-          <div 
-            className="flex items-center" 
-            style={{ transform: `translateX(calc(-${currentIndex * 33.333}% + ${currentTranslate}px))`, transition: isTransitioning ? "transform 0.5s ease-out" : "none" }}
-            onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)}
-            onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}
-          >
-            {books.map((book, idx) => {
-              const isCenter = currentIndex === idx
-              const isSelected = activeBookIndex === idx
-              const showOverlay = isSelected && isCenter
-              
-              return (
-                <div key={idx} className="w-1/3 flex-shrink-0 flex justify-center px-2 sm:px-4">
-                  <div 
-                    className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isCenter ? "scale-105 sm:scale-110 opacity-100 z-10" : "scale-90 opacity-40 blur-[1px]"}`} 
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      if (!isCenter) { moveSlider(idx > currentIndex ? "next" : "prev"); return }
-                      if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) 
-                    }}
-                  >
-                    <div className="relative w-[180px] sm:w-[240px] md:w-[260px] h-[270px] sm:h-[350px] md:h-[380px] flex items-center justify-center select-none">
-                      <div className="relative h-full w-full overflow-hidden shadow-2xl border border-stone-800/50 rounded-sm">
-                        <img src={book.imageSrc} alt={book.title} className="h-full w-full object-cover pointer-events-none" loading="lazy" />
-                        
-                        <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${showOverlay ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
-                          <p className="text-white font-serif text-sm md:text-base font-medium text-center mb-1 px-1 leading-snug">{book

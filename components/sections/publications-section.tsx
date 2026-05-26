@@ -78,27 +78,24 @@ export function PublicationsSection() {
       {/* 가독성을 위한 배경 그라데이션 막 */}
       <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
 
-      {/* 💡 [수정] 노란색 바의 부드러운 색상 변화를 위한 CSS 키프레임 애니메이션 추가 */}
+      {/* 💡 [수정] 연구업적(Research) 섹션의 검증된 쉬머 키프레임과 클래스 그대로 반영 */}
       <style dangerouslySetInnerHTML={{__html: `
+        @keyframes customShimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
         @keyframes bookFadeInUp {
           0% { opacity: 0; transform: translateY(40px); }
           100% { opacity: 1; transform: translateY(0); }
         }
-        @keyframes barColorChange {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        .animate-shimmer-core {
+          animation: customShimmer 2.5s infinite linear;
         }
         .book-pure-card {
           opacity: 0;
         }
         .publications-grid.visible .book-pure-card {
           animation: bookFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .moving-color-bar {
-          background: linear-gradient(270deg, #f59e0b, #f5 Worth #facc15, #f59e0b);
-          background-size: 200% 200%;
-          animation: barColorChange 4s ease infinite;
         }
       `}} />
 
@@ -114,8 +111,10 @@ export function PublicationsSection() {
         >
           <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           
-          {/* 💡 [핵심 수정] 기존 bg-amber-500 대신 부드럽게 무지개빛으로 가변하는 'moving-color-bar' 클래스 적용 */}
-          <div className="mx-auto mt-4 h-0.5 w-12 moving-color-bar rounded-full" />
+          {/* 💡 [핵심 복원] 연구활동 섹션과 정확히 동일한 골드 옐로우 빛줄기 가변 바(Bar) */}
+          <div className="mx-auto mt-4 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
+            <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+          </div>
           
           <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>

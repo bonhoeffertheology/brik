@@ -10,20 +10,21 @@ interface PublicationBook {
   ebookLink?: string
 }
 
+// 💡 글자수 제한을 피하기 위해 중복되는 버튼 스타일을 상단 변수로 완전히 분리하여 가볍게 압축
+const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
+
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
 
   const baseBooks: PublicationBook[] = [
-    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
 
-  // 양방향 무한 루프 데이터 복제
   const books = [baseBooks[baseBooks.length - 1], ...baseBooks, baseBooks[0]]
-  
   const [currentIndex, setCurrentIndex] = useState(1)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -73,7 +74,6 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* 섹션 헤더 */}
         <div className="mb-20 text-center transition-all duration-1000 transform" style={{ transform: isVisible ? "translateY(0)" : "translateY(30px)", opacity: isVisible ? 1 : 0 }}>
           <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto mt-4 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
@@ -82,41 +82,25 @@ export function PublicationsSection() {
           <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
 
-        {/* 캐러셀 메인 컨테이너 (화면에 3개가 걸쳐 보이도록 넓이 및 뷰포트 영역 확장) */}
         <div className="relative group mx-auto w-full max-w-5xl overflow-visible px-4">
           <div 
             className="flex items-center" 
-            style={{ 
-              // 3열 중앙 배치를 위한 트랙 이동 연산식 피팅
-              transform: `translateX(calc(-${currentIndex * 33.333}% + ${currentTranslate}px))`, 
-              transition: isTransitioning ? "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)" : "none" 
-            }}
-            onTransitionEnd={handleTransitionEnd} 
-            onMouseDown={(e) => handleStart(e.clientX)} 
-            onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)}
-            onMouseUp={handleEnd} 
-            onMouseLeave={handleEnd} 
-            onTouchStart={(e) => handleStart(e.touches[0].clientX)} 
-            onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} 
-            onTouchEnd={handleEnd}
+            style={{ transform: `translateX(calc(-${currentIndex * 33.333}% + ${currentTranslate}px))`, transition: isTransitioning ? "transform 0.5s ease-out" : "none" }}
+            onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)}
+            onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}
           >
             {books.map((book, idx) => {
               const isCenter = currentIndex === idx
               const isSelected = activeBookIndex === idx
+              const showOverlay = isSelected && isCenter
               
               return (
-                // w-1/3 분할을 통해 화면에 동시에 3개의 카드가 균등 마크업되도록 지정
-                <div key={idx} className="w-1/3 flex-shrink-0 flex justify-center px-2 sm:px-4 transition-all duration-500">
+                <div key={idx} className="w-1/3 flex-shrink-0 flex justify-center px-2 sm:px-4">
                   <div 
-                    className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing
-                      ${isCenter ? "scale-105 sm:scale-110 opacity-100 z-10" : "scale-90 opacity-40 blur-[1px]"}`} 
+                    className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isCenter ? "scale-105 sm:scale-110 opacity-100 z-10" : "scale-90 opacity-40 blur-[1px]"}`} 
                     onClick={(e) => { 
                       e.stopPropagation(); 
-                      if (!isCenter) {
-                        // 양옆의 책을 클릭하면 해당 책이 중심으로 이동하도록 편의성 개선
-                        moveSlider(idx > currentIndex ? "next" : "prev")
-                        return
-                      }
+                      if (!isCenter) { moveSlider(idx > currentIndex ? "next" : "prev"); return }
                       if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) 
                     }}
                   >
@@ -124,7 +108,18 @@ export function PublicationsSection() {
                       <div className="relative h-full w-full overflow-hidden shadow-2xl border border-stone-800/50 rounded-sm">
                         <img src={book.imageSrc} alt={book.title} className="h-full w-full object-cover pointer-events-none" loading="lazy" />
                         
-                        {/* 호버/선택 인터페이스 오버레이 */}
-                        <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${isSelected && isCenter ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
+                        {/* 링크 카드 레이어 */}
+                        <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${showOverlay ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
                           <p className="text-white font-serif text-sm md:text-base font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
-                          <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className="w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white
+                          <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
+                          {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <button onClick={(e) => { e.stopPropagation(); moveSlider("prev") }} className="absolute -left-4 sm:left-4 top

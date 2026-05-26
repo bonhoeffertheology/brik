@@ -12,41 +12,27 @@ export function PublicationsSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const baseBooks: PublicationBook[] = [
-    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
-  
-  // 💡 좌우 버퍼를 넉넉히 두어 스왑할 때 여백이 보이지 않도록 앞뒤로 2개씩 곱절 복제 (끊김 방지 핵심)
-  const books = [
-    baseBooks[baseBooks.length - 2], baseBooks[baseBooks.length - 1],
-    ...baseBooks,
-    baseBooks[0], baseBooks[1]
-  ]
-  
-  // baseBooks 앞에 2개가 붙었으므로 초기 인덱스는 2가 됩니다.
+  const books = [baseBooks[baseBooks.length - 2], baseBooks[baseBooks.length - 1], ...baseBooks, baseBooks[0], baseBooks[1]]
   const [currentIndex, setCurrentIndex] = useState(2)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [startX, setStartX] = useState(0)
   const [currentTranslate, setCurrentTranslate] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
 
-  // 💡 애니메이션이 확실히 끝난 시점에 투명하게 순간이동을 처리하여 뚝 끊기는 현상 차단
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    if (currentIndex <= 1) {
-      setCurrentIndex(books.length - 3 - (1 - currentIndex))
-    } else if (currentIndex >= books.length - 2) {
-      setCurrentIndex(2 + (currentIndex - (books.length - 2)))
-    }
+    if (currentIndex <= 1) setCurrentIndex(books.length - 3 - (1 - currentIndex))
+    else if (currentIndex >= books.length - 2) setCurrentIndex(2 + (currentIndex - (books.length - 2)))
   }
-
   const moveSlider = useCallback((dir: "prev" | "next") => {
     if (isTransitioning) return
     setIsTransitioning(true)
     setCurrentIndex((prev) => (dir === "next" ? prev + 1 : prev - 1))
   }, [isTransitioning])
-
   const handleStart = (x: number) => {
     if (isTransitioning) return
     setIsDragging(true); setStartX(x); setActiveBookIndex(null)
@@ -58,7 +44,6 @@ export function PublicationsSection() {
     else if (currentTranslate > 40) moveSlider("prev")
     setCurrentTranslate(0)
   }
-
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setIsVisible(true) }, { threshold: 0.1 })
     if (sectionRef.current) obs.observe(sectionRef.current)
@@ -83,26 +68,20 @@ export function PublicationsSection() {
           <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
         
-        <div className="relative group mx-auto w-full max-w-5xl overflow-hidden px-4">
-          {/* 💡 브라우저의 GPU 가속을 유도하는 cubic-bezier 가속 애니메이션 매핑 */}
-          <div 
-            className="flex items-center w-full will-change-transform" 
-            style={{ 
-              transform: `translate3d(calc(-${(currentIndex - 1) * 33.333}% + ${currentTranslate}px), 0, 0)`, 
-              transition: isTransitioning ? "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)" : "none" 
-            }} 
-            onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}
-          >
+        <div className="relative group mx-auto w-full max-w-5xl overflow-hidden px-2 sm:px-4">
+          <div className="flex items-center w-full will-change-transform" style={{ transform: `translate3d(calc(-${(currentIndex - 1) * 33.333}% + ${currentTranslate}px), 0, 0)`, transition: isTransitioning ? "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
             {books.map((book, idx) => {
               const isCenter = currentIndex === idx; const isSelected = activeBookIndex === idx
               return (
-                <div key={idx} className="w-1/3 flex-shrink-0 flex justify-center px-2 sm:px-4">
-                  <div className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isCenter ? "scale-105 sm:scale-110 opacity-100 z-10" : "scale-90 opacity-40 blur-[1px]"}`} onClick={(e) => { e.stopPropagation(); if (!isCenter) { moveSlider(idx > currentIndex ? "next" : "prev"); return }; if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) }}>
-                    <div className="relative w-full max-w-[240px] aspect-[2/3] flex items-center justify-center select-none">
+                <div key={idx} className="w-1/3 flex-shrink-0 flex justify-center px-1 sm:px-3">
+                  {/* 💡 가운데 책(isCenter)의 scale 확대 비율을 1.25배(중형화면 이상은 1.3배)로 확대하여 시인성 확보 */}
+                  <div className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isCenter ? "scale-125 sm:scale-130 opacity-100 z-10" : "scale-90 opacity-30 blur-[1px]"}`} onClick={(e) => { e.stopPropagation(); if (!isCenter) { moveSlider(idx > currentIndex ? "next" : "prev"); return }; if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) }}>
+                    {/* 💡 가로 max-w 제한을 기존 240px에서 290px로 넓혀 가운데 공간을 더 많이 차지하도록 확보 */}
+                    <div className="relative w-full max-w-[180px] sm:max-w-[290px] aspect-[2/3] flex items-center justify-center select-none">
                       <div className="relative h-full w-full overflow-hidden shadow-2xl border border-stone-800/50 rounded-sm">
                         <img src={book.imageSrc} alt={book.title} className="h-full w-full object-cover pointer-events-none" loading="lazy" />
                         <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${isSelected && isCenter ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
-                          <p className="text-white font-serif text-sm md:text-base font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
+                          <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
                           <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
                           {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
                         </div>
@@ -120,7 +99,6 @@ export function PublicationsSection() {
         <div className="mt-12 flex justify-center gap-2">
           {baseBooks.map((_, idx) => {
             let adj = currentIndex
-            // 인덱스 표시 보정기
             if (currentIndex <= 1) adj = baseBooks.length + currentIndex - 1
             else if (currentIndex >= books.length - 2) adj = currentIndex - (books.length - 2) + 1
             else adj = currentIndex - 1

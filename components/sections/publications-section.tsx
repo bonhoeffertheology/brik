@@ -78,16 +78,27 @@ export function PublicationsSection() {
       {/* 가독성을 위한 배경 그라데이션 막 */}
       <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
 
+      {/* 💡 [수정] 노란색 바의 부드러운 색상 변화를 위한 CSS 키프레임 애니메이션 추가 */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes bookFadeInUp {
           0% { opacity: 0; transform: translateY(40px); }
           100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes barColorChange {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
         .book-pure-card {
           opacity: 0;
         }
         .publications-grid.visible .book-pure-card {
           animation: bookFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .moving-color-bar {
+          background: linear-gradient(270deg, #f59e0b, #f5 Worth #facc15, #f59e0b);
+          background-size: 200% 200%;
+          animation: barColorChange 4s ease infinite;
         }
       `}} />
 
@@ -102,7 +113,10 @@ export function PublicationsSection() {
           }}
         >
           <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500" />
+          
+          {/* 💡 [핵심 수정] 기존 bg-amber-500 대신 부드럽게 무지개빛으로 가변하는 'moving-color-bar' 클래스 적용 */}
+          <div className="mx-auto mt-4 h-0.5 w-12 moving-color-bar rounded-full" />
+          
           <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
 
@@ -122,16 +136,11 @@ export function PublicationsSection() {
                     setActiveBookIndex(isSelected ? null : index);
                   }}
                 >
-                  {/* 전체 프레임: 컴팩트한 높이 유지 및 유연한 정렬 */}
                   <div
                     className="relative max-w-full h-[380px] sm:h-[400px] flex items-center justify-center select-none"
                     title={`${book.title} 구매 옵션 보기`}
                   >
-                    
-                    {/* [핵심 수정] 이미지와 음영이 일치하도록 감싸는 절대적 기준점 컨테이너 */}
                     <div className="relative h-full w-auto overflow-hidden rounded-xl shadow-xl">
-                      
-                      {/* 오리지널 책 이미지 (확대 모션 제거, 순수 이미지 출력) */}
                       <img
                         src={book.imageSrc}
                         alt={book.title}
@@ -139,19 +148,16 @@ export function PublicationsSection() {
                         loading="lazy"
                       />
 
-                      {/* [핵심 수정] 위에서 아래로(-translate-y-full -> translate-y-0) 떨어지는 네이비색 음영 오버레이 */}
                       <div 
                         className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-4 p-4 transition-all duration-500 ease-out transform
                           ${isSelected 
                             ? "opacity-100 translate-y-0 visible" 
                             : "opacity-0 -translate-y-full invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible"}`}
                       >
-                        {/* 책 제목 안내 */}
                         <p className="text-white font-serif text-base font-medium text-center mb-1 px-2 leading-snug">
                           {book.title}
                         </p>
 
-                        {/* 링크 버튼 분기 처리 */}
                         {book.ebookLink ? (
                           <>
                             <a
@@ -178,4 +184,23 @@ export function PublicationsSection() {
                             href={book.purchaseLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full max-w-[130px] py-2.5 text-center font-sans text-xs font-medium text-white bg
+                            className="w-full max-w-[130px] py-2.5 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-lg shadow-md hover:bg-white hover:text-slate-900 transition-all duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            종이책
+                          </a>
+                        )}
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+      </div>
+    </section>
+  )
+}

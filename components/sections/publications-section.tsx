@@ -96,4 +96,30 @@ export function PublicationsSection() {
     setCurrentTranslate(0)
   }
 
+  // 💡 [교정] 컴파일러 에러를 유발했던 IntersectionObserver 구문을 완벽히 매칭 및 폐쇄
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { 
+        if (entry.isIntersecting) {
+          setIsVisible(true) 
+        }
+      },
+      { threshold: 0.1 }
+    )
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current)
+    }
+    return () => observer.disconnect()
+  }, [])
+
+  // 외부 클릭 시 오버레이 초기화 이벤트 리스너 리셋 구문 마감 완결
+  useEffect(() => {
+    const handleOutsideClick = () => setActiveBookIndex(null)
+    window.addEventListener("click", handleOutsideClick)
+    return () => window.removeEventListener("click", handleOutsideClick)
+  }, [])
+
+  return (
+    <section 
+      id="publications" 
+      ref

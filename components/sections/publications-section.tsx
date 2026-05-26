@@ -5,7 +5,7 @@ import hero2Bg from "@/public/images/hero3.png"
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
-const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-20 p-2 text-white/50 hover:text-white bg-black/40 hover:bg-black/70 border border-white/10 rounded-full transition-all duration-300 backdrop-blur-sm flex items-center justify-center font-bold text-lg"
+const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-2 text-white/50 hover:text-white bg-black/40 hover:bg-black/70 border border-white/10 rounded-full transition-all duration-300 backdrop-blur-sm flex items-center justify-center font-bold text-lg"
 
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -67,14 +67,16 @@ export function PublicationsSection() {
           </div>
           <p className="mt-4 font-sans text-base font-light text-stone-300">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
-        <div className="relative group mx-auto w-full max-w-5xl overflow-visible px-4">
-          <div className="flex items-center" style={{ transform: `translateX(calc(-${currentIndex * 33.333}% + ${currentTranslate}px))`, transition: isTransitioning ? "transform 0.5s ease-out" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
+        
+        {/* 💡 overflow-hidden을 주어 화면 마스크 크기를 3개 분량으로 꽉 가둡니다 */}
+        <div className="relative group mx-auto w-full max-w-5xl overflow-hidden px-4">
+          <div className="flex items-center w-full" style={{ transform: `translateX(calc(-${(currentIndex - 1) * 33.333}% + ${currentTranslate}px))`, transition: isTransitioning ? "transform 0.5s ease-out" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
             {books.map((book, idx) => {
               const isCenter = currentIndex === idx; const isSelected = activeBookIndex === idx
               return (
                 <div key={idx} className="w-1/3 flex-shrink-0 flex justify-center px-2 sm:px-4">
                   <div className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isCenter ? "scale-105 sm:scale-110 opacity-100 z-10" : "scale-90 opacity-40 blur-[1px]"}`} onClick={(e) => { e.stopPropagation(); if (!isCenter) { moveSlider(idx > currentIndex ? "next" : "prev"); return }; if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) }}>
-                    <div className="relative w-[180px] sm:w-[240px] md:w-[260px] h-[270px] sm:h-[350px] md:h-[380px] flex items-center justify-center select-none">
+                    <div className="relative w-full max-w-[240px] aspect-[2/3] flex items-center justify-center select-none">
                       <div className="relative h-full w-full overflow-hidden shadow-2xl border border-stone-800/50 rounded-sm">
                         <img src={book.imageSrc} alt={book.title} className="h-full w-full object-cover pointer-events-none" loading="lazy" />
                         <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${isSelected && isCenter ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
@@ -89,9 +91,10 @@ export function PublicationsSection() {
               )
             })}
           </div>
-          <button onClick={(e) => { e.stopPropagation(); moveSlider("prev") }} className={`${navBtnClass} -left-4 sm:left-4`} aria-label="이전">‹</button>
-          <button onClick={(e) => { e.stopPropagation(); moveSlider("next") }} className={`${navBtnClass} -right-4 sm:right-4`} aria-label="다음">›</button>
+          <button onClick={(e) => { e.stopPropagation(); moveSlider("prev") }} className={`${navBtnClass} left-2`} aria-label="이전">‹</button>
+          <button onClick={(e) => { e.stopPropagation(); moveSlider("next") }} className={`${navBtnClass} right-2`} aria-label="다음">›</button>
         </div>
+
         <div className="mt-12 flex justify-center gap-2">
           {baseBooks.map((_, idx) => {
             let adj = currentIndex

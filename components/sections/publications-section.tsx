@@ -18,7 +18,7 @@ export function PublicationsSection() {
   // 기본 책 데이터
   const baseBooks: PublicationBook[] = [
     {
-      title: "그ريس도를 따라서 Vol. 1",
+      title: "그리스도를 따라서 Vol. 1",
       imageSrc: "images/vol1.jpg",
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/"
     },
@@ -107,27 +107,4 @@ export function PublicationsSection() {
 
   useEffect(() => {
     const handleOutsideClick = () => setActiveBookIndex(null)
-    window.addEventListener("click", handleOutsideClick)
-    return () => window.removeEventListener("click", handleOutsideClick)
-  }, [])
-
-  return (
-    <section 
-      id="publications" 
-      ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32 select-none"
-    >
-      {/* 패럴랙스 배경 이미지 */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80"
-        style={{ backgroundImage: `url(${hero2Bg.src})` }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
-
-      {/* 연구업적 섹션 크로스오버 쉬머 CSS */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes customShimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        .animate
+    window.addEventListener("click

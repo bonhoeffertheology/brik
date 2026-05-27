@@ -68,7 +68,6 @@ export function PublicationsSection() {
           <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
             <div className="absolute inset-0 animate-pulse bg-white/80" />
           </div>
-          <p className="mt-4 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
 
         <div className="overflow-hidden">
@@ -83,17 +82,17 @@ export function PublicationsSection() {
               return (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                   <div 
-                    // 1. 가운데 책은 더 크게(scale-125), 양옆은 작게(scale-75) / 3. 확대 모션 제거 (transition 및 scale 고정값 수정)
-                    className={`duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-75 opacity-40"}`}
+                    className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-75 opacity-40"}`}
                     onMouseEnter={() => handleMouseEnter(idx)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    {/* 2. 테두리 제거 (border-2 삭제) */}
                     <div 
-                      className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden shadow-2xl"
+                      className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden shadow-2xl bg-stone-800"
                       onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}
                     >
-                      <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
+                      {/* object-contain으로 변경하여 이미지 전체가 보이도록 설정 */}
+                      <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain p-2" />
+                      
                       <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
                         ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                         <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>

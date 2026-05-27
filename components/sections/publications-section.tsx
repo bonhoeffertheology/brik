@@ -5,7 +5,7 @@ import hero2Bg from "@/public/images/hero3.png";
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
-const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white hover:text-amber-500 transition-all duration-300 flex items-center justify-center font-thin text-7xl md:text-9xl cursor-pointer";
+const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white hover:text-amber-500 transition-all duration-300 flex items-center justify-center font-extralight text-7xl md:text-9xl cursor-pointer";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [

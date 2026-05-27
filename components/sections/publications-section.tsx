@@ -9,13 +9,14 @@ const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/40 ho
 
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null) // 💡 2초 텀을 제어하기 위한 타이머 레퍼런스
   const [isVisible, setIsVisible] = useState(false)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   
   const baseBooks: PublicationBook[] = [
-    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
@@ -32,7 +33,10 @@ export function PublicationsSection() {
     const checkSize = () => setIsMobile(window.innerWidth < 768)
     checkSize()
     window.addEventListener("resize", checkSize)
-    return () => window.removeEventListener("resize", checkSize)
+    return () => {
+      window.removeEventListener("resize", checkSize)
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+    }
   }, [])
 
   const handleTransitionEnd = () => {
@@ -55,6 +59,28 @@ export function PublicationsSection() {
     setIsTransitioning(true)
     setCurrentIndex(targetIdx)
   }, [isTransitioning, currentIndex])
+
+  // 💡 호버 시 2초 딜레이(텀)를 보장하여 연속 회전을 예방하는 핸들러
+  const handleMouseEnterToToJump = (targetIdx: number) => {
+    if (isMobile || isTransitioning || currentIndex === targetIdx) return
+    
+    // 이미 작동 중인 타이머가 있다면 초기화
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+    
+    // 2초(2000ms) 후에 중앙 이동 로직 실행
+    hoverTimeoutRef.current = setTimeout(() => {
+      jumpToIndex(targetIdx)
+    }, 2000)
+  }
+
+  // 마우스가 책 카드에서 벗어나면 타이머 릴리즈
+  const handleMouseLeaveFromCard = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+      hoverTimeoutRef.current = null
+    }
+    if (isDragging) handleEnd()
+  }
 
   const handleStart = (x: number) => {
     if (isTransitioning) return
@@ -104,7 +130,7 @@ export function PublicationsSection() {
         
         <div className="relative group mx-auto w-full max-w-6xl px-8 py-4">
           <div className="overflow-hidden w-full py-10">
-            <div className="flex items-center w-full will-change-transform" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleEnd} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
+            <div className="flex items-center w-full will-change-transform" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleMouseLeaveFromCard} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
               {books.map((book, idx) => {
                 const isCenter = currentIndex === idx; const isSelected = activeBookIndex === idx
                 return (
@@ -112,16 +138,31 @@ export function PublicationsSection() {
                     <div 
                       className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isMobile ? "scale-100 opacity-100" : isCenter ? "scale-115 opacity-100 z-10" : "scale-90 opacity-15 blur-[0.5px]"}`} 
                       onClick={(e) => { e.stopPropagation(); if (!isMobile && !isCenter) { jumpToIndex(idx); return }; if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) }}
-                      onMouseEnter={() => { if (!isMobile && !isCenter) jumpToIndex(idx) }}
+                      onMouseEnter={() => handleMouseEnterToToJump(idx)}
+                      onMouseLeave={handleMouseLeaveFromCard}
                     >
+                      {/* 💡 1번 보완: 프레임 내에서 실제 표지 이미지가 차지하는 wrap 영역에 레이아웃 일치화 처리 */}
                       <div className="relative w-full max-w-[260px] md:max-w-[300px] aspect-[2/3] flex items-center justify-center select-none">
                         <div className="relative h-full w-full overflow-hidden border-none shadow-none rounded-none bg-transparent flex items-center justify-center">
-                          <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain pointer-events-none rounded-none block" loading="lazy" />
-                          <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${isSelected || (!isMobile && isSelected && isCenter) ? "opacity-100 translate-y-0 visible" : "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"}`}>
-                            <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
-                            <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
-                            {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                          
+                          {/* 💡 이미지와 완벽히 겹치는 반응형 가상 컨테이너 블록 배치 */}
+                          <div className="relative max-h-full max-w-full aspect-[2/3] flex items-center justify-center overflow-hidden">
+                            <img src={book.imageSrc} alt={book.title} className="w-auto h-auto max-w-full max-h-full object-contain pointer-events-none rounded-none block" loading="lazy" />
+                            
+                            {/* 💡 3번 보완: group-hover 조건문에 `isCenter`를 추가 결합하여, 오직 정중앙의 활성화된 책 표지 위에서만 음영 레이어가 노출되도록 필터링 */}
+                            <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${
+                              isCenter && (isSelected || activeBookIndex === idx) 
+                                ? "opacity-100 translate-y-0 visible" 
+                                : isCenter 
+                                  ? "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
+                                  : "opacity-0 invisible pointer-events-none" // 가운데가 아니면 완전히 비활성화
+                            }`}>
+                              <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
+                              <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
+                              {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                            </div>
                           </div>
+
                         </div>
                       </div>
                     </div>

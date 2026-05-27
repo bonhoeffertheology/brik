@@ -11,7 +11,6 @@ export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
   
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -57,19 +56,8 @@ export function PublicationsSection() {
     else if (currentIndex >= 6) setCurrentIndex(currentIndex - 3)
   }
 
-  useEffect(() => {
-    const checkSize = () => setIsMobile(window.innerWidth < 768)
-    checkSize()
-    window.addEventListener("resize", checkSize)
-    return () => window.removeEventListener("resize", checkSize)
-  }, [])
-
-  const transformX = isMobile 
-    ? `calc(-${currentIndex * 100}% + ${currentTranslate}px)` 
-    : `calc(-${currentIndex * 33.33}% + 33.33% + ${currentTranslate}px)`
-
   return (
-    <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+    <section id="publications" className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="relative group mx-auto w-full max-w-6xl">
@@ -78,20 +66,23 @@ export function PublicationsSection() {
             onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} 
             onMouseUp={handleEnd} onMouseLeave={handleEnd}
           >
-            <div className="flex items-center transition-transform duration-500 ease-out" style={{ transform: `translateX(${transformX})` }} onTransitionEnd={handleTransitionEnd}>
+            <div className="flex items-center transition-transform duration-500 ease-out" style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33% + ${currentTranslate}px))` }} onTransitionEnd={handleTransitionEnd}>
               {books.map((book, idx) => {
                 const isCenter = currentIndex === idx
                 const isActive = activeBookIndex === idx
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                     <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
-                      {/* 배경색을 제거(bg-transparent)하여 테두리 느낌을 없애고 이미지가 꽉 차게 보임 */}
-                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent rounded-lg" onClick={() => handleBookClick(idx)}>
-                        {/* object-cover로 변경하여 이미지 비율에 맞게 꽉 채움 (비율이 다를 경우 이미지의 중심을 기준으로 잘림) */}
-                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
+                      {/* 1. rounded-lg 삭제(직사각형) 및 2. 글씨 선명도를 위해 이미지 속성 최적화 */}
+                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent" onClick={() => handleBookClick(idx)}>
+                        <img 
+                          src={book.imageSrc} 
+                          alt={book.title} 
+                          className="w-full h-full object-fill [image-rendering:high-quality]" 
+                        />
                         
-                        {/* 음영 레이어는 부모 컨테이너(rounded-lg)와 일치하게 설정 */}
-                        <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out rounded-lg ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+                        {/* 음영 레이어도 라운딩 제거 */}
+                        <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                           <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
                           {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}

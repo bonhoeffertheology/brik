@@ -63,7 +63,6 @@ export function PublicationsSection() {
     <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* 제목 섹션 */}
         <div className="mb-20 text-center transition-all duration-1000 transform" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}>
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
@@ -72,7 +71,6 @@ export function PublicationsSection() {
           <p className="mt-4 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 책입니다</p>
         </div>
 
-        {/* 슬라이더 섹션 */}
         <div className="overflow-hidden">
           <div 
             className="flex items-center transition-transform duration-500 ease-out"
@@ -85,12 +83,14 @@ export function PublicationsSection() {
               return (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                   <div 
-                    className={`transition-all duration-500 transform ${isCenter ? "scale-110 opacity-100" : "scale-90 opacity-60"}`}
+                    // 1. 가운데 책은 더 크게(scale-125), 양옆은 작게(scale-75) / 3. 확대 모션 제거 (transition 및 scale 고정값 수정)
+                    className={`duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-75 opacity-40"}`}
                     onMouseEnter={() => handleMouseEnter(idx)}
                     onMouseLeave={handleMouseLeave}
                   >
+                    {/* 2. 테두리 제거 (border-2 삭제) */}
                     <div 
-                      className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden border-2 border-stone-800"
+                      className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden shadow-2xl"
                       onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}
                     >
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
@@ -108,7 +108,6 @@ export function PublicationsSection() {
           </div>
         </div>
 
-        {/* 하단 인디케이터 */}
         <div className="mt-16 flex justify-center gap-2">
           {baseBooks.map((_, idx) => (
             <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${currentIndex % 3 === idx ? "w-8 bg-amber-500" : "w-2 bg-stone-600"}`} />

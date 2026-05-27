@@ -26,7 +26,7 @@ export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // 순수 자바스크립트 관성 패럴렉스 엔진 (완벽 유지)
+  // 순수 자바스크립트 관성 패럴렉스 엔진 (100% 원본 보존)
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
@@ -115,7 +115,8 @@ export function PublicationsSection() {
                 key={book.title} 
                 className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer select-none"
                 style={{ 
-                  transform: `translateX(${xOffset}px) scale(${scale})`, 
+                  /* scale 조절 시 흐려짐 버그를 해결하기 위해 3D 원근감(perspective) 레이어 강제 병합 */
+                  transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
                   transformStyle: "preserve-3d",
                   WebkitBackfaceVisibility: "hidden",
@@ -128,13 +129,17 @@ export function PublicationsSection() {
                 }}
               >
                 
-                <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl">
-                  {/* transform 렌더링 시 발생하는 글자 흐림(Blur) 버그를 막기 위해 하드웨어 가속 속성 부여 */}
+                <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
                   <img 
                     src={book.imageSrc} 
                     alt={book.title} 
-                    className="w-full h-full object-cover will-change-transform antialiased" 
-                    style={{ transform: "translateZ(0)" }}
+                    /* 💡 핵심 수정: 고해상도 이미지가 리사이징될 때 외곽선을 부드럽고 뚜렷하게 보정하는 속성 조합 */
+                    className="w-full h-full object-cover" 
+                    style={{ 
+                      imageRendering: "-webkit-optimize-contrast", // 크롬/사파리 글자 대비 극대화
+                      WebkitTransform: "translateZ(0) scale(1.0001)", // 미세 픽셀 단위 래스터화 강제 우회
+                      transform: "translateZ(0) scale(1.0001)"
+                    }}
                   />
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                     <p className="text-white text-sm font-serif text-center">{book.title}</p>

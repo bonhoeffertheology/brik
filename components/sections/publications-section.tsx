@@ -26,7 +26,7 @@ export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // 순수 자바스크립트 관성 패럴렉스 엔진
+  // 순수 자바스크립트 관성 패럴렉스 엔진 (완벽 유지)
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
@@ -111,16 +111,31 @@ export function PublicationsSection() {
             const isActive = isCenter && activeIdx === i;
 
             return (
-              <div key={book.title} className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer"
-                style={{ transform: `translateX(${xOffset}px) scale(${scale})`, zIndex }}
+              <div 
+                key={book.title} 
+                className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer select-none"
+                style={{ 
+                  transform: `translateX(${xOffset}px) scale(${scale})`, 
+                  zIndex,
+                  transformStyle: "preserve-3d",
+                  WebkitBackfaceVisibility: "hidden",
+                  backfaceVisibility: "hidden"
+                }}
                 onClick={() => {
                   if (offset === 1) rotate(1);
                   else if (offset === books.length - 1) rotate(-1);
                   else setActiveIdx(activeIdx === i ? null : i);
-                }}>
+                }}
+              >
                 
                 <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl">
-                  <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
+                  {/* transform 렌더링 시 발생하는 글자 흐림(Blur) 버그를 막기 위해 하드웨어 가속 속성 부여 */}
+                  <img 
+                    src={book.imageSrc} 
+                    alt={book.title} 
+                    className="w-full h-full object-cover will-change-transform antialiased" 
+                    style={{ transform: "translateZ(0)" }}
+                  />
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                     <p className="text-white text-sm font-serif text-center">{book.title}</p>
                     <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>

@@ -1,8 +1,3 @@
-이 현상은 슬라이더 배열(books)을 복제하여 순환 구조를 만들었을 때, 특정 인덱스에서 실제 데이터의 시작이나 끝으로 '점프'(jumpToIndex와 유사한 로직)하는 과정에서 발생합니다. 현재 코드는 인덱스가 범위를 벗어나면 강제로 위치를 수정하는데, 이 과정이 애니메이션과 충돌하여 역방향으로 튕기는 것처럼 보입니다.
-
-이를 해결하기 위해 배열을 3배수로 늘린 상태에서 슬라이더가 멈추지 않고 계속 한 방향으로 흐르도록 인덱스 처리를 매끄럽게 수정했습니다.
-
-TypeScript
 "use client"
 import { useEffect, useRef, useState, useCallback } from "react"
 import hero2Bg from "@/public/images/hero3.png"
@@ -13,7 +8,7 @@ const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-m
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
 
 export function PublicationsSection() {
-  const [currentIndex, setCurrentIndex] = useState(3) // 배열의 중간 그룹에서 시작
+  const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
@@ -46,7 +41,6 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  // 트랜지션이 끝난 후, 인덱스가 경계에 도달하면 즉시 중앙 그룹으로 리셋 (시각적 끊김 없이)
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
     if (currentIndex <= 0) setCurrentIndex(baseBooks.length)
@@ -62,6 +56,14 @@ export function PublicationsSection() {
     }
   }
 
+  const handleEnd = () => {
+    if (!isDragging) return
+    setIsDragging(false)
+    if (currentTranslate < -50) moveSlider(1)
+    else if (currentTranslate > 50) moveSlider(-1)
+    setCurrentTranslate(0)
+  }
+
   return (
     <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
@@ -72,10 +74,15 @@ export function PublicationsSection() {
           <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
             <div className="absolute inset-0 animate-pulse bg-white/80" />
           </div>
+          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
-          <div className="overflow-hidden py-10">
+          <div className="overflow-hidden py-10" 
+            onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX) }} 
+            onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} 
+            onMouseUp={handleEnd} onMouseLeave={handleEnd}
+          >
             <div 
               className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
@@ -92,6 +99,7 @@ export function PublicationsSection() {
                         <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                           <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
+                          {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
                         </div>
                       </div>
                     </div>

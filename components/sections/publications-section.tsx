@@ -13,10 +13,6 @@ export function PublicationsSection() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [currentTranslate, setCurrentTranslate] = useState(0)
-  
   const sectionRef = useRef<HTMLDivElement>(null)
 
   const baseBooks: PublicationBook[] = [
@@ -41,10 +37,12 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
+  // 핵심 수정: 트랜지션 종료 후 리셋 처리를 분리하여 깜빡임 방지
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    if (currentIndex <= 0) setCurrentIndex(baseBooks.length)
-    else if (currentIndex >= baseBooks.length * 2 - 1) setCurrentIndex(baseBooks.length - 1)
+    if (currentIndex <= 1 || currentIndex >= baseBooks.length * 2 - 2) {
+      setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
+    }
   }
 
   const handleBookClick = (idx: number) => {
@@ -54,14 +52,6 @@ export function PublicationsSection() {
       const diff = idx - currentIndex
       if (Math.abs(diff) === 1) moveSlider(diff as 1 | -1)
     }
-  }
-
-  const handleEnd = () => {
-    if (!isDragging) return
-    setIsDragging(false)
-    if (currentTranslate < -50) moveSlider(1)
-    else if (currentTranslate > 50) moveSlider(-1)
-    setCurrentTranslate(0)
   }
 
   return (
@@ -78,11 +68,7 @@ export function PublicationsSection() {
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
-          <div className="overflow-hidden py-10" 
-            onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX) }} 
-            onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} 
-            onMouseUp={handleEnd} onMouseLeave={handleEnd}
-          >
+          <div className="overflow-hidden py-10">
             <div 
               className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
@@ -99,7 +85,6 @@ export function PublicationsSection() {
                         <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                           <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
-                          {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
                         </div>
                       </div>
                     </div>

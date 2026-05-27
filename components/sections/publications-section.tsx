@@ -26,7 +26,7 @@ export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // 순수 자바스크립트 관성 패럴렉스 엔진
+  // 순수 자바스크립트 관성 패럴렉스 엔진 (변동 없이 완벽 유지)
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
@@ -127,16 +127,18 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
-                {/* [수정 및 보완 핵심 레이어]
-                  - [delay-500] 임의의 인라인 스타일 대신 Tailwind 표준 딜레이 클래스를 조합했습니다. 
-                    책 표지가 이동하는 트랜지션(duration-500)이 끝나는 시점에 딜레이가 종료되므로, 안착 후 정확히 0.5초 뒤 타이밍부터 노출을 시작합니다.
-                  - 다음 책으로 넘어가는 비활성화 상태에선 [delay-0]을 선언하여 지체 없이 즉각 투명해지며 사라집니다.
+                {/* [보충 및 반영 내역]
+                  1. transition-opacity로 축소하여 위아래 흔들림(translate)을 원천 차단했습니다.
+                  2. Tailwind의 한계인 delay-700을 극복하고자 인라인 transitionDelay 연산식을 부여했습니다.
+                     - 중앙 카드 안착 시(isCenter): 정확히 1초(1000ms) 대기 후 Fade-in 시작
+                     - 카드 이탈 시(!isCenter): 딜레이 없이 즉각(0ms) 숨김 처리
                 */}
-                <div className={`mt-4 w-full transition-all duration-500 ease-out ${
-                  isCenter 
-                    ? "opacity-100 translate-y-0 delay-1000" 
-                    : "opacity-0 translate-y-3 delay-0"
-                }`}>
+                <div 
+                  className={`mt-4 w-full transition-opacity duration-500 ease-out ${
+                    isCenter ? "opacity-100" : "opacity-0"
+                  }`}
+                  style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
+                >
                   <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
                     책을 클릭하시면<br />구매하실 수 있습니다
                   </p>

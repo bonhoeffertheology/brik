@@ -10,7 +10,7 @@ const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/40 ho
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const isFirstHoverRef = useRef<boolean>(true)
+  const isFirstHoverRef = useRef<boolean>(true) // 💡 최초 1회 진입 판별 플래그
   
   const [isVisible, setIsVisible] = useState(false)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
@@ -62,28 +62,33 @@ export function PublicationsSection() {
     setCurrentIndex(targetIdx)
   }, [isTransitioning, currentIndex])
 
+  // 💡 3번 보완: 첫 1회 즉시 이동 및 유지 시 2초 딜레이 순환 인터랙션 로직
   const handleMouseEnterToJump = (targetIdx: number) => {
     if (isMobile || isTransitioning || currentIndex === targetIdx) return
     
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
     
     if (isFirstHoverRef.current) {
+      // 처음 갖다댄 순간: 딜레이 없이 부드럽게 즉시 중앙으로 연출 이동
       isFirstHoverRef.current = false
       jumpToIndex(targetIdx)
       
+      // 이동한 직후에도 마우스를 계속 올리고 있다면, 그 다음부터는 2초 간격 텀 부여
       hoverTimeoutRef.current = setTimeout(() => {
         const nextIdx = targetIdx < currentIndex ? targetIdx - 1 : targetIdx + 1
         jumpToIndex(nextIdx)
       }, 2000)
     } else {
+      // 2회차 연속 전환 루프 진행 시 작동 로직
       hoverTimeoutRef.current = setTimeout(() => {
         jumpToIndex(targetIdx)
       }, 2000)
     }
   }
 
+  // 마우스 커서 이탈 시 안전 장치 초기화
   const handleMouseLeaveFromCard = () => {
-    isFirstHoverRef.current = true
+    isFirstHoverRef.current = true // 커서 탈출 시 다시 첫 진입 상태로 복귀
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current)
       hoverTimeoutRef.current = null
@@ -139,52 +144,42 @@ export function PublicationsSection() {
         
         <div className="relative group mx-auto w-full max-w-6xl px-8 py-4">
           <div className="overflow-hidden w-full py-10">
+            {/* 💡 3번 보완: 슬라이더 트랙의 이동 속도를 0.4초에서 0.7초(duration-700)로 감속 조정하여 우아하게 천천히 스위칭 */}
             <div className="flex items-center w-full will-change-transform" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleMouseLeaveFromCard} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
               {books.map((book, idx) => {
                 const isCenter = currentIndex === idx; const isSelected = activeBookIndex === idx
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4 md:px-6">
                     <div 
-                      className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing [backface-visibility:hidden] [transform-style:preserve-3d] ${
-                        isMobile 
-                          ? "scale-100 opacity-100" 
-                          : isCenter 
-                            ? "scale-115 opacity-100 z-10 [transform:translateZ(0)_scale(1.15)]" 
-                            : "scale-90 opacity-65 blur-[0.3px]"
-                      }`} 
+                      className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isMobile ? "scale-100 opacity-100" : isCenter ? "scale-115 opacity-100 z-10" : "scale-90 opacity-15 blur-[0.5px]"}`} 
                       onClick={(e) => { e.stopPropagation(); if (!isMobile && !isCenter) { jumpToIndex(idx); return }; if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) }}
                       onMouseEnter={() => handleMouseEnterToJump(idx)}
                       onMouseLeave={handleMouseLeaveFromCard}
                     >
-                      {/* 💡 고정 크기 가이드라인을 부여하여 렌더링 증발 현상을 근본 차단 */}
-                      <div className="relative w-[260px] md:w-[280px] aspect-[2/3] flex items-center justify-center select-none overflow-hidden">
-                        
-                        {/* 💡 Grid를 사용하여 이미지의 실물 면적과 오버레이가 완벽하게 동일한 픽셀 공간을 점유하도록 설계 */}
-                        <div className="grid grid-cols-1 grid-rows-1 items-center justify-center w-full h-full">
+                      <div className="relative w-full max-w-[260px] md:max-w-[300px] aspect-[2/3] flex items-center justify-center select-none">
+                        <div className="relative h-full w-full overflow-hidden border-none shadow-none rounded-none bg-transparent flex items-center justify-center">
                           
-                          {/* 책 표지 이미지 이미지 레이어 */}
-                          <img 
-                            src={book.imageSrc} 
-                            alt={book.title} 
-                            className="col-start-1 row-start-1 w-full h-full object-contain pointer-events-none rounded-none block [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges]" 
-                            loading="lazy" 
-                          />
-                          
-                          {/* 100% 비율 일치형 흐림 음영 및 구매 버튼 레이어 */}
-                          <div className={`col-start-1 row-start-1 w-full h-full bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-700 ease-in-out transform ${
-                            isCenter && (isSelected || activeBookIndex === idx) 
-                              ? "opacity-100 translate-y-0 visible" 
-                              : isCenter 
-                                ? "opacity-0 translate-y-4 invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
-                                : "opacity-0 invisible pointer-events-none"
-                          }`}>
-                            <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
-                            <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
-                            {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                          {/* 💡 1번 보완: 내부 요소를 완전한 absolute 비율 컴포넌트로 선언하여 원본 컨테인 이미지와 오버레이 레이어가 1픽셀 오차도 없이 맞물림 */}
+                          <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                            <div className="relative w-full h-full flex items-center justify-center">
+                              <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain pointer-events-none rounded-none block" loading="lazy" />
+                              
+                              {/* 💡 2번 보완: transition-all duration-700 ease-in-out 설정을 통해 블러 및 어두운 오버레이가 스멀스멀 부드럽게 표출 */}
+                              <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-700 ease-in-out transform ${
+                                isCenter && (isSelected || activeBookIndex === idx) 
+                                  ? "opacity-100 translate-y-0 visible" 
+                                  : isCenter 
+                                    ? "opacity-0 translate-y-4 invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
+                                    : "opacity-0 invisible pointer-events-none"
+                              }`}>
+                                <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
+                                <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
+                                {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                              </div>
+                            </div>
                           </div>
-                          
-                        </div>
 
+                        </div>
                       </div>
                     </div>
                   </div>

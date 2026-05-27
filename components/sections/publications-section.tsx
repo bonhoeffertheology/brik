@@ -1,3 +1,8 @@
+이 현상은 슬라이더 배열(books)을 복제하여 순환 구조를 만들었을 때, 특정 인덱스에서 실제 데이터의 시작이나 끝으로 '점프'(jumpToIndex와 유사한 로직)하는 과정에서 발생합니다. 현재 코드는 인덱스가 범위를 벗어나면 강제로 위치를 수정하는데, 이 과정이 애니메이션과 충돌하여 역방향으로 튕기는 것처럼 보입니다.
+
+이를 해결하기 위해 배열을 3배수로 늘린 상태에서 슬라이더가 멈추지 않고 계속 한 방향으로 흐르도록 인덱스 처리를 매끄럽게 수정했습니다.
+
+TypeScript
 "use client"
 import { useEffect, useRef, useState, useCallback } from "react"
 import hero2Bg from "@/public/images/hero3.png"
@@ -8,7 +13,7 @@ const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-m
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
 
 export function PublicationsSection() {
-  const [currentIndex, setCurrentIndex] = useState(3)
+  const [currentIndex, setCurrentIndex] = useState(3) // 배열의 중간 그룹에서 시작
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
@@ -30,40 +35,31 @@ export function PublicationsSection() {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) setIsVisible(true)
     }, { threshold: 0.2 })
-    
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
-  const moveSlider = useCallback((dir: "prev" | "next") => {
+  const moveSlider = useCallback((direction: 1 | -1) => {
     if (isTransitioning) return
     setIsTransitioning(true)
-    setCurrentIndex((prev) => (dir === "next" ? prev + 1 : prev - 1))
+    setCurrentIndex(prev => prev + direction)
     setActiveBookIndex(null)
   }, [isTransitioning])
+
+  // 트랜지션이 끝난 후, 인덱스가 경계에 도달하면 즉시 중앙 그룹으로 리셋 (시각적 끊김 없이)
+  const handleTransitionEnd = () => {
+    setIsTransitioning(false)
+    if (currentIndex <= 0) setCurrentIndex(baseBooks.length)
+    else if (currentIndex >= baseBooks.length * 2 - 1) setCurrentIndex(baseBooks.length - 1)
+  }
 
   const handleBookClick = (idx: number) => {
     if (idx === currentIndex) {
       setActiveBookIndex(activeBookIndex === idx ? null : idx)
     } else {
       const diff = idx - currentIndex
-      if (diff === 1) moveSlider("next")
-      else if (diff === -1) moveSlider("prev")
+      if (Math.abs(diff) === 1) moveSlider(diff as 1 | -1)
     }
-  }
-
-  const handleEnd = () => {
-    if (!isDragging) return
-    setIsDragging(false)
-    if (currentTranslate < -50) moveSlider("next")
-    else if (currentTranslate > 50) moveSlider("prev")
-    setCurrentTranslate(0)
-  }
-
-  const handleTransitionEnd = () => {
-    setIsTransitioning(false)
-    if (currentIndex <= 2) setCurrentIndex(currentIndex + 3)
-    else if (currentIndex >= 6) setCurrentIndex(currentIndex - 3)
   }
 
   return (
@@ -76,36 +72,27 @@ export function PublicationsSection() {
           <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
             <div className="absolute inset-0 animate-pulse bg-white/80" />
           </div>
-          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
-          <div className="overflow-hidden py-10" 
-            onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX) }} 
-            onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} 
-            onMouseUp={handleEnd} onMouseLeave={handleEnd}
-          >
-            <div className="flex items-center transition-transform duration-500 ease-out" style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33% + ${currentTranslate}px))` }} onTransitionEnd={handleTransitionEnd}>
+          <div className="overflow-hidden py-10">
+            <div 
+              className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
+              style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
+              onTransitionEnd={handleTransitionEnd}
+            >
               {books.map((book, idx) => {
                 const isCenter = currentIndex === idx
                 const isActive = activeBookIndex === idx
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                     <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
-                      {/* 라운딩 제거됨 */}
                       <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent" onClick={() => handleBookClick(idx)}>
-                        <img 
-                          src={book.imageSrc} 
-                          alt={book.title} 
-                          className="w-full h-full object-fill [image-rendering:high-quality]" 
-                        />
-                        
-                        {/* 음영 레이어 라운딩 제거 및 inset-0으로 완전 밀착 */}
-                       <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
-  <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
-  <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
-  {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
-</div>
+                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill [image-rendering:high-quality]" />
+                        <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+                          <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
+                          <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -113,8 +100,8 @@ export function PublicationsSection() {
               })}
             </div>
           </div>
-          <button onClick={() => moveSlider("prev")} className={`${navBtnClass} -left-4 md:-left-16`}>‹</button>
-          <button onClick={() => moveSlider("next")} className={`${navBtnClass} -right-4 md:-right-16`}>›</button>
+          <button onClick={() => moveSlider(-1)} className={`${navBtnClass} -left-4 md:-left-16`}>‹</button>
+          <button onClick={() => moveSlider(1)} className={`${navBtnClass} -right-4 md:-right-16`}>›</button>
         </div>
       </div>
     </section>

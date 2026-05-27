@@ -8,83 +8,67 @@ const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-m
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
 
 export function PublicationsSection() {
-  const [currentIndex, setCurrentIndex] = useState(7) // 5배수 배열의 중간으로 초기화
-  const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
-  
-  const sectionRef = useRef<HTMLDivElement>(null)
-
   const baseBooks: PublicationBook[] = [
     { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
-  // 5배수로 확장하여 루프 도달 시점을 늦춤
-  const books = Array(5).fill(baseBooks).flat()
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setIsVisible(true)
-    }, { threshold: 0.2 })
-    if (sectionRef.current) observer.observe(sectionRef.current)
-    return () => observer.disconnect()
-  }, [])
+  const [books, setBooks] = useState(baseBooks)
+  const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
 
+  // 다음 책으로 이동 (무한 루프 핵심: 첫 번째 요소를 뒤로 보냄)
   const moveSlider = (dir: 1 | -1) => {
-    if (isTransitioning) return
-    setIsTransitioning(true)
-    setActiveBookIndex(null)
-    setCurrentIndex(prev => prev + dir)
-  }
-
-  const handleTransitionEnd = () => {
-    setIsTransitioning(false)
-    // 경계 도달 시 부드럽게 중앙으로 복귀
-    if (currentIndex <= 2 || currentIndex >= books.length - 3) {
-      setCurrentIndex(baseBooks.length * 2 + (currentIndex % baseBooks.length))
-    }
+    if (isAnimating) return
+    setIsAnimating(true)
+    
+    setTimeout(() => {
+      setBooks(prev => {
+        const newBooks = [...prev]
+        if (dir === 1) { // 다음
+          const first = newBooks.shift()!
+          newBooks.push(first)
+        } else { // 이전
+          const last = newBooks.pop()!
+          newBooks.unshift(last)
+        }
+        return newBooks
+      })
+      setIsAnimating(false)
+    }, 500) // CSS duration과 동일하게 맞춤
   }
 
   return (
-    <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+    <section id="publications" className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className="mb-16 text-center">
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
-            <div className="absolute inset-0 animate-pulse bg-white/80" />
-          </div>
-          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden" />
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10">
-            <div 
-              className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
-              style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
-              onTransitionEnd={handleTransitionEnd}
-            >
-              {books.map((book, idx) => (
-                <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
-                  <div className={`transition-all duration-500 transform ${currentIndex === idx ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
+            <div className="flex items-center justify-center transition-all duration-500">
+              {books.map((book, idx) => {
+                const isCenter = idx === 1 // 항상 배열의 2번째 요소가 중앙
+                return (
+                  <div key={`${book.title}-${idx}`} className={`w-full md:w-1/3 flex-shrink-0 flex justify-center px-4 transition-all duration-500 ${isCenter ? "scale-100 opacity-100" : "scale-75 opacity-40"}`}>
                     <div 
                       className="relative w-[260px] h-[420px] cursor-pointer shadow-2xl bg-transparent overflow-hidden" 
-                      onClick={() => {
-                        if (idx !== currentIndex) moveSlider(idx > currentIndex ? 1 : -1)
-                        else setActiveBookIndex(activeBookIndex === idx ? null : idx)
-                      }}
+                      onClick={() => isCenter ? setActiveBookIndex(activeBookIndex === idx ? null : idx) : moveSlider(idx > 1 ? 1 : -1)}
                     >
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill" />
-                      <div className={`absolute -inset-[2px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx && activeBookIndex === idx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"}`}>
-                        <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
+                      <div className={`absolute -inset-[2px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ${isCenter && activeBookIndex === idx ? "opacity-100" : "opacity-0"}`}>
+                        <p className="text-white text-sm">{book.title}</p>
                         <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
           <button onClick={() => moveSlider(-1)} className={navBtnClass + " -left-4 md:-left-16"}>‹</button>

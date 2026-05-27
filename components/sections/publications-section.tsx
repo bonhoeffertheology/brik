@@ -144,8 +144,6 @@ export function PublicationsSection() {
                 const isCenter = currentIndex === idx; const isSelected = activeBookIndex === idx
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4 md:px-6">
-                    {/* 💡 1번 보완: 양옆 카드 불투명도를 기존 opacity-15에서 opacity-65로 높여 가시성 확보 */}
-                    {/* 💡 2번 보완: 데스크탑 브라우저 그래픽 가속 연산(scale 연산) 시의 폰트/선 세밀도 뭉개짐을 완화하는 backface-visibility 및 하드웨어 힌트 수식 주입 */}
                     <div 
                       className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing [backface-visibility:hidden] [transform-style:preserve-3d] ${
                         isMobile 
@@ -158,29 +156,35 @@ export function PublicationsSection() {
                       onMouseEnter={() => handleMouseEnterToJump(idx)}
                       onMouseLeave={handleMouseLeaveFromCard}
                     >
-                      <div className="relative w-full max-w-[260px] md:max-w-[300px] aspect-[2/3] flex items-center justify-center select-none">
-                        <div className="relative h-full w-full overflow-hidden border-none shadow-none rounded-none bg-transparent flex items-center justify-center">
+                      {/* 💡 고정 크기 가이드라인을 부여하여 렌더링 증발 현상을 근본 차단 */}
+                      <div className="relative w-[260px] md:w-[280px] aspect-[2/3] flex items-center justify-center select-none overflow-hidden">
+                        
+                        {/* 💡 Grid를 사용하여 이미지의 실물 면적과 오버레이가 완벽하게 동일한 픽셀 공간을 점유하도록 설계 */}
+                        <div className="grid grid-cols-1 grid-rows-1 items-center justify-center w-full h-full">
                           
-                          <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                            <div className="relative w-full h-full flex items-center justify-center">
-                              {/* 💡 데스크탑 모니터용 하이-콘트라스트 그래픽 렌더링 속성 강제 지정 ([image-rendering]) */}
-                              <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain pointer-events-none rounded-none block [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges]" loading="lazy" />
-                              
-                              <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-700 ease-in-out transform ${
-                                isCenter && (isSelected || activeBookIndex === idx) 
-                                  ? "opacity-100 translate-y-0 visible" 
-                                  : isCenter 
-                                    ? "opacity-0 translate-y-4 invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
-                                    : "opacity-0 invisible pointer-events-none"
-                              }`}>
-                                <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
-                                <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
-                                {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
-                              </div>
-                            </div>
+                          {/* 책 표지 이미지 이미지 레이어 */}
+                          <img 
+                            src={book.imageSrc} 
+                            alt={book.title} 
+                            className="col-start-1 row-start-1 w-full h-full object-contain pointer-events-none rounded-none block [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges]" 
+                            loading="lazy" 
+                          />
+                          
+                          {/* 100% 비율 일치형 흐림 음영 및 구매 버튼 레이어 */}
+                          <div className={`col-start-1 row-start-1 w-full h-full bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-700 ease-in-out transform ${
+                            isCenter && (isSelected || activeBookIndex === idx) 
+                              ? "opacity-100 translate-y-0 visible" 
+                              : isCenter 
+                                ? "opacity-0 translate-y-4 invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
+                                : "opacity-0 invisible pointer-events-none"
+                          }`}>
+                            <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
+                            <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
+                            {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
                           </div>
-
+                          
                         </div>
+
                       </div>
                     </div>
                   </div>

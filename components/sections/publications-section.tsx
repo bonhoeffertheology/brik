@@ -5,16 +5,15 @@ import hero2Bg from "@/public/images/hero3.png"
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
-const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-5xl md:text-6xl select-none cursor-pointer"
+// 화살표 크기를 2배 이상 키움 (text-9xl)
+const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
 
 export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
   
-  // 스와이프용 상태
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [currentTranslate, setCurrentTranslate] = useState(0)
@@ -35,14 +34,15 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  const handleStart = (x: number) => {
-    setIsDragging(true)
-    setStartX(x)
-  }
-
-  const handleMove = (x: number) => {
-    if (!isDragging) return
-    setCurrentTranslate(x - startX)
+  // 양옆 책 클릭 시 가운데로 이동하는 핸들러
+  const handleBookClick = (idx: number) => {
+    if (idx === currentIndex) {
+      setActiveBookIndex(activeBookIndex === idx ? null : idx)
+    } else {
+      const diff = idx - currentIndex
+      if (diff === 1) moveSlider("next")
+      else if (diff === -1) moveSlider("prev")
+    }
   }
 
   const handleEnd = () => {
@@ -63,12 +63,7 @@ export function PublicationsSection() {
     const checkSize = () => setIsMobile(window.innerWidth < 768)
     checkSize()
     window.addEventListener("resize", checkSize)
-    const observer = new IntersectionObserver(([e]) => { if (e.isIntersecting) setIsVisible(true) }, { threshold: 0.1 })
-    if (sectionRef.current) observer.observe(sectionRef.current)
-    return () => {
-      window.removeEventListener("resize", checkSize)
-      observer.disconnect()
-    }
+    return () => window.removeEventListener("resize", checkSize)
   }, [])
 
   const transformX = isMobile 
@@ -79,15 +74,11 @@ export function PublicationsSection() {
     <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="mb-20 text-center transition-all duration-1000 transform" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}>
-          <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative" />
-        </div>
-
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10" 
-            onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => handleMove(e.clientX)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
-            onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => handleMove(e.touches[0].clientX)} onTouchEnd={handleEnd}
+            onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX) }} 
+            onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} 
+            onMouseUp={handleEnd} onMouseLeave={handleEnd}
           >
             <div className="flex items-center transition-transform duration-500 ease-out" style={{ transform: `translateX(${transformX})` }} onTransitionEnd={handleTransitionEnd}>
               {books.map((book, idx) => {
@@ -96,9 +87,10 @@ export function PublicationsSection() {
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                     <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
-                      <div className="relative w-[260px] h-[420px] cursor-grab active:cursor-grabbing overflow-hidden shadow-2xl bg-transparent" onClick={() => setActiveBookIndex(isActive ? null : idx)}>
+                      {/* 모서리 삐져나옴 방지를 위한 overflow-hidden 및 동일한 라운드 값 적용 */}
+                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-stone-800 rounded-lg" onClick={() => handleBookClick(idx)}>
                         <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain" />
-                        <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+                        <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out rounded-lg ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                           <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
                           {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
@@ -110,8 +102,8 @@ export function PublicationsSection() {
               })}
             </div>
           </div>
-          <button onClick={() => moveSlider("prev")} className={`${navBtnClass} -left-4 md:-left-12`}>‹</button>
-          <button onClick={() => moveSlider("next")} className={`${navBtnClass} -right-4 md:-right-12`}>›</button>
+          <button onClick={() => moveSlider("prev")} className={`${navBtnClass} -left-4 md:-left-16`}>‹</button>
+          <button onClick={() => moveSlider("next")} className={`${navBtnClass} -right-4 md:-right-16`}>›</button>
         </div>
       </div>
     </section>

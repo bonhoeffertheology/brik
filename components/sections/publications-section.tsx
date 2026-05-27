@@ -9,7 +9,9 @@ const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/40 ho
 
 export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null) // 💡 2초 텀을 제어하기 위한 타이머 레퍼런스
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isFirstHoverRef = useRef<boolean>(true)
+  
   const [isVisible, setIsVisible] = useState(false)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -60,21 +62,28 @@ export function PublicationsSection() {
     setCurrentIndex(targetIdx)
   }, [isTransitioning, currentIndex])
 
-  // 💡 호버 시 2초 딜레이(텀)를 보장하여 연속 회전을 예방하는 핸들러
-  const handleMouseEnterToToJump = (targetIdx: number) => {
+  const handleMouseEnterToJump = (targetIdx: number) => {
     if (isMobile || isTransitioning || currentIndex === targetIdx) return
     
-    // 이미 작동 중인 타이머가 있다면 초기화
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
     
-    // 2초(2000ms) 후에 중앙 이동 로직 실행
-    hoverTimeoutRef.current = setTimeout(() => {
+    if (isFirstHoverRef.current) {
+      isFirstHoverRef.current = false
       jumpToIndex(targetIdx)
-    }, 2000)
+      
+      hoverTimeoutRef.current = setTimeout(() => {
+        const nextIdx = targetIdx < currentIndex ? targetIdx - 1 : targetIdx + 1
+        jumpToIndex(nextIdx)
+      }, 2000)
+    } else {
+      hoverTimeoutRef.current = setTimeout(() => {
+        jumpToIndex(targetIdx)
+      }, 2000)
+    }
   }
 
-  // 마우스가 책 카드에서 벗어나면 타이머 릴리즈
   const handleMouseLeaveFromCard = () => {
+    isFirstHoverRef.current = true
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current)
       hoverTimeoutRef.current = null
@@ -130,36 +139,44 @@ export function PublicationsSection() {
         
         <div className="relative group mx-auto w-full max-w-6xl px-8 py-4">
           <div className="overflow-hidden w-full py-10">
-            <div className="flex items-center w-full will-change-transform" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleMouseLeaveFromCard} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
+            <div className="flex items-center w-full will-change-transform" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.7s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleMouseLeaveFromCard} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
               {books.map((book, idx) => {
                 const isCenter = currentIndex === idx; const isSelected = activeBookIndex === idx
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4 md:px-6">
+                    {/* 💡 1번 보완: 양옆 카드 불투명도를 기존 opacity-15에서 opacity-65로 높여 가시성 확보 */}
+                    {/* 💡 2번 보완: 데스크탑 브라우저 그래픽 가속 연산(scale 연산) 시의 폰트/선 세밀도 뭉개짐을 완화하는 backface-visibility 및 하드웨어 힌트 수식 주입 */}
                     <div 
-                      className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing ${isMobile ? "scale-100 opacity-100" : isCenter ? "scale-115 opacity-100 z-10" : "scale-90 opacity-15 blur-[0.5px]"}`} 
+                      className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform cursor-grab active:cursor-grabbing [backface-visibility:hidden] [transform-style:preserve-3d] ${
+                        isMobile 
+                          ? "scale-100 opacity-100" 
+                          : isCenter 
+                            ? "scale-115 opacity-100 z-10 [transform:translateZ(0)_scale(1.15)]" 
+                            : "scale-90 opacity-65 blur-[0.3px]"
+                      }`} 
                       onClick={(e) => { e.stopPropagation(); if (!isMobile && !isCenter) { jumpToIndex(idx); return }; if (!isDragging && currentTranslate === 0) setActiveBookIndex(isSelected ? null : idx) }}
-                      onMouseEnter={() => handleMouseEnterToToJump(idx)}
+                      onMouseEnter={() => handleMouseEnterToJump(idx)}
                       onMouseLeave={handleMouseLeaveFromCard}
                     >
-                      {/* 💡 1번 보완: 프레임 내에서 실제 표지 이미지가 차지하는 wrap 영역에 레이아웃 일치화 처리 */}
                       <div className="relative w-full max-w-[260px] md:max-w-[300px] aspect-[2/3] flex items-center justify-center select-none">
                         <div className="relative h-full w-full overflow-hidden border-none shadow-none rounded-none bg-transparent flex items-center justify-center">
                           
-                          {/* 💡 이미지와 완벽히 겹치는 반응형 가상 컨테이너 블록 배치 */}
-                          <div className="relative max-h-full max-w-full aspect-[2/3] flex items-center justify-center overflow-hidden">
-                            <img src={book.imageSrc} alt={book.title} className="w-auto h-auto max-w-full max-h-full object-contain pointer-events-none rounded-none block" loading="lazy" />
-                            
-                            {/* 💡 3번 보완: group-hover 조건문에 `isCenter`를 추가 결합하여, 오직 정중앙의 활성화된 책 표지 위에서만 음영 레이어가 노출되도록 필터링 */}
-                            <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ease-out transform ${
-                              isCenter && (isSelected || activeBookIndex === idx) 
-                                ? "opacity-100 translate-y-0 visible" 
-                                : isCenter 
-                                  ? "opacity-0 translate-y-full invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
-                                  : "opacity-0 invisible pointer-events-none" // 가운데가 아니면 완전히 비활성화
-                            }`}>
-                              <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
-                              <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
-                              {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                          <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                            <div className="relative w-full h-full flex items-center justify-center">
+                              {/* 💡 데스크탑 모니터용 하이-콘트라스트 그래픽 렌더링 속성 강제 지정 ([image-rendering]) */}
+                              <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain pointer-events-none rounded-none block [image-rendering:-webkit-optimize-contrast] [image-rendering:crisp-edges]" loading="lazy" />
+                              
+                              <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-700 ease-in-out transform ${
+                                isCenter && (isSelected || activeBookIndex === idx) 
+                                  ? "opacity-100 translate-y-0 visible" 
+                                  : isCenter 
+                                    ? "opacity-0 translate-y-4 invisible group-hover/card:opacity-100 group-hover/card:translate-y-0 group-hover/card:visible"
+                                    : "opacity-0 invisible pointer-events-none"
+                              }`}>
+                                <p className="text-white font-serif text-xs md:text-sm font-medium text-center mb-1 px-1 leading-snug">{book.title}</p>
+                                <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>종이책</a>
+                                {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass} onClick={(e) => e.stopPropagation()}>전자책(eBook)</a>}
+                              </div>
                             </div>
                           </div>
 

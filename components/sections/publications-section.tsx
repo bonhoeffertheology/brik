@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import hero2Bg from "@/public/images/hero3.png";
 
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
@@ -18,29 +18,11 @@ export function PublicationsSection() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // 패럴렉스 상태 추가
-  const [scrollY, setScrollY] = useState(0);
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  // 패럴렉스 스크롤 이벤트
-  useEffect(() => {
-    const handleScroll = () => {
-      if (sectionRef.current) {
-        const scrollPosition = window.scrollY - sectionRef.current.offsetTop;
-        setScrollY(scrollPosition);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // 기존 로직: 슬라이더 회전
   const rotate = (dir: 1 | -1) => {
     setActiveIdx(null);
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
-  // 기존 로직: 터치 이벤트
   const handleTouchStart = (e: React.TouchEvent) => touchStartX.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
@@ -50,15 +32,16 @@ export function PublicationsSection() {
   };
 
   return (
-    <section ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
-      {/* 패럴렉스 배경 (bg-fixed 제거 및 스타일 적용) */}
+    /* [perspective:1px]을 사용하여 패럴렉스 공간 생성 */
+    <section className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900 [perspective:1px] [perspective-origin:center]">
+      
+      {/* CSS 패럴렉스 배경: 스크롤 이벤트 없이도 브라우저가 자동으로 속도차를 만들어냄 */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-40" 
-        style={{ backgroundImage: `url(${hero2Bg.src})`, backgroundPositionY: `${scrollY * 0.4}px` }} 
+        className="absolute inset-0 bg-cover bg-center opacity-40 [transform:translateZ(-1px)_scale(2)]" 
+        style={{ backgroundImage: `url(${hero2Bg.src})` }} 
       />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* 헤더 및 슬라이더 컨테이너 */}
         <div className="text-center mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">

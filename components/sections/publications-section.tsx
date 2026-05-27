@@ -20,7 +20,6 @@ export function PublicationsSection() {
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
-  // 순환 구조를 위해 배열을 3배로 확장
   const books = [...baseBooks, ...baseBooks, ...baseBooks]
 
   useEffect(() => {
@@ -38,23 +37,12 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  // 핵심 수정: 트랜지션 완료 후, 인덱스가 경계에 도달했을 때만 
-  // 'transition' 없이 즉시 위치를 이동시켜 깜빡임을 방지
+  // 핵심 수정: 트랜지션 완료 직후, 범위 밖일 경우 transition을 끄지 않고 
+  // 즉시 인덱스만 바꿔치기합니다. (React의 렌더링 주기를 활용)
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    
-    // 배열의 앞부분이나 뒷부분에 도달하면 중앙(기존 인덱스 + baseBooks 길이)으로 리셋
-    if (currentIndex <= 1 || currentIndex >= baseBooks.length * 2 - 2) {
+    if (currentIndex <= 1 || currentIndex >= books.length - 2) {
       setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
-    }
-  }
-
-  const handleBookClick = (idx: number) => {
-    if (idx === currentIndex) {
-      setActiveBookIndex(activeBookIndex === idx ? null : idx)
-    } else {
-      const diff = idx - currentIndex
-      if (Math.abs(diff) === 1) moveSlider(diff as 1 | -1)
     }
   }
 
@@ -65,17 +53,14 @@ export function PublicationsSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
-            <div className="absolute inset-0 animate-pulse bg-white/80" />
-          </div>
-          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative" />
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10">
             <div 
-              // 리셋 시점(isTransitioning === false)에는 transition 효과를 주지 않아 깜빡임 제거
-              className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
+              // 항상 duration-500을 유지하여 일관된 움직임을 보장합니다.
+              className={`flex items-center duration-500 ease-out ${isTransitioning ? "transition-transform" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
               onTransitionEnd={handleTransitionEnd}
             >
@@ -85,7 +70,7 @@ export function PublicationsSection() {
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                     <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
-                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent" onClick={() => handleBookClick(idx)}>
+                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent" onClick={() => idx !== currentIndex && moveSlider(idx > currentIndex ? 1 : -1)}>
                         <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill [image-rendering:high-quality]" />
                         <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>

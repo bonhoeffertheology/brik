@@ -94,7 +94,7 @@ export function PublicationsSection() {
           );
         })}
         
-       {/* 버튼들 */}
+      {/* 버튼들 */}
         <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-14"}>{"‹"}</button>
         <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-14"}>{"›"}</button>
       </div> 

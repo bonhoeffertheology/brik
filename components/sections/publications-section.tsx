@@ -1,8 +1,3 @@
-요청하신 대로 책 이미지의 움직임(회전/슬라이드)과 하단 안내 문구의 움직임을 분리하여, 안내 문구가 activeIdx 상태와 무관하게 중앙에 위치할 때 항상 나타나도록 수정했습니다.
-
-수정된 PublicationsSection 컴포넌트 코드입니다.
-
-TypeScript
 "use client";
 import { useState, useRef } from "react";
 import hero2Bg from "@/public/images/hero3.png";
@@ -62,19 +57,16 @@ export function PublicationsSection() {
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
                 onClick={onClick}
               >
-                {/* 이미지 영역 */}
                 <div className="w-full h-[340px] md:h-[420px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                 </div>
                 
-                {/* 수정된 문구 영역: isCenter 여부만 체크하여 activeIdx에 독립적으로 작동 */}
                 <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
                   <p className="text-stone-400 text-[13px] md:text-sm text-center font-sans">
                     책을 클릭하시면 구매하실 수 있습니다.
                   </p>
                 </div>
 
-                {/* 구매 상세 정보: 클릭 시에만 나타남 */}
                 <div className={`absolute top-0 left-0 w-full h-[340px] md:h-[420px] bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-1000 ease-in-out ${isCenter && activeIdx === i ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                   <p className="text-white text-sm font-serif text-center">{book.title}</p>
                   <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>

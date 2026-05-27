@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
-import hero2Bg from "@/public/images/hero3.png"; // 경로 확인 필요
+import hero2Bg from "@/public/images/hero3.png";
 
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
@@ -26,32 +25,29 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 relative overflow-hidden">
-            <motion.div className="absolute inset-0 bg-white/80" animate={{ x: ["-100%", "100%"] }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} />
-          </div>
-        </div>
-
         <div className="relative flex justify-center items-center h-[500px] w-full max-w-3xl mx-auto">
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
             
-            // 위치 계산: 중앙은 0, 오른쪽은 300, 왼쪽은 -300
+            // CSS를 이용한 위치/크기/투명도 계산
             const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
-            const opacity = isCenter ? 1 : 0.4;
             const scale = isCenter ? 1.1 : 0.8;
+            const opacity = isCenter ? 1 : 0.4;
+            const zIndex = isCenter ? 10 : 1;
 
             return (
-              <motion.div 
+              <div 
                 key={book.title}
-                animate={{ x: xOffset, scale, opacity, zIndex: isCenter ? 10 : 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                className="absolute w-[260px] h-[420px]"
+                className="absolute transition-all duration-500 ease-in-out w-[260px] h-[420px]"
+                style={{ 
+                  transform: `translateX(${xOffset}px) scale(${scale})`, 
+                  opacity, 
+                  zIndex 
+                }}
               >
                 <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl rounded-lg" />
-              </motion.div>
+              </div>
             );
           })}
           

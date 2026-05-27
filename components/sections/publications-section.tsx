@@ -58,40 +58,4 @@ export function PublicationsSection() {
 
   const handleStart = (x: number) => {
     if (isTransitioning) return
-    setIsDragging(true); setStartX(x); setActiveBookIndex(null)
-  }
-  const handleEnd = () => {
-    if (!isDragging) return
-    setIsDragging(false)
-    if (currentTranslate < -40) moveSlider("next")
-    else if (currentTranslate > 40) moveSlider("prev")
-    setCurrentTranslate(0)
-  }
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setIsVisible(true) }, { threshold: 0.1 })
-    if (sectionRef.current) obs.observe(sectionRef.current)
-    return () => obs.disconnect()
-  }, [])
-  
-  useEffect(() => {
-    const cls = () => setActiveBookIndex(null)
-    window.addEventListener("click", cls)
-    return () => window.removeEventListener("click", cls)
-  }, [])
-
-  const multiplier = isMobile ? 100 : (100 / 3)
-  const offset = isMobile ? 0 : (100 / 3)
-  const transformX = `calc(-${currentIndex * multiplier}% + ${offset}% + ${currentTranslate}px)`
-
-  if (!isMounted) return null
-
-  return (
-    <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 select-none">
-      <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
-      <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-20 text-center transition-all duration-1000 transform" style={{ transform: isVisible ? "translateY(0)" : "translateY(30px)", opacity: isVisible ? 1 : 0 }}>
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
-            <div className="absolute inset-0 h-full w-full animate
+    setIsDragging

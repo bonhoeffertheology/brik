@@ -1,15 +1,3 @@
-요청하신 세 가지 사항(이미지 크기 일치, 음영 완벽 밀착, 순환 인터랙션 로직 적용)을 모두 해결하였습니다.
-
-🛠️ 수정 핵심
-이미지 크기 통일: 모든 책 표지를 object-cover로 설정하고 w-[260px] h-[390px] (aspect 2:3 비율) 고정 컨테이너 안에 배치하여 크기를 강제 동기화했습니다.
-
-음영 밀착: absolute inset-0으로 설정된 음영 레이어가 이미지 컨테이너 내부에 완벽히 포함되도록 구조를 다듬어 빈틈을 제거했습니다.
-
-인터랙션 로직 보완: isFirstHoverRef를 통해 첫 진입 시 즉시 이동하고, 이후 hoverTimeoutRef를 통해 2초 딜레이를 정확히 제어하도록 로직을 재구성했습니다.
-
-이 코드를 그대로 복사하여 사용하세요.
-
-TypeScript
 "use client"
 import { useEffect, useRef, useState, useCallback } from "react"
 import hero2Bg from "@/public/images/hero3.png"

@@ -79,17 +79,23 @@ export function PublicationsSection() {
                 
                 {/* 안내 문구 */}
                 <div className={`absolute -bottom-10 left-0 w-full transition-opacity duration-500 delay-700 ease-in-out ${isCenter ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                  <p className="text-stone-400 text-[12px] md:text-xs text-center font-sans whitespace-nowrap">
+                  <p className="text-stone-400 text-[14px] md:text-xs text-center font-sans whitespace-nowrap">
                     책을 클릭하시면 구입하실 수 있습니다
                   </p>
                 </div>
 
                 {/* 구매 상세 정보 */}
-                <div className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && activeIdx === i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full pointer-events-none"}`}>
-                  <p className="text-white text-sm font-serif text-center">{book.title}</p>
-                  <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
-                  {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
-                </div>
+                <div 
+  className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
+    ${isCenter && activeIdx === i 
+      ? "opacity-100 translate-y-0" // 책 표지 내부로 완전히 올라옴
+      : "opacity-0 translate-y-[90%] pointer-events-none" // 90%만큼 아래로 숨김 (내밀기 준비)
+    }`}
+>
+  <p className="text-white text-sm font-serif text-center">{book.title}</p>
+  <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
+  {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
+</div>
               </div>
             );
           })}

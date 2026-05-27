@@ -11,6 +11,7 @@ export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isVisible, setIsVisible] = useState(false) // 섹션 노출 감지용
   
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -24,6 +25,16 @@ export function PublicationsSection() {
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
   const books = [...baseBooks, ...baseBooks, ...baseBooks]
+
+  // 섹션 등장 애니메이션 감지
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setIsVisible(true)
+    }, { threshold: 0.2 })
+    
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   const moveSlider = useCallback((dir: "prev" | "next") => {
     if (isTransitioning) return
@@ -57,9 +68,19 @@ export function PublicationsSection() {
   }
 
   return (
-    <section id="publications" className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+    <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
+      
       <div className="relative z-10 max-w-7xl mx-auto px-6">
+        {/* 제목 및 설명 섹션 */}
+        <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+          <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
+            <div className="absolute inset-0 animate-pulse bg-white/80" />
+          </div>
+          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
+        </div>
+
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10" 
             onMouseDown={(e) => { setIsDragging(true); setStartX(e.clientX) }} 
@@ -73,7 +94,6 @@ export function PublicationsSection() {
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                     <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
-                      {/* 1. rounded-lg 삭제(직사각형) 및 2. 글씨 선명도를 위해 이미지 속성 최적화 */}
                       <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent" onClick={() => handleBookClick(idx)}>
                         <img 
                           src={book.imageSrc} 
@@ -81,7 +101,6 @@ export function PublicationsSection() {
                           className="w-full h-full object-fill [image-rendering:high-quality]" 
                         />
                         
-                        {/* 음영 레이어도 라운딩 제거 */}
                         <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                           <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>

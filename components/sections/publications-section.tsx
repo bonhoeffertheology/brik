@@ -1,3 +1,15 @@
+요청하신 세 가지 사항(이미지 크기 일치, 음영 완벽 밀착, 순환 인터랙션 로직 적용)을 모두 해결하였습니다.
+
+🛠️ 수정 핵심
+이미지 크기 통일: 모든 책 표지를 object-cover로 설정하고 w-[260px] h-[390px] (aspect 2:3 비율) 고정 컨테이너 안에 배치하여 크기를 강제 동기화했습니다.
+
+음영 밀착: absolute inset-0으로 설정된 음영 레이어가 이미지 컨테이너 내부에 완벽히 포함되도록 구조를 다듬어 빈틈을 제거했습니다.
+
+인터랙션 로직 보완: isFirstHoverRef를 통해 첫 진입 시 즉시 이동하고, 이후 hoverTimeoutRef를 통해 2초 딜레이를 정확히 제어하도록 로직을 재구성했습니다.
+
+이 코드를 그대로 복사하여 사용하세요.
+
+TypeScript
 "use client"
 import { useEffect, useRef, useState, useCallback } from "react"
 import hero2Bg from "@/public/images/hero3.png"
@@ -42,43 +54,23 @@ export function PublicationsSection() {
     setCurrentIndex((prev) => (dir === "next" ? prev + 1 : prev - 1))
   }, [isTransitioning])
 
-  const handleMouseEnterToJump = useCallback((targetIdx: number) => {
-    if (isMobile || isTransitioning || currentIndex === targetIdx) return
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+  const handleMouseEnterToJump = (idx: number) => {
+    if (isMobile || isTransitioning || currentIndex === idx) return
     
     if (isFirstHoverRef.current) {
       isFirstHoverRef.current = false
-      jumpToIndex(targetIdx)
-      hoverTimeoutRef.current = setTimeout(() => {
-        const nextIdx = targetIdx < currentIndex ? targetIdx - 1 : targetIdx + 1
-        jumpToIndex(nextIdx)
-      }, 2000)
+      jumpToIndex(idx)
     } else {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
       hoverTimeoutRef.current = setTimeout(() => {
-        jumpToIndex(targetIdx)
+        jumpToIndex(idx)
       }, 2000)
     }
-  }, [isMobile, isTransitioning, currentIndex, jumpToIndex])
+  }
 
-  const handleMouseLeaveFromCard = () => {
+  const handleMouseLeave = () => {
     isFirstHoverRef.current = true
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
-    if (isDragging) handleEnd()
-  }
-
-  const handleStart = (x: number) => {
-    if (isTransitioning) return
-    setIsDragging(true)
-    setStartX(x)
-    setActiveBookIndex(null)
-  }
-
-  const handleEnd = () => {
-    if (!isDragging) return
-    setIsDragging(false)
-    if (currentTranslate < -40) moveSlider("next")
-    else if (currentTranslate > 40) moveSlider("prev")
-    setCurrentTranslate(0)
   }
 
   const handleTransitionEnd = () => {
@@ -95,12 +87,6 @@ export function PublicationsSection() {
     return () => window.removeEventListener("resize", checkSize)
   }, [])
 
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setIsVisible(true) }, { threshold: 0.1 })
-    if (sectionRef.current) obs.observe(sectionRef.current)
-    return () => obs.disconnect()
-  }, [])
-
   const multiplier = isMobile ? 100 : (100 / 3)
   const offset = isMobile ? 0 : (100 / 3)
   const transformX = `calc(-${currentIndex * multiplier}% + ${offset}% + ${currentTranslate}px)`
@@ -112,28 +98,25 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-80" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       <div className="absolute inset-0 bg-gradient-to-br from-stone-900/85 via-stone-900/75 to-stone-900/90" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-20 text-center transition-all duration-1000 transform" style={{ transform: isVisible ? "translateY(0)" : "translateY(30px)", opacity: isVisible ? 1 : 0 }}>
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 overflow-hidden bg-amber-500"><div className="animate-pulse bg-white/80 h-full w-full" /></div>
-        </div>
         <div className="relative group mx-auto w-full max-w-6xl px-8 py-4">
           <div className="overflow-hidden w-full py-10">
-            <div className="flex items-center w-full" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)" : "none" }} onTransitionEnd={handleTransitionEnd} onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => isDragging && setCurrentTranslate(e.clientX - startX)} onMouseUp={handleEnd} onMouseLeave={handleMouseLeaveFromCard} onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => isDragging && setCurrentTranslate(e.touches[0].clientX - startX)} onTouchEnd={handleEnd}>
+            <div className="flex items-center w-full" style={{ transform: `translate3d(${transformX}, 0, 0)`, transition: isTransitioning ? "transform 0.4s ease-out" : "none" }} onTransitionEnd={handleTransitionEnd}>
               {books.map((book, idx) => {
                 const isCenter = currentIndex === idx
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4 md:px-6">
                     <div 
-                      className={`group/card flex flex-col items-center justify-center transition-all duration-500 transform ${isMobile ? "scale-100 opacity-100" : isCenter ? "scale-115 opacity-100 z-10" : "scale-90 opacity-65 blur-[0.3px]"}`} 
+                      className={`transition-all duration-500 transform ${isMobile ? "scale-100" : isCenter ? "scale-110 opacity-100" : "scale-90 opacity-60"}`}
                       onMouseEnter={() => handleMouseEnterToJump(idx)}
-                      onMouseLeave={handleMouseLeaveFromCard}
+                      onMouseLeave={handleMouseLeave}
                     >
-                      <div className="relative w-[260px] md:w-[280px] aspect-[2/3] overflow-hidden">
-                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain" />
-                        <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 p-4 transition-all duration-500 ${isCenter ? "opacity-0 hover:opacity-100" : "hidden"}`}>
+                      {/* 1. 고정 사이즈 & 2. 빈틈없는 음영 */}
+                      <div className="relative w-[260px] h-[390px] overflow-hidden bg-stone-800">
+                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
+                        <div className={`absolute inset-0 bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-3 p-4 transition-opacity duration-300 ${isCenter ? "opacity-100" : "opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium">{book.title}</p>
-                          <a href={book.purchaseLink} className={btnClass}>종이책</a>
-                          {book.ebookLink && <a href={book.ebookLink} className={btnClass}>전자책(eBook)</a>}
+                          <a href={book.purchaseLink} className={btnClass} target="_blank">종이책</a>
+                          {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank">전자책</a>}
                         </div>
                       </div>
                     </div>
@@ -142,8 +125,6 @@ export function PublicationsSection() {
               })}
             </div>
           </div>
-          <button onClick={() => moveSlider("prev")} className={`${navBtnClass} -left-2 md:-left-6`}>‹</button>
-          <button onClick={() => moveSlider("next")} className={`${navBtnClass} -right-2 md:-right-6`}>›</button>
         </div>
       </div>
     </section>

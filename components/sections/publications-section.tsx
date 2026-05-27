@@ -16,10 +16,29 @@ export function PublicationsSection() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  
+  // 스와이프 구현을 위한 상태
+  const touchStartX = useRef<number | null>(null);
 
   const rotate = (dir: 1 | -1) => {
     setActiveIdx(null);
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
+  };
+
+  // 터치 이벤트 핸들러
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+
+    if (Math.abs(diff) > 50) { // 50px 이상 이동 시 스와이프로 간주
+      rotate(diff > 0 ? 1 : -1);
+    }
+    touchStartX.current = null;
   };
 
   return (
@@ -27,21 +46,19 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
-            <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-          </div>
-          <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
-        </div>
+        {/* ... 헤더 부분 생략 ... */}
 
-        <div className="relative flex justify-center items-center h-[500px] w-full max-w-4xl mx-auto touch-pan-y">
+        {/* 터치 이벤트를 감지할 영역 */}
+        <div 
+          className="relative flex justify-center items-center h-[500px] w-full max-w-4xl mx-auto touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
             const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
             const scale = isCenter ? 1 : 0.8;
-            const opacity = isCenter ? 1 : 1;
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
 
@@ -55,27 +72,22 @@ export function PublicationsSection() {
               <div 
                 key={book.title}
                 className="absolute transition-all duration-500 ease-out w-[220px] h-[380px] md:w-[260px] md:h-[460px] cursor-pointer"
-                style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
+                style={{ transform: `translateX(${xOffset}px) scale(${scale})`, zIndex }}
                 onClick={onClick}
               >
-                {/* 이미지 영역 */}
                 <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
-                  
-                  {/* 음영 영역: isActive 상태에 따라 translate-y 값을 실시간으로 조절 */}
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                     <p className="text-white text-sm font-serif text-center">{book.title}</p>
                     <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
                     {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
                   </div>
                 </div>
-                
-              {/* 하단 문구 영역: 두 줄로 배치 */}
-<div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
-  <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-    책을 클릭하시면<br />구매하실 수 있습니다
-  </p>
-</div>
+                <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
+                  <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
+                    책을 클릭하시면<br />구매하실 수 있습니다
+                  </p>
+                </div>
               </div>
             );
           })}

@@ -70,12 +70,13 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
-                {/* 하단 문구 영역: 이미지와 별도로 움직임 */}
-                <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
-                  <p className="text-stone-400 text-[13px] md:text-sm text-center font-sans">
-                    책을 클릭하시면 구매하실 수 있습니다.
-                  </p>
-                </div>
+                {/* 하단 문구 영역 */}
+<div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
+  {/* 아래 클래스를 상단 문구와 동일하게 수정 */}
+  <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200 text-center">
+    책을 클릭하시면 구매하실 수 있습니다.
+  </p>
+</div>
               </div>
             );
           })}

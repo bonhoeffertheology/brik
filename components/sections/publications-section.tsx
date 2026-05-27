@@ -54,51 +54,48 @@ export function PublicationsSection() {
           onTouchEnd={handleTouchEnd}
         >
           {books.map((book, i) => {
-            const offset = (i - currentIndex + books.length) % books.length;
-            const isCenter = offset === 0;
-            
-            const onClick = () => {
-              if (offset === 1) rotate(1);
-              else if (offset === books.length - 1) rotate(-1);
-              else setActiveIdx(activeIdx === i ? null : i);
-            };
+          const offset = (i - currentIndex + books.length) % books.length;
+          const isCenter = offset === 0;
 
-            const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
-            const scale = isCenter ? 1 : 0.8;
-            const opacity = isCenter ? 1 : 0.9;
-            const zIndex = isCenter ? 10 : 1;
+          const onClick = () => {
+            if (offset === 1) rotate(1);
+            else if (offset === books.length - 1) rotate(-1);
+            else setActiveIdx(activeIdx === i ? null : i);
+          };
 
-           return (
-              <div 
-                  key={book.title}
-                  className="absolute transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer overflow-hidden"
-                  style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
-                  onClick={onClick}
-                >
-                  <div className={`absolute -bottom-10 left-0 w-full transition-all duration-300 ease-in-out ${isCenter && activeIdx === null ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}>
-                    <p className="text-stone-400 text-[14px] md:text-sm text-center font-sans whitespace-nowrap">
-                      책을 클릭하시면 구입하실 수 있습니다
-                    </p>
-                  </div>
+          const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
+          const scale = isCenter ? 1 : 0.8;
+          const opacity = isCenter ? 1 : 0.7;
+          const zIndex = isCenter ? 10 : 1;
 
-                  {/* 구매 상세 정보 (책 하단에서 올라옴) */}
-                  <div 
-                    className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-1000 ease-in-out ${
-                      isCenter && activeIdx === i 
-                        ? "h-full opacity-100" 
-                        : "h-0 opacity-0 pointer-events-none"
-                    }`}
-                  >
-                    <p className="text-white text-sm font-serif text-center">{book.title}</p>
-                    <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
-                    {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
-                  </div>
-            );
-          })}
-          
-          <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-14"}>{"‹"}</button>
-<button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-14"}>{"›"}</button>
-        </div>
+          return (
+            <div 
+              key={book.title}
+              className="absolute overflow-hidden transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
+              style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
+              onClick={onClick}
+            >
+              <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
+              
+              {/* 안내 문구 */}
+              <div className={`absolute -bottom-10 left-0 w-full transition-all duration-300 ease-in-out ${isCenter && activeIdx === null ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}>
+                <p className="text-stone-400 text-[14px] md:text-sm text-center font-sans whitespace-nowrap">
+                  책을 클릭하시면 구입하실 수 있습니다
+                </p>
+              </div>
+
+              {/* 구매 상세 정보 */}
+              <div className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-1000 ease-in-out ${isCenter && activeIdx === i ? "h-full opacity-100" : "h-0 opacity-0 pointer-events-none"}`}>
+                <p className="text-white text-sm font-serif text-center">{book.title}</p>
+                <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
+                {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
+              </div>
+            </div>
+          );
+        })}
+        
+        <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-14"}>{"‹"}</button>
+        <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-14"}>{"›"}</button>
       </div>
     </section>
   );

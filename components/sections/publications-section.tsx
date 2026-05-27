@@ -73,7 +73,7 @@ export function PublicationsSection() {
               {/* 하단 문구 영역: 두 줄로 배치 */}
 <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
   <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-    책을 클릭하시면<br />구매하실 수 있습니다.
+    책을 클릭하시면<br />구매하실 수 있습니다
   </p>
 </div>
               </div>

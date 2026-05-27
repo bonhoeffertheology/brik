@@ -5,7 +5,6 @@ import hero2Bg from "@/public/images/hero3.png";
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
-// navBtnClass의 위치 조절은 개별 컴포넌트에서 직접 적용합니다.
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl cursor-pointer";
 
 export function PublicationsSection() {
@@ -16,8 +15,10 @@ export function PublicationsSection() {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
   const rotate = (dir: 1 | -1) => {
+    setActiveIdx(null); // 회전 시 음영 초기화
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
@@ -39,19 +40,29 @@ export function PublicationsSection() {
             return (
               <div 
                 key={book.title}
-                className="absolute transition-all duration-500 ease-in-out w-[260px] h-[420px]"
+                className="absolute transition-all duration-500 ease-in-out w-[260px] h-[420px] cursor-pointer"
                 style={{ 
                   transform: `translateX(${xOffset}px) scale(${scale})`, 
                   opacity, 
                   zIndex 
                 }}
+                onClick={() => isCenter && setActiveIdx(activeIdx === i ? null : i)}
               >
-                <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl rounded-lg" />
+                {/* 직사각형 이미지 */}
+                <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
+                
+                {/* 가운데 클릭 시 나오는 음영 */}
+                <div 
+                  className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-opacity duration-300 ${isCenter && activeIdx === i ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                >
+                  <p className="text-white text-sm font-serif text-center">{book.title}</p>
+                  <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
+                  {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
+                </div>
               </div>
             );
           })}
           
-          {/* 여기서 -left-32, -right-32로 간격을 더 넓혔습니다 */}
           <button onClick={() => rotate(-1)} className={navBtnClass + " -left-32"}>‹</button>
           <button onClick={() => rotate(1)} className={navBtnClass + " -right-32"}>›</button>
         </div>

@@ -88,7 +88,6 @@ export function PublicationsSection() {
         style={{ backgroundImage: `url(${hero2Bg.src})` }} 
       />
       
-      {/* 🛠️ [반영항목 1] 기존 max-w-7xl 외곽 프레임을 max-w-[1400px]로 대폭 확장하고 양옆 데스크톱 패딩(md:px-12)을 늘려 숨통을 틔웠습니다. */}
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="text-center mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
@@ -98,7 +97,6 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
-        {/* 🛠️ [반영항목 2] 슬라이더 내부 높이를 h-[560px]로 늘리고, 전체 최대 가로폭 제약을 max-w-7xl(1280px)로 열어두어 좌우 날개가 찌그러지지 않게 조절했습니다. */}
         <div 
           className="relative flex justify-center items-center h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
@@ -107,16 +105,12 @@ export function PublicationsSection() {
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
-            
-            {/* 🛠️ [반영항목 3] 큰 책 표지들이 서로 겹쳐서 답답해 보이지 않도록 X축 이동 간격을 300px에서 340px로 조절했습니다. */}
             const xOffset = offset === 1 ? 340 : offset === books.length - 1 ? -340 : 0;
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
 
             return (
-              {/* 🛠️ [반영항목 4] 데스크톱에서 커진 크기 체감을 위해 가로세로 규격을 대폭 확장했습니다.
-                  - 모바일: w-[250px] h-[430px] / 데스크톱: md:w-[310px] md:h-[530px] */}
               <div key={book.title} className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer"
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, zIndex }}
                 onClick={() => {
@@ -125,7 +119,6 @@ export function PublicationsSection() {
                   else setActiveIdx(activeIdx === i ? null : i);
                 }}>
                 
-                {/* 🛠️ [반영항목 5] 카드 크기 확대에 비례하여 이미지 액자 박스 영역도 최적화 매칭했습니다. (md:h-[470px]) */}
                 <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
@@ -135,7 +128,6 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
-                {/* 요청하셨던 1초 지연 제자리 순수 페이드인(Fade-in) 모션 완전 유지 */}
                 <div 
                   className={`mt-4 w-full transition-opacity duration-500 ease-out ${
                     isCenter ? "opacity-100" : "opacity-0"
@@ -150,7 +142,6 @@ export function PublicationsSection() {
             );
           })}
           
-          {/* 🛠️ [반영항목 6] 커진 책 크기로 인해 양옆 네비게이션 화살표가 겹치지 않도록 바깥쪽 여백 오프셋을 md:-left-20 및 md:-right-20으로 미세 조정했습니다. */}
           <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-20"}>‹</button>
           <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-20"}>›</button>
         </div> 

@@ -15,7 +15,7 @@ export function PublicationsSection() {
   const [isMounted, setIsMounted] = useState(false)
   
   const baseBooks: PublicationBook[] = [
-    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
@@ -58,4 +58,31 @@ export function PublicationsSection() {
 
   const handleStart = (x: number) => {
     if (isTransitioning) return
-    setIsDragging
+    setIsDragging(true)
+    setStartX(x)
+    setActiveBookIndex(null)
+  }
+
+  const handleEnd = () => {
+    if (!isDragging) return
+    setIsDragging(false)
+    if (currentTranslate < -40) moveSlider("next")
+    else if (currentTranslate > 40) moveSlider("prev")
+    setCurrentTranslate(0)
+  }
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setIsVisible(true) }, { threshold: 0.1 })
+    if (sectionRef.current) obs.observe(sectionRef.current)
+    return () => obs.disconnect()
+  }, [])
+  
+  useEffect(() => {
+    const cls = () => setActiveBookIndex(null)
+    window.addEventListener("click", cls)
+    return () => window.removeEventListener("click", cls)
+  }, [])
+
+  const multiplier = isMobile ? 100 : (100 / 3)
+  const offset = isMobile ? 0 : (100 / 3)
+  const transformX = `calc(-${currentIndex

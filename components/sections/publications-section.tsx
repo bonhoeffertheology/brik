@@ -35,12 +35,18 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">출판물</h2>
-          {/* CSS 애니메이션 적용된 노란색 바 */}
-          <div className="w-16 h-1 bg-amber-500 mx-auto mb-6 transition-all duration-1000 ease-in-out" />
-          <p className="text-stone-300 font-sans text-sm md:text-base">한국본회퍼연구소가 엄선하여 선보이는 저서들을 만나보십시오.</p>
-        </div>
+       <div className="text-center mb-16">
+  {/* 1. 제목 폰트 적용 (font-serif 유지) */}
+  <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">출판물</h2>
+  
+  {/* 2. 노란색 바: 굵기(h-1)와 애니메이션(transition-all 등) 적용 */}
+  <div className="w-16 h-1 bg-amber-500 mx-auto mb-6 transition-all duration-1000 ease-in-out hover:w-24" />
+  
+  {/* 3. 설명 폰트 및 크기 적용 (font-sans, text-sm~base) */}
+  <p className="text-stone-300 font-sans text-sm md:text-base">
+    한국본회퍼연구소가 엄선하여 선보이는 저서들을 만나보십시오.
+  </p>
+</div>
 
         <div 
           className="relative flex justify-center items-center h-[500px] w-full max-w-4xl mx-auto touch-pan-y"

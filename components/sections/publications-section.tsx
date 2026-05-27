@@ -5,6 +5,7 @@ import hero2Bg from "@/public/images/hero3.png";
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
+// navBtnClass의 위치 조절은 개별 컴포넌트에서 직접 적용합니다.
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl cursor-pointer";
 
 export function PublicationsSection() {
@@ -25,12 +26,11 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="relative flex justify-center items-center h-[500px] w-full max-w-3xl mx-auto">
+        <div className="relative flex justify-center items-center h-[500px] w-full max-w-4xl mx-auto">
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
             
-            // CSS를 이용한 위치/크기/투명도 계산
             const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
             const scale = isCenter ? 1.1 : 0.8;
             const opacity = isCenter ? 1 : 0.4;
@@ -51,8 +51,9 @@ export function PublicationsSection() {
             );
           })}
           
-          <button onClick={() => rotate(-1)} className={navBtnClass + " -left-16"}>‹</button>
-          <button onClick={() => rotate(1)} className={navBtnClass + " -right-16"}>›</button>
+          {/* 여기서 -left-32, -right-32로 간격을 더 넓혔습니다 */}
+          <button onClick={() => rotate(-1)} className={navBtnClass + " -left-32"}>‹</button>
+          <button onClick={() => rotate(1)} className={navBtnClass + " -right-32"}>›</button>
         </div>
       </div>
     </section>

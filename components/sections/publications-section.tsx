@@ -71,7 +71,7 @@ export function PublicationsSection() {
            return (
               <div 
                 key={book.title}
-                className="absolute transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
+                className="absolute overflow-hidden transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
                 onClick={onClick}
               >

@@ -14,7 +14,7 @@ const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white/50 hover:text-
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ];
@@ -26,7 +26,7 @@ export function PublicationsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // 순수 자바스크립트 관성 패럴렉스 엔진 (변동 없이 완벽 유지)
+  // 순수 자바스크립트 관성 패럴렉스 엔진
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
@@ -88,7 +88,8 @@ export function PublicationsSection() {
         style={{ backgroundImage: `url(${hero2Bg.src})` }} 
       />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      {/* 🛠️ [반영항목 1] 기존 max-w-7xl 외곽 프레임을 max-w-[1400px]로 대폭 확장하고 양옆 데스크톱 패딩(md:px-12)을 늘려 숨통을 틔웠습니다. */}
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="text-center mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
@@ -97,28 +98,35 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
+        {/* 🛠️ [반영항목 2] 슬라이더 내부 높이를 h-[560px]로 늘리고, 전체 최대 가로폭 제약을 max-w-7xl(1280px)로 열어두어 좌우 날개가 찌그러지지 않게 조절했습니다. */}
         <div 
-          className="relative flex justify-center items-center h-[500px] w-full max-w-4xl mx-auto touch-pan-y"
+          className="relative flex justify-center items-center h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
-            const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
+            
+            {/* 🛠️ [반영항목 3] 큰 책 표지들이 서로 겹쳐서 답답해 보이지 않도록 X축 이동 간격을 300px에서 340px로 조절했습니다. */}
+            const xOffset = offset === 1 ? 340 : offset === books.length - 1 ? -340 : 0;
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
 
             return (
-              <div key={book.title} className="absolute transition-all duration-500 ease-out w-[220px] h-[380px] md:w-[260px] md:h-[460px] cursor-pointer"
+              {/* 🛠️ [반영항목 4] 데스크톱에서 커진 크기 체감을 위해 가로세로 규격을 대폭 확장했습니다.
+                  - 모바일: w-[250px] h-[430px] / 데스크톱: md:w-[310px] md:h-[530px] */}
+              <div key={book.title} className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer"
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, zIndex }}
                 onClick={() => {
                   if (offset === 1) rotate(1);
                   else if (offset === books.length - 1) rotate(-1);
                   else setActiveIdx(activeIdx === i ? null : i);
                 }}>
-                <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden shadow-2xl">
+                
+                {/* 🛠️ [반영항목 5] 카드 크기 확대에 비례하여 이미지 액자 박스 영역도 최적화 매칭했습니다. (md:h-[470px]) */}
+                <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                     <p className="text-white text-sm font-serif text-center">{book.title}</p>
@@ -127,27 +135,24 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
-                {/* [보충 및 반영 내역]
-                  1. transition-opacity로 축소하여 위아래 흔들림(translate)을 원천 차단했습니다.
-                  2. Tailwind의 한계인 delay-700을 극복하고자 인라인 transitionDelay 연산식을 부여했습니다.
-                     - 중앙 카드 안착 시(isCenter): 정확히 1초(1000ms) 대기 후 Fade-in 시작
-                     - 카드 이탈 시(!isCenter): 딜레이 없이 즉각(0ms) 숨김 처리
-                */}
+                {/* 요청하셨던 1초 지연 제자리 순수 페이드인(Fade-in) 모션 완전 유지 */}
                 <div 
                   className={`mt-4 w-full transition-opacity duration-500 ease-out ${
                     isCenter ? "opacity-100" : "opacity-0"
                   }`}
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
                 >
-                  <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
+                  <p className="font-sans text-sm md:text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
                     책을 클릭하시면<br />구매하실 수 있습니다
                   </p>
                 </div>
               </div>
             );
           })}
-          <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-14"}>‹</button>
-          <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-14"}>›</button>
+          
+          {/* 🛠️ [반영항목 6] 커진 책 크기로 인해 양옆 네비게이션 화살표가 겹치지 않도록 바깥쪽 여백 오프셋을 md:-left-20 및 md:-right-20으로 미세 조정했습니다. */}
+          <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-20"}>‹</button>
+          <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-20"}>›</button>
         </div> 
       </div>
     </section>

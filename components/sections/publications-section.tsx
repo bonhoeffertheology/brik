@@ -7,10 +7,8 @@ interface PublicationBook { title: string; imageSrc: string; purchaseLink: strin
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
 
 export function PublicationsSection() {
-  const sectionRef = useRef<HTMLDivElement>(null)
   const isFirstHoverRef = useRef<boolean>(true)
-  
-  const [currentIndex, setCurrentIndex] = useState(3) // baseBooks.length
+  const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -26,10 +24,10 @@ export function PublicationsSection() {
     if (isTransitioning || currentIndex === targetIdx) return
     setIsTransitioning(true)
     setCurrentIndex(targetIdx)
-    setActiveBookIndex(null) // 다른 책을 누르면 기존 음영 닫기
+    setActiveBookIndex(null) // 다른 책 이동 시 음영 초기화
   }, [isTransitioning, currentIndex])
 
-  const handleMouseEnterToJump = (idx: number) => {
+  const handleMouseEnter = (idx: number) => {
     if (isMobile || !isFirstHoverRef.current || currentIndex === idx) return
     isFirstHoverRef.current = false
     jumpToIndex(idx)
@@ -71,22 +69,21 @@ export function PublicationsSection() {
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                   <div 
                     className={`transition-all duration-500 transform ${isCenter ? "scale-110 opacity-100" : "scale-90 opacity-60"}`}
-                    onMouseEnter={() => handleMouseEnterToJump(idx)}
+                    onMouseEnter={() => handleMouseEnter(idx)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    {/* 컨테이너 사이즈 고정 및 음영 빈틈 방지 */}
                     <div 
-                      className="relative w-[260px] h-[390px] cursor-pointer"
+                      className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden border-2 border-stone-800"
                       onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}
                     >
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                       
-                      {/* 음영 레이어: 중앙 책이면서 클릭되었을 때만 하단에서 올라옴 */}
-                      <div className={`absolute inset-0 bg-stone-900/90 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
+                      {/* 음영 레이어: 중앙 책 클릭 시에만 올라옴 */}
+                      <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
                         ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
-                        <p className="text-white font-serif text-sm font-medium">{book.title}</p>
-                        <a href={book.purchaseLink} className={btnClass} target="_blank">종이책</a>
-                        {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank">전자책</a>}
+                        <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
+                        <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
+                        {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
                       </div>
                     </div>
                   </div>

@@ -62,7 +62,7 @@ export function PublicationsSection() {
             const opacity = isCenter ? 1 : 0.7;
             const zIndex = isCenter ? 10 : 1;
 
-            return (
+           return (
               <div 
                 key={book.title}
                 className="absolute transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
@@ -70,6 +70,14 @@ export function PublicationsSection() {
                 onClick={onClick}
               >
                 <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
+                
+                {/* 아래 줄 추가: 안내 문구 */}
+                {isCenter && (
+                  <p className="mt-4 text-stone-400 text-[10px] md:text-xs text-center font-sans">
+                    책을 클릭하시면 구입하실 수 있습니다
+                  </p>
+                )}
+
                 <div className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-opacity duration-300 ${isCenter && activeIdx === i ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                   <p className="text-white text-sm font-serif text-center">{book.title}</p>
                   <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>

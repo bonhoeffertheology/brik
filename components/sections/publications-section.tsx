@@ -9,7 +9,6 @@ const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 ho
 
 export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(3)
-  const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   
@@ -38,22 +37,23 @@ export function PublicationsSection() {
 
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    // 인덱스 범위 보정 (항상 배열 중앙부를 유지)
-    if (currentIndex <= 1 || currentIndex >= books.length - 2) {
-      setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
-    }
+    // 인덱스 범위 보정: 중간 그룹(baseBooks.length ~ baseBooks.length * 2 - 1) 내에 항상 유지
+    if (currentIndex <= 2) setCurrentIndex(currentIndex + baseBooks.length)
+    else if (currentIndex >= baseBooks.length * 2) setCurrentIndex(currentIndex - baseBooks.length)
   }
 
   return (
     <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
-      {/* 배경 패럴렉스 레이어 복구 */}
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         {/* 제목 및 설명 섹션 복구 */}
         <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500" />
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
+            <div className="absolute inset-0 animate-pulse bg-white/80" />
+          </div>
+          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
@@ -68,9 +68,9 @@ export function PublicationsSection() {
                   <div className={`transition-all duration-500 transform ${currentIndex === idx ? "scale-125 opacity-100" : "scale-[0.85] opacity-70"}`}>
                     <div className="relative w-[260px] h-[420px] cursor-pointer shadow-2xl bg-transparent" onClick={() => idx !== currentIndex && moveSlider(idx > currentIndex ? 1 : -1)}>
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill" />
-                      <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx && activeBookIndex === idx ? "opacity-100" : "opacity-0"}`}>
+                      <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx ? "opacity-100" : "opacity-0"}`}>
                         <p className="text-white text-sm">{book.title}</p>
-                        <a href={book.purchaseLink} className={btnClass}>종이책</a>
+                        <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
                       </div>
                     </div>
                   </div>

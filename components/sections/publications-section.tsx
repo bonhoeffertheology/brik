@@ -127,13 +127,14 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
-                {/* [수정 핵심 레이어] 안내 문구 트랜지션 보완
-                  - 카드가 좌우로 움직이는 트랜지션 시간(500ms)이 끝날 때쯤 애니메이션이 시작하도록 delay-300을 부여했습니다.
-                  - 비활성화 상태에서는 아래로 12px 이동(`translate-y-3`)해 숨어 있다가, 활성화되면 위로 밀려 올라옵니다.
+                {/* [수정 및 보완 핵심 레이어]
+                  - [delay-500] 임의의 인라인 스타일 대신 Tailwind 표준 딜레이 클래스를 조합했습니다. 
+                    책 표지가 이동하는 트랜지션(duration-500)이 끝나는 시점에 딜레이가 종료되므로, 안착 후 정확히 0.5초 뒤 타이밍부터 노출을 시작합니다.
+                  - 다음 책으로 넘어가는 비활성화 상태에선 [delay-0]을 선언하여 지체 없이 즉각 투명해지며 사라집니다.
                 */}
                 <div className={`mt-4 w-full transition-all duration-500 ease-out ${
                   isCenter 
-                    ? "opacity-100 translate-y-0 delay-300" 
+                    ? "opacity-100 translate-y-0 delay-500" 
                     : "opacity-0 translate-y-3 delay-0"
                 }`}>
                   <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">

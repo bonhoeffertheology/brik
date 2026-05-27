@@ -8,7 +8,7 @@ const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-m
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
 
 export function PublicationsSection() {
-  const [currentIndex, setCurrentIndex] = useState(3)
+  const [currentIndex, setCurrentIndex] = useState(7) // 5배수 배열의 중간으로 초기화
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
@@ -20,7 +20,8 @@ export function PublicationsSection() {
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
-  const books = [...baseBooks, ...baseBooks, ...baseBooks]
+  // 5배수로 확장하여 루프 도달 시점을 늦춤
+  const books = Array(5).fill(baseBooks).flat()
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
@@ -33,14 +34,16 @@ export function PublicationsSection() {
   const moveSlider = (dir: 1 | -1) => {
     if (isTransitioning) return
     setIsTransitioning(true)
-    setActiveBookIndex(null) // 이동 시 음영 초기화
+    setActiveBookIndex(null)
     setCurrentIndex(prev => prev + dir)
   }
 
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    if (currentIndex <= 2) setCurrentIndex(currentIndex + baseBooks.length)
-    else if (currentIndex >= baseBooks.length * 2) setCurrentIndex(currentIndex - baseBooks.length)
+    // 경계 도달 시 부드럽게 중앙으로 복귀
+    if (currentIndex <= 2 || currentIndex >= books.length - 3) {
+      setCurrentIndex(baseBooks.length * 2 + (currentIndex % baseBooks.length))
+    }
   }
 
   return (
@@ -59,7 +62,7 @@ export function PublicationsSection() {
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10">
             <div 
-              className="flex items-center transition-transform duration-500 ease-out"
+              className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
               onTransitionEnd={handleTransitionEnd}
             >
@@ -74,7 +77,6 @@ export function PublicationsSection() {
                       }}
                     >
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill" />
-                      {/* 음영: -inset-[2px]로 설정하여 표지 사진보다 약간 크게 확장하여 덮음 */}
                       <div className={`absolute -inset-[2px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx && activeBookIndex === idx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"}`}>
                         <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                         <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>

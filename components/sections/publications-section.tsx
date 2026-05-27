@@ -84,7 +84,7 @@ export function PublicationsSection() {
                   </p>
                 </div>
 
-                <div className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-opacity duration-300 ${isCenter && activeIdx === i ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+               className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && activeIdx === i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full pointer-events-none"}`}
                   <p className="text-white text-sm font-serif text-center">{book.title}</p>
                   <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
                   {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}

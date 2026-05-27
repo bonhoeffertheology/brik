@@ -58,10 +58,14 @@ export function PublicationsSection() {
               >
                 <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
                 
+                {/* 안내 문구: mt-6을 추가하여 이미지와 간격을 띄웠습니다 */}
                 <div className={`absolute -bottom-10 left-0 w-full transition-all duration-300 ease-in-out ${isCenter && activeIdx === null ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}>
-                  <p className="text-stone-400 text-sm text-center font-sans whitespace-nowrap">책을 클릭하시면 구입하실 수 있습니다</p>
+                  <p className="mt-6 text-stone-400 text-sm text-center font-sans tracking-wide">
+                    책을 클릭하시면 구매하실 수 있습니다
+                  </p>
                 </div>
 
+                {/* 구매 상세 정보 (이미지 아래에 위치) */}
                 <div className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-1000 ease-in-out ${isCenter && activeIdx === i ? "h-full opacity-100" : "h-0 opacity-0 pointer-events-none"}`}>
                   <p className="text-white text-sm font-serif text-center">{book.title}</p>
                   <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>

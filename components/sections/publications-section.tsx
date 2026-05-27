@@ -7,25 +7,6 @@ interface PublicationBook { title: string; imageSrc: string; purchaseLink: strin
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
 const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white hover:text-amber-500 transition-all duration-300 flex items-center justify-center font-extralight text-7xl md:text-9xl cursor-pointer";
 
-// **1. 애니메이션 클래스를 상수로 정의** (참고: Tailwind config에 등록해야 작동합니다)
-// tailwind.config.ts의 theme.extend에 아래 애니메이션을 등록해야 합니다.
-// animation: {
-//   'slide-up': 'slideUp 0.6s ease-out forwards',
-//   'slide-down': 'slideDown 0.6s ease-out forwards',
-// },
-// keyframes: {
-//   slideUp: {
-//     '0%': { transform: 'translateY(100%)' },
-//     '100%': { transform: 'translateY(0%)' },
-//   },
-//   slideDown: {
-//     '0%': { transform: 'translateY(0%)' },
-//     '100%': { transform: 'translateY(100%)' },
-//   },
-// }
-const slideUpClass = "animate-slide-up";
-const slideDownClass = "animate-slide-down";
-
 export function PublicationsSection() {
   const books: PublicationBook[] = [
     { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
@@ -62,16 +43,13 @@ export function PublicationsSection() {
             const scale = isCenter ? 1 : 0.8;
             const opacity = isCenter ? 1 : 0.9;
             const zIndex = isCenter ? 10 : 1;
+            const isActive = isCenter && activeIdx === i;
 
             const onClick = () => {
               if (offset === 1) rotate(1);
               else if (offset === books.length - 1) rotate(-1);
               else setActiveIdx(activeIdx === i ? null : i);
             };
-
-            // **2. 현재 책의 음영 애니메이션 상태 결정**
-            const isCurrentActive = isCenter && activeIdx === i;
-            const shadowAnimationClass = activeIdx === i ? (isCurrentActive ? slideUpClass : slideDownClass) : "";
 
             return (
               <div 
@@ -80,26 +58,23 @@ export function PublicationsSection() {
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
                 onClick={onClick}
               >
-                {/* 이미지 영역: 여기 안에 음영이 들어갑니다. */}
+                {/* 이미지 영역 */}
                 <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                   
-                  {/* **3. 음영 영역 (Overlay): 이미지 위에 겹치고, 애니메이션 클래스를 받음** */}
-                  <div className={`absolute bottom-0 left-0 w-full h-full bg-stone-950/80 transform translate-y-full ${shadowAnimationClass}`}></div>
+                  {/* 음영 영역: isActive 상태에 따라 translate-y 값을 실시간으로 조절 */}
+                  <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
+                    <p className="text-white text-sm font-serif text-center">{book.title}</p>
+                    <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
+                    {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
+                  </div>
                 </div>
                 
-                {/* 하단 문구 영역: (이전 수정 유지) activeIdx와 독립적으로 작동 */}
+                {/* 하단 문구 영역: 이미지와 별도로 움직임 */}
                 <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
                   <p className="text-stone-400 text-[13px] md:text-sm text-center font-sans">
                     책을 클릭하시면 구매하실 수 있습니다.
                   </p>
-                </div>
-
-                {/* 구매 상세 정보: 음영 애니메이션과 함께 나타나도록 opacity만 제어 */}
-                <div className={`absolute top-0 left-0 w-full h-[340px] md:h-[420px] flex flex-col items-center justify-center gap-4 p-6 transition-opacity duration-600 ease-in-out ${isCurrentActive ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                  <p className="text-white text-sm font-serif text-center">{book.title}</p>
-                  <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
-                  {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
                 </div>
               </div>
             );

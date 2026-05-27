@@ -82,13 +82,14 @@ export function PublicationsSection() {
               return (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                   <div 
-                    // 가운데 책은 scale-125로 확대, 양옆은 scale-75로 축소하여 강조
-                    className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-75 opacity-70"}`}
+                    // 양옆 책은 scale-0.85로 조금 더 키우고, 가운데는 1.25 유지
+                    className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}
                     onMouseEnter={() => handleMouseEnter(idx)}
                     onMouseLeave={handleMouseLeave}
                   >
+                    {/* h-[420px]로 높이를 늘려 이미지가 잘리지 않게 조정 */}
                     <div 
-                      className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden shadow-2xl bg-transparent"
+                      className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent"
                       onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}
                     >
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain" />

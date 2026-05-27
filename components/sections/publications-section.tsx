@@ -1,12 +1,10 @@
 "use client";
 import { useState, useRef } from "react";
 import hero2Bg from "@/public/images/hero3.png";
-import { motion } from "framer-motion"; // 애니메이션을 위해 추가
 
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
-// 화살표 스타일 수정 (배경 제거, 높이 증가, 두께 가늘게)
 const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white hover:text-amber-500 transition-all duration-300 flex items-center justify-center font-thin text-6xl md:text-8xl cursor-pointer";
 
 export function PublicationsSection() {
@@ -37,15 +35,10 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* 헤더 부분 복원 */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">출판물</h2>
-          <motion.div 
-            className="w-16 h-1 bg-amber-500 mx-auto mb-6"
-            initial={{ width: 0 }}
-            whileInView={{ width: 64 }}
-            transition={{ duration: 0.8 }}
-          />
+          {/* CSS 애니메이션 적용된 노란색 바 */}
+          <div className="w-16 h-1 bg-amber-500 mx-auto mb-6 transition-all duration-1000 ease-in-out" />
           <p className="text-stone-300 font-sans text-sm md:text-base">저자의 깊은 통찰이 담긴 저서들을 만나보세요.</p>
         </div>
 
@@ -66,7 +59,7 @@ export function PublicationsSection() {
 
             const xOffset = offset === 1 ? 280 : offset === books.length - 1 ? -280 : 0;
             const scale = isCenter ? 1 : 0.7;
-            const opacity = isCenter ? 1 : 0.3; // 투명도 조정 (0.5 -> 0.3)
+            const opacity = isCenter ? 1 : 0.3;
             const zIndex = isCenter ? 10 : 1;
 
             return (

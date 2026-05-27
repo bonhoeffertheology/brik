@@ -45,9 +45,7 @@ export function PublicationsSection() {
           </div>
   
   {/* 3. 설명 폰트 및 크기 적용 (font-sans, text-sm~base) */}
-  <p className="text-stone-300 font-sans text-sm md:text-base">
-    한국본회퍼연구소가 엄선하여 선보이는 저서들을 만나보십시오.
-  </p>
+  <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
 </div>
 
         <div 

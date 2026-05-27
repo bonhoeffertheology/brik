@@ -88,8 +88,8 @@ export function PublicationsSection() {
                 <div 
   className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
     ${isCenter && activeIdx === i 
-      ? "opacity-100 translate-y-0" // 책 표지 내부로 완전히 올라옴
-      : "opacity-0 translate-y-[90%] pointer-events-none" // 90%만큼 아래로 숨김 (내밀기 준비)
+      ? "opacity-100 translate-y-0"          // 클릭 시: 책 내부 전체로 올라옴
+      : "opacity-0 translate-y-[85%] pointer-events-none" // 대기 시: 책 표지 아래 85% 지점까지만 내려감
     }`}
 >
   <p className="text-white text-sm font-serif text-center">{book.title}</p>

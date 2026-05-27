@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import hero2Bg from "@/public/images/hero3.png";
 
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
@@ -16,39 +16,56 @@ export function PublicationsSection() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  
-  // 스와이프 구현을 위한 상태
   const touchStartX = useRef<number | null>(null);
 
+  // 패럴렉스 상태 추가
+  const [scrollY, setScrollY] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // 패럴렉스 스크롤 이벤트
+  useEffect(() => {
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const scrollPosition = window.scrollY - sectionRef.current.offsetTop;
+        setScrollY(scrollPosition);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // 기존 로직: 슬라이더 회전
   const rotate = (dir: 1 | -1) => {
     setActiveIdx(null);
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
-  // 터치 이벤트 핸들러
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
+  // 기존 로직: 터치 이벤트
+  const handleTouchStart = (e: React.TouchEvent) => touchStartX.current = e.touches[0].clientX;
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX.current - touchEndX;
-
-    if (Math.abs(diff) > 50) { // 50px 이상 이동 시 스와이프로 간주
-      rotate(diff > 0 ? 1 : -1);
-    }
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) rotate(diff > 0 ? 1 : -1);
     touchStartX.current = null;
   };
 
   return (
-    <section className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
-      <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
+    <section ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+      {/* 패럴렉스 배경 (bg-fixed 제거 및 스타일 적용) */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-40" 
+        style={{ backgroundImage: `url(${hero2Bg.src})`, backgroundPositionY: `${scrollY * 0.2}px` }} 
+      />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* ... 헤더 부분 생략 ... */}
+        {/* 헤더 및 슬라이더 컨테이너 */}
+        <div className="text-center mb-16">
+          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
+          <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
+            <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+          </div>
+        </div>
 
-        {/* 터치 이벤트를 감지할 영역 */}
         <div 
           className="relative flex justify-center items-center h-[500px] w-full max-w-4xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
@@ -62,19 +79,14 @@ export function PublicationsSection() {
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
 
-            const onClick = () => {
-              if (offset === 1) rotate(1);
-              else if (offset === books.length - 1) rotate(-1);
-              else setActiveIdx(activeIdx === i ? null : i);
-            };
-
             return (
-              <div 
-                key={book.title}
-                className="absolute transition-all duration-500 ease-out w-[220px] h-[380px] md:w-[260px] md:h-[460px] cursor-pointer"
+              <div key={book.title} className="absolute transition-all duration-500 ease-out w-[220px] h-[380px] md:w-[260px] md:h-[460px] cursor-pointer"
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, zIndex }}
-                onClick={onClick}
-              >
+                onClick={() => {
+                  if (offset === 1) rotate(1);
+                  else if (offset === books.length - 1) rotate(-1);
+                  else setActiveIdx(activeIdx === i ? null : i);
+                }}>
                 <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
@@ -84,14 +96,11 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
-                  <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-                    책을 클릭하시면<br />구매하실 수 있습니다
-                  </p>
+                  <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">책을 클릭하시면<br />구매하실 수 있습니다</p>
                 </div>
               </div>
             );
           })}
-          
           <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-14"}>‹</button>
           <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-14"}>›</button>
         </div> 

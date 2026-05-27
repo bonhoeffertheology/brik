@@ -70,7 +70,7 @@ export function PublicationsSection() {
           </div>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="overflow-hidden py-10">
           <div 
             className="flex items-center transition-transform duration-500 ease-out"
             style={{ transform: `translateX(${transformX})` }}
@@ -82,11 +82,11 @@ export function PublicationsSection() {
               return (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                   <div 
-                    className={`transition-all duration-500 transform ${isCenter ? "scale-100 opacity-100 z-10" : "scale-90 opacity-80"}`}
+                    // 가운데 책은 scale-125로 확대, 양옆은 scale-75로 축소하여 강조
+                    className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-75 opacity-70"}`}
                     onMouseEnter={() => handleMouseEnter(idx)}
                     onMouseLeave={handleMouseLeave}
                   >
-                    {/* 이미지 테두리(border) 제거 및 컨테이너 배경색을 투명하게 수정 */}
                     <div 
                       className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden shadow-2xl bg-transparent"
                       onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}

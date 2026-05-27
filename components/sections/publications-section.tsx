@@ -65,7 +65,7 @@ export function PublicationsSection() {
 
             const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
             const scale = isCenter ? 1 : 0.8;
-            const opacity = isCenter ? 1 : 0.7;
+            const opacity = isCenter ? 1 : 0.9;
             const zIndex = isCenter ? 10 : 1;
 
            return (

@@ -22,14 +22,6 @@ export function PublicationsSection() {
   ]
   const books = [...baseBooks, ...baseBooks, ...baseBooks]
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setIsVisible(true)
-    }, { threshold: 0.2 })
-    if (sectionRef.current) observer.observe(sectionRef.current)
-    return () => observer.disconnect()
-  }, [])
-
   const moveSlider = useCallback((direction: 1 | -1) => {
     if (isTransitioning) return
     setIsTransitioning(true)
@@ -37,13 +29,12 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  // 핵심 수정: 배열의 첫 번째 그룹(0,1,2)이나 마지막 그룹(6,7,8)에 닿을 때만 리셋
+  // 강제 리셋 방지: 트랜지션 종료 시점에 인덱스가 한계점에 도달했을 때만 
+  // 'transition' 속성을 끄고 인덱스를 0.1초 안에 중앙으로 이동시킵니다.
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    if (currentIndex <= 1) {
-      setCurrentIndex(baseBooks.length + 1)
-    } else if (currentIndex >= books.length - 2) {
-      setCurrentIndex(baseBooks.length * 2 - 2)
+    if (currentIndex <= 1 || currentIndex >= books.length - 2) {
+      setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
     }
   }
 
@@ -52,15 +43,16 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <div className="mb-16 text-center">
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative" />
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500" />
         </div>
 
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10">
             <div 
-              className={`flex items-center duration-500 ease-out ${isTransitioning ? "transition-transform" : ""}`}
+              // 리셋 순간에는 transition을 제거하여 튕김 현상 원천 차단
+              className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-in-out" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
               onTransitionEnd={handleTransitionEnd}
             >

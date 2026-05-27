@@ -5,7 +5,6 @@ import hero2Bg from "@/public/images/hero3.png"
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
-// 화살표 크기를 2배 이상 키움 (text-9xl)
 const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
 
 export function PublicationsSection() {
@@ -34,7 +33,6 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  // 양옆 책 클릭 시 가운데로 이동하는 핸들러
   const handleBookClick = (idx: number) => {
     if (idx === currentIndex) {
       setActiveBookIndex(activeBookIndex === idx ? null : idx)
@@ -87,9 +85,12 @@ export function PublicationsSection() {
                 return (
                   <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                     <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
-                      {/* 모서리 삐져나옴 방지를 위한 overflow-hidden 및 동일한 라운드 값 적용 */}
-                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-stone-800 rounded-lg" onClick={() => handleBookClick(idx)}>
-                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain" />
+                      {/* 배경색을 제거(bg-transparent)하여 테두리 느낌을 없애고 이미지가 꽉 차게 보임 */}
+                      <div className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent rounded-lg" onClick={() => handleBookClick(idx)}>
+                        {/* object-cover로 변경하여 이미지 비율에 맞게 꽉 채움 (비율이 다를 경우 이미지의 중심을 기준으로 잘림) */}
+                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
+                        
+                        {/* 음영 레이어는 부모 컨테이너(rounded-lg)와 일치하게 설정 */}
                         <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out rounded-lg ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
                           <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                           <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>

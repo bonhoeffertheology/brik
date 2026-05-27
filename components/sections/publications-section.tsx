@@ -134,7 +134,7 @@ export function PublicationsSection() {
                 */}
                 <div className={`mt-4 w-full transition-all duration-500 ease-out ${
                   isCenter 
-                    ? "opacity-100 translate-y-0 delay-500" 
+                    ? "opacity-100 translate-y-0 delay-1000" 
                     : "opacity-0 translate-y-3 delay-0"
                 }`}>
                   <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">

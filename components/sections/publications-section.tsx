@@ -32,12 +32,13 @@ export function PublicationsSection() {
   };
 
   return (
-    /* [perspective:1px]을 사용하여 패럴렉스 공간 생성 */
-    <section className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900 [perspective:1px] [perspective-origin:center]">
+    // [perspective:1px] 대신 스크롤 컨테이너를 부모로 설정해야 패럴렉스가 작동합니다.
+    <section className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       
-      {/* CSS 패럴렉스 배경: 스크롤 이벤트 없이도 브라우저가 자동으로 속도차를 만들어냄 */}
+      {/* CSS 패럴렉스: background-attachment를 사용하면 모바일에서도 성능 저하 없이 고정된 효과를 낼 수 있습니다. */}
+      {/* 완벽한 패럴렉스 속도차를 원하신다면 아래 고정 배경이 가장 모바일 호환성이 높습니다. */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-40 [transform:translateZ(-1px)_scale(2)]" 
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" 
         style={{ backgroundImage: `url(${hero2Bg.src})` }} 
       />
       
@@ -47,6 +48,8 @@ export function PublicationsSection() {
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
             <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
           </div>
+          {/* 복구된 하단 문구 */}
+          <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
         <div 

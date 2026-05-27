@@ -1,11 +1,12 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import hero2Bg from "@/public/images/hero3.png"
 
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
-const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl select-none cursor-pointer"
+const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white transition-all duration-300 flex items-center justify-center font-light text-7xl md:text-9xl cursor-pointer"
 
 export function PublicationsSection() {
   const baseBooks: PublicationBook[] = [
@@ -15,64 +16,61 @@ export function PublicationsSection() {
   ]
 
   const [books, setBooks] = useState(baseBooks)
-  const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [activeIdx, setActiveIdx] = useState<number | null>(null)
 
-  // 다음 책으로 이동 (무한 루프 핵심: 첫 번째 요소를 뒤로 보냄)
-  const moveSlider = (dir: 1 | -1) => {
-    if (isAnimating) return
-    setIsAnimating(true)
-    
-    setTimeout(() => {
-      setBooks(prev => {
-        const newBooks = [...prev]
-        if (dir === 1) { // 다음
-          const first = newBooks.shift()!
-          newBooks.push(first)
-        } else { // 이전
-          const last = newBooks.pop()!
-          newBooks.unshift(last)
-        }
-        return newBooks
-      })
-      setIsAnimating(false)
-    }, 500) // CSS duration과 동일하게 맞춤
+  const rotate = (dir: 1 | -1) => {
+    setBooks(prev => {
+      const copy = [...prev]
+      if (dir === 1) copy.push(copy.shift()!)
+      else copy.unshift(copy.pop()!)
+      return copy
+    })
   }
 
   return (
-    <section id="publications" className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+    <section className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="mb-16 text-center">
+        <div className="text-center mb-16">
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden" />
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 relative overflow-hidden">
+            <motion.div className="absolute inset-0 bg-white/80" animate={{ x: ["-100%", "100%"] }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} />
+          </div>
+          <p className="mt-6 font-sans text-stone-300 font-light">한국본회퍼연구소에서 출판한 연구 자료 및 저서입니다.</p>
         </div>
 
-        <div className="relative group mx-auto w-full max-w-6xl">
-          <div className="overflow-hidden py-10">
-            <div className="flex items-center justify-center transition-all duration-500">
-              {books.map((book, idx) => {
-                const isCenter = idx === 1 // 항상 배열의 2번째 요소가 중앙
+        <div className="relative flex justify-center items-center h-[500px]">
+          <div className="flex items-center gap-8">
+            <AnimatePresence mode="popLayout">
+              {books.map((book, i) => {
+                const isCenter = i === 1
                 return (
-                  <div key={`${book.title}-${idx}`} className={`w-full md:w-1/3 flex-shrink-0 flex justify-center px-4 transition-all duration-500 ${isCenter ? "scale-100 opacity-100" : "scale-75 opacity-40"}`}>
-                    <div 
-                      className="relative w-[260px] h-[420px] cursor-pointer shadow-2xl bg-transparent overflow-hidden" 
-                      onClick={() => isCenter ? setActiveBookIndex(activeBookIndex === idx ? null : idx) : moveSlider(idx > 1 ? 1 : -1)}
-                    >
-                      <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill" />
-                      <div className={`absolute -inset-[2px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ${isCenter && activeBookIndex === idx ? "opacity-100" : "opacity-0"}`}>
-                        <p className="text-white text-sm">{book.title}</p>
-                        <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
-                      </div>
+                  <motion.div 
+                    key={book.title}
+                    initial={{ opacity: 0, x: 100 }}
+                    animate={{ 
+                      opacity: isCenter ? 1 : 0.4, 
+                      scale: isCenter ? 1.1 : 0.8,
+                      x: 0
+                    }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="relative w-[260px] h-[420px] cursor-pointer"
+                    onClick={() => isCenter ? setActiveIdx(activeIdx === i ? null : i) : rotate(i > 1 ? 1 : -1)}
+                  >
+                    <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill shadow-2xl" />
+                    <div className={`absolute -inset-[2px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-opacity duration-500 ${isCenter && activeIdx === i ? "opacity-100" : "opacity-0"}`}>
+                      <p className="text-white text-sm font-serif">{book.title}</p>
+                      <a href={book.purchaseLink} className={btnClass}>종이책</a>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })}
-            </div>
+            </AnimatePresence>
           </div>
-          <button onClick={() => moveSlider(-1)} className={navBtnClass + " -left-4 md:-left-16"}>‹</button>
-          <button onClick={() => moveSlider(1)} className={navBtnClass + " -right-4 md:-right-16"}>›</button>
+          <button onClick={() => rotate(-1)} className={navBtnClass + " left-4"}>‹</button>
+          <button onClick={() => rotate(1)} className={navBtnClass + " right-4"}>›</button>
         </div>
       </div>
     </section>

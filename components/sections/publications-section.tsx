@@ -79,7 +79,7 @@ export function PublicationsSection() {
                   
                   {/* 구매 상세 정보 (책 하단에서 올라옴) */}
                   <div 
-                    className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-in-out ${
+                    className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-1000 ease-in-out ${
                       isCenter && activeIdx === i 
                         ? "h-full opacity-100" 
                         : "h-0 opacity-0 pointer-events-none"

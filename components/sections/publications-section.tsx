@@ -37,12 +37,13 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  // 핵심 수정: 트랜지션 완료 직후, 범위 밖일 경우 transition을 끄지 않고 
-  // 즉시 인덱스만 바꿔치기합니다. (React의 렌더링 주기를 활용)
+  // 핵심 수정: 배열의 첫 번째 그룹(0,1,2)이나 마지막 그룹(6,7,8)에 닿을 때만 리셋
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    if (currentIndex <= 1 || currentIndex >= books.length - 2) {
-      setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
+    if (currentIndex <= 1) {
+      setCurrentIndex(baseBooks.length + 1)
+    } else if (currentIndex >= books.length - 2) {
+      setCurrentIndex(baseBooks.length * 2 - 2)
     }
   }
 
@@ -59,7 +60,6 @@ export function PublicationsSection() {
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10">
             <div 
-              // 항상 duration-500을 유지하여 일관된 움직임을 보장합니다.
               className={`flex items-center duration-500 ease-out ${isTransitioning ? "transition-transform" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
               onTransitionEnd={handleTransitionEnd}

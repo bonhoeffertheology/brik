@@ -20,6 +20,7 @@ export function PublicationsSection() {
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ]
+  // 순환 구조를 위해 배열을 3배로 확장
   const books = [...baseBooks, ...baseBooks, ...baseBooks]
 
   useEffect(() => {
@@ -37,9 +38,12 @@ export function PublicationsSection() {
     setActiveBookIndex(null)
   }, [isTransitioning])
 
-  // 핵심 수정: 트랜지션 종료 후 리셋 처리를 분리하여 깜빡임 방지
+  // 핵심 수정: 트랜지션 완료 후, 인덱스가 경계에 도달했을 때만 
+  // 'transition' 없이 즉시 위치를 이동시켜 깜빡임을 방지
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
+    
+    // 배열의 앞부분이나 뒷부분에 도달하면 중앙(기존 인덱스 + baseBooks 길이)으로 리셋
     if (currentIndex <= 1 || currentIndex >= baseBooks.length * 2 - 2) {
       setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
     }
@@ -70,6 +74,7 @@ export function PublicationsSection() {
         <div className="relative group mx-auto w-full max-w-6xl">
           <div className="overflow-hidden py-10">
             <div 
+              // 리셋 시점(isTransitioning === false)에는 transition 효과를 주지 않아 깜빡임 제거
               className={`flex items-center ${isTransitioning ? "transition-transform duration-500 ease-out" : ""}`}
               style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
               onTransitionEnd={handleTransitionEnd}

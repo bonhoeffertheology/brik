@@ -54,7 +54,7 @@ export function PublicationsSection() {
       {/* 패럴렉스 배경 (bg-fixed 제거 및 스타일 적용) */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-40" 
-        style={{ backgroundImage: `url(${hero2Bg.src})`, backgroundPositionY: `${scrollY * 0.2}px` }} 
+        style={{ backgroundImage: `url(${hero2Bg.src})`, backgroundPositionY: `${scrollY * 0.4}px` }} 
       />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">

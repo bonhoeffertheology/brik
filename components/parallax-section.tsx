@@ -88,7 +88,8 @@ export function PublicationsSection() {
         style={{ backgroundImage: `url(${hero2Bg.src})` }} 
       />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      {/* 데스크톱 부모 제약을 방지하기 위해 max-w-[1400px]로 넓게 수평 공간 확보 */}
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="text-center mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
@@ -97,31 +98,21 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
-        {/* 🛠️ [수정 포인트 1] 컨테이너 높이 확장
-          카드가 커짐에 따라 위아래 여백이 좁아지거나 화살표 위치가 비틀어지지 않도록 메인 슬라이더 프레임 높이를 기존 h-[500px]에서 h-[560px]로 확장했습니다.
-        */}
+        {/* 책 크기 스케일업에 맞춰 컨테이너 프레임 높이를 h-[560px], 폭을 max-w-7xl로 확장 */}
         <div 
-          className="relative flex justify-center items-center h-[560px] w-full max-w-5xl mx-auto touch-pan-y"
+          className="relative flex justify-center items-center h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
-            
-            {/* 🛠️ [수정 포인트 2] 좌우 책 퍼짐 여백 비율 최적화
-              책이 커졌기 때문에 좌우 날개 카드들이 중앙 카드를 너무 가리지 않도록 X축 이동값을 기존 300에서 340으로 조금 더 벌려 여백을 유지했습니다.
-            */}
             const xOffset = offset === 1 ? 340 : offset === books.length - 1 ? -340 : 0;
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
 
             return (
-              {/* 🛠️ [수정 포인트 3] 개별 책 카드 전체 스케일업
-                - 모바일 크기: 기존 w-[220px] h-[380px]  →  변경 w-[250px] h-[430px]
-                - PC 해상도:   기존 md:w-[260px] md:h-[460px]  →  변경 md:w-[310px] md:h-[530px]
-              */}
               <div key={book.title} className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer"
                 style={{ transform: `translateX(${xOffset}px) scale(${scale})`, zIndex }}
                 onClick={() => {
@@ -130,11 +121,6 @@ export function PublicationsSection() {
                   else setActiveIdx(activeIdx === i ? null : i);
                 }}>
                 
-                {/* 🛠️ [수정 포인트 4] 이미지 액자 크기 맞춤 변환
-                  하단 안내 문구 영역(mt-4 공간)을 제외한 순수 이미지 컴포넌트의 높이를 비율에 맞춰 키웠습니다.
-                  - 모바일 크기: 기존 h-[340px]  →  변경 h-[380px]
-                  - PC 해상도:   기존 md:h-[420px]  →  변경 md:h-[470px]
-                */}
                 <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl">
                   <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover" />
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
@@ -144,7 +130,6 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
-                {/* 요청하셨던 1초 대기 제자리 순수 페이드인 효과 완벽 보존 */}
                 <div 
                   className={`mt-4 w-full transition-opacity duration-500 ease-out ${
                     isCenter ? "opacity-100" : "opacity-0"
@@ -158,9 +143,7 @@ export function PublicationsSection() {
               </div>
             );
           })}
-          {/* 🛠️ [수정 포인트 5] 좌우 이동 내비게이션 버튼 배치 오프셋 조정
-            책 크기가 늘어남에 따라 양 끝 버튼이 디자인 요소를 침범하지 않도록 md:-left-20 및 md:-right-20으로 바깥 여백을 확보했습니다.
-          */}
+          
           <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-20"}>‹</button>
           <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-20"}>›</button>
         </div> 

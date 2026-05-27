@@ -69,26 +69,27 @@ export function PublicationsSection() {
             const zIndex = isCenter ? 10 : 1;
 
            return (
-               <div 
-  key={book.title}
-  className="absolute overflow-hidden transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
-  // ... (style, onClick은 기존 유지)
->
-  <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
-
-  {/* 구매 상세 정보 (음영) */}
-  <div 
-    className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${
-      isCenter && activeIdx === i 
-        ? "h-full opacity-100" 
-        : "h-0 opacity-0 pointer-events-none"
-    }`}
-  >
-    <p className="text-white text-sm font-serif text-center">{book.title}</p>
-    <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
-    {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
-  </div>
-</div>
+              <div 
+                  key={book.title}
+                  className="absolute transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer overflow-hidden"
+                  style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
+                  onClick={onClick}
+                >
+                  <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
+                  
+                  {/* 구매 상세 정보 (책 하단에서 올라옴) */}
+                  <div 
+                    className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-in-out ${
+                      isCenter && activeIdx === i 
+                        ? "h-full opacity-100" 
+                        : "h-0 opacity-0 pointer-events-none"
+                    }`}
+                  >
+                    <p className="text-white text-sm font-serif text-center">{book.title}</p>
+                    <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
+                    {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
+                  </div>
+                </div>
             );
           })}
           

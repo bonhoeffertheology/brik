@@ -135,7 +135,7 @@ export function PublicationsSection() {
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
                 >
                   <p className="font-sans text-sm md:text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-                    책을 클릭하시면<br />구매하실 수 있습니다
+                    책을 클릭하시면<br />구매 사이트로 이동합니다
                   </p>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 import hero2Bg from "@/public/images/hero3.png"
 
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
@@ -11,7 +11,10 @@ export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
   
+  const sectionRef = useRef<HTMLDivElement>(null)
+
   const baseBooks: PublicationBook[] = [
     { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
@@ -19,51 +22,65 @@ export function PublicationsSection() {
   ]
   const books = [...baseBooks, ...baseBooks, ...baseBooks]
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setIsVisible(true)
+    }, { threshold: 0.2 })
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   const moveSlider = (dir: 1 | -1) => {
     if (isTransitioning) return
     setIsTransitioning(true)
     setCurrentIndex(prev => prev + dir)
   }
 
-  // 핵심: transition을 끄지 않고, 
-  // 트랜지션이 끝난 뒤에만 인덱스를 보정하여 깜빡임 제거
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
+    // 인덱스 범위 보정 (항상 배열 중앙부를 유지)
     if (currentIndex <= 1 || currentIndex >= books.length - 2) {
-      // 강제로 위치를 옮기지 않고, 인덱스만 부드럽게 보정
       setCurrentIndex(baseBooks.length + (currentIndex % baseBooks.length))
     }
   }
 
   return (
-    <section id="publications" className="relative w-full overflow-hidden py-24 bg-stone-900">
+    <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+      {/* 배경 패럴렉스 레이어 복구 */}
+      <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
+      
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="overflow-hidden py-10">
-          <div 
-            className="flex items-center transition-transform duration-500 ease-out"
-            style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
-            onTransitionEnd={handleTransitionEnd}
-          >
-            {books.map((book, idx) => {
-              const isCenter = currentIndex === idx
-              return (
+        {/* 제목 및 설명 섹션 복구 */}
+        <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+          <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500" />
+        </div>
+
+        <div className="relative group mx-auto w-full max-w-6xl">
+          <div className="overflow-hidden py-10">
+            <div 
+              className="flex items-center transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(calc(-${currentIndex * 33.33}% + 33.33%))` }}
+              onTransitionEnd={handleTransitionEnd}
+            >
+              {books.map((book, idx) => (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
-                  <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100" : "scale-[0.85] opacity-70"}`}>
+                  <div className={`transition-all duration-500 transform ${currentIndex === idx ? "scale-125 opacity-100" : "scale-[0.85] opacity-70"}`}>
                     <div className="relative w-[260px] h-[420px] cursor-pointer shadow-2xl bg-transparent" onClick={() => idx !== currentIndex && moveSlider(idx > currentIndex ? 1 : -1)}>
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill" />
-                      <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && activeBookIndex === idx ? "opacity-100" : "opacity-0"}`}>
+                      <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx && activeBookIndex === idx ? "opacity-100" : "opacity-0"}`}>
                         <p className="text-white text-sm">{book.title}</p>
                         <a href={book.purchaseLink} className={btnClass}>종이책</a>
                       </div>
                     </div>
                   </div>
                 </div>
-              )
-            })}
+              ))}
+            </div>
           </div>
+          <button onClick={() => moveSlider(-1)} className={navBtnClass + " -left-4 md:-left-16"}>‹</button>
+          <button onClick={() => moveSlider(1)} className={navBtnClass + " -right-4 md:-right-16"}>›</button>
         </div>
-        <button onClick={() => moveSlider(-1)} className={navBtnClass + " left-0"}>‹</button>
-        <button onClick={() => moveSlider(1)} className={navBtnClass + " right-0"}>›</button>
       </div>
     </section>
   )

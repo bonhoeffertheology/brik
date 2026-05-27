@@ -82,15 +82,16 @@ export function PublicationsSection() {
               return (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
                   <div 
-                    className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-75 opacity-40"}`}
+                    // 3. 가운데 책 확대(scale-125) 제거, scale을 1로 고정
+                    className={`transition-all duration-500 transform ${isCenter ? "scale-100 opacity-100 z-10" : "scale-90 opacity-80"}`}
                     onMouseEnter={() => handleMouseEnter(idx)}
                     onMouseLeave={handleMouseLeave}
                   >
+                    {/* 1. 테두리(border) 삭제 */}
                     <div 
                       className="relative w-[260px] h-[390px] cursor-pointer overflow-hidden shadow-2xl bg-stone-800"
                       onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}
                     >
-                      {/* object-contain으로 변경하여 이미지 전체가 보이도록 설정 */}
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain p-2" />
                       
                       <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 

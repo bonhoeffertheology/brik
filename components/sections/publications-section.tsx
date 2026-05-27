@@ -5,14 +5,20 @@ import hero2Bg from "@/public/images/hero3.png"
 interface PublicationBook { title: string; imageSrc: string; purchaseLink: string; ebookLink?: string }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300"
+const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 hover:text-white bg-transparent transition-all duration-300 flex items-center justify-center font-light text-5xl md:text-6xl select-none cursor-pointer"
 
 export function PublicationsSection() {
-  const isFirstHoverRef = useRef<boolean>(true)
   const [currentIndex, setCurrentIndex] = useState(3)
   const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  
+  // 스와이프용 상태
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [currentTranslate, setCurrentTranslate] = useState(0)
+  
   const sectionRef = useRef<HTMLDivElement>(null)
 
   const baseBooks: PublicationBook[] = [
@@ -22,21 +28,29 @@ export function PublicationsSection() {
   ]
   const books = [...baseBooks, ...baseBooks, ...baseBooks]
 
-  const jumpToIndex = useCallback((targetIdx: number) => {
-    if (isTransitioning || currentIndex === targetIdx) return
+  const moveSlider = useCallback((dir: "prev" | "next") => {
+    if (isTransitioning) return
     setIsTransitioning(true)
-    setCurrentIndex(targetIdx)
+    setCurrentIndex((prev) => (dir === "next" ? prev + 1 : prev - 1))
     setActiveBookIndex(null)
-  }, [isTransitioning, currentIndex])
+  }, [isTransitioning])
 
-  const handleMouseEnter = (idx: number) => {
-    if (isMobile || !isFirstHoverRef.current || currentIndex === idx) return
-    isFirstHoverRef.current = false
-    jumpToIndex(idx)
+  const handleStart = (x: number) => {
+    setIsDragging(true)
+    setStartX(x)
   }
 
-  const handleMouseLeave = () => {
-    isFirstHoverRef.current = true
+  const handleMove = (x: number) => {
+    if (!isDragging) return
+    setCurrentTranslate(x - startX)
+  }
+
+  const handleEnd = () => {
+    if (!isDragging) return
+    setIsDragging(false)
+    if (currentTranslate < -50) moveSlider("next")
+    else if (currentTranslate > 50) moveSlider("prev")
+    setCurrentTranslate(0)
   }
 
   const handleTransitionEnd = () => {
@@ -57,7 +71,9 @@ export function PublicationsSection() {
     }
   }, [])
 
-  const transformX = isMobile ? `-${currentIndex * 100}%` : `calc(-${currentIndex * 33.33}% + 33.33%)`
+  const transformX = isMobile 
+    ? `calc(-${currentIndex * 100}% + ${currentTranslate}px)` 
+    : `calc(-${currentIndex * 33.33}% + 33.33% + ${currentTranslate}px)`
 
   return (
     <section id="publications" ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
@@ -65,53 +81,37 @@ export function PublicationsSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="mb-20 text-center transition-all duration-1000 transform" style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? "translateY(0)" : "translateY(30px)" }}>
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
-          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
-            <div className="absolute inset-0 animate-pulse bg-white/80" />
-          </div>
+          <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative" />
         </div>
 
-        <div className="overflow-hidden py-10">
-          <div 
-            className="flex items-center transition-transform duration-500 ease-out"
-            style={{ transform: `translateX(${transformX})` }}
-            onTransitionEnd={handleTransitionEnd}
+        <div className="relative group mx-auto w-full max-w-6xl">
+          <div className="overflow-hidden py-10" 
+            onMouseDown={(e) => handleStart(e.clientX)} onMouseMove={(e) => handleMove(e.clientX)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
+            onTouchStart={(e) => handleStart(e.touches[0].clientX)} onTouchMove={(e) => handleMove(e.touches[0].clientX)} onTouchEnd={handleEnd}
           >
-            {books.map((book, idx) => {
-              const isCenter = currentIndex === idx
-              const isActive = activeBookIndex === idx
-              return (
-                <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
-                  <div 
-                    // 양옆 책은 scale-0.85로 조금 더 키우고, 가운데는 1.25 유지
-                    className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}
-                    onMouseEnter={() => handleMouseEnter(idx)}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    {/* h-[420px]로 높이를 늘려 이미지가 잘리지 않게 조정 */}
-                    <div 
-                      className="relative w-[260px] h-[420px] cursor-pointer overflow-hidden shadow-2xl bg-transparent"
-                      onClick={(e) => { e.stopPropagation(); setActiveBookIndex(isActive ? null : idx) }}
-                    >
-                      <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain" />
-                      
-                      <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
-                        ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
-                        <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
-                        <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
-                        {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
+            <div className="flex items-center transition-transform duration-500 ease-out" style={{ transform: `translateX(${transformX})` }} onTransitionEnd={handleTransitionEnd}>
+              {books.map((book, idx) => {
+                const isCenter = currentIndex === idx
+                const isActive = activeBookIndex === idx
+                return (
+                  <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
+                    <div className={`transition-all duration-500 transform ${isCenter ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
+                      <div className="relative w-[260px] h-[420px] cursor-grab active:cursor-grabbing overflow-hidden shadow-2xl bg-transparent" onClick={() => setActiveBookIndex(isActive ? null : idx)}>
+                        <img src={book.imageSrc} alt={book.title} className="w-full h-full object-contain" />
+                        <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+                          <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
+                          <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
+                          {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
-        </div>
-
-        <div className="mt-16 flex justify-center gap-2">
-          {baseBooks.map((_, idx) => (
-            <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${currentIndex % 3 === idx ? "w-8 bg-amber-500" : "w-2 bg-stone-600"}`} />
-          ))}
+          <button onClick={() => moveSlider("prev")} className={`${navBtnClass} -left-4 md:-left-12`}>‹</button>
+          <button onClick={() => moveSlider("next")} className={`${navBtnClass} -right-4 md:-right-12`}>›</button>
         </div>
       </div>
     </section>

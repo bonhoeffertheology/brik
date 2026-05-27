@@ -39,7 +39,7 @@ export function PublicationsSection() {
           <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">출판물</h2>
           {/* CSS 애니메이션 적용된 노란색 바 */}
           <div className="w-16 h-1 bg-amber-500 mx-auto mb-6 transition-all duration-1000 ease-in-out" />
-          <p className="text-stone-300 font-sans text-sm md:text-base">저자의 깊은 통찰이 담긴 저서들을 만나보세요.</p>
+          <p className="text-stone-300 font-sans text-sm md:text-base">한국본회퍼연구소가 엄선하여 선보이는 저서들을 만나보십시오.</p>
         </div>
 
         <div 

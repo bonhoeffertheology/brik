@@ -57,9 +57,9 @@ export function PublicationsSection() {
               else setActiveIdx(activeIdx === i ? null : i);
             };
 
-            const xOffset = offset === 1 ? 280 : offset === books.length - 1 ? -280 : 0;
-            const scale = isCenter ? 1 : 0.7;
-            const opacity = isCenter ? 1 : 0.3;
+            const xOffset = offset === 1 ? 300 : offset === books.length - 1 ? -300 : 0;
+            const scale = isCenter ? 1 : 0.8;
+            const opacity = isCenter ? 1 : 0.7;
             const zIndex = isCenter ? 10 : 1;
 
             return (

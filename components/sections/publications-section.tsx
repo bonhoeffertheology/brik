@@ -101,11 +101,11 @@ export function PublicationsSection() {
                         />
                         
                         {/* 음영 레이어 라운딩 제거 및 inset-0으로 완전 밀착 */}
-                        <div className={`absolute inset-0 bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
-                          <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
-                          <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
-                          {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
-                        </div>
+                       <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && isActive ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+  <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
+  <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
+  {book.ebookLink && <a href={book.ebookLink} className={btnClass} target="_blank" rel="noopener noreferrer">전자책</a>}
+</div>
                       </div>
                     </div>
                   </div>

@@ -79,7 +79,10 @@ export function PublicationsSection() {
                 
                 {/* 아래 줄 추가: 안내 문구 */}
        <div className={`absolute -bottom-8 left-0 w-full transition-opacity duration-500 delay-700 ease-in-out ${isCenter ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                >
+  <p className="text-stone-400 text-[10px] md:text-xs text-center font-sans whitespace-nowrap">
+    책을 클릭하시면 구입하실 수 있습니다
+  </p>
+</div>
                   <p className="text-stone-400 text-[10px] md:text-xs text-center font-sans whitespace-nowrap">
                     책을 클릭하시면 구입하실 수 있습니다
                   </p>

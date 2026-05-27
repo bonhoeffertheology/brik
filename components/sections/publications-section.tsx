@@ -9,6 +9,7 @@ const navBtnClass = "absolute top-1/2 -translate-y-1/2 z-30 p-4 text-white/50 ho
 
 export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(3)
+  const [activeBookIndex, setActiveBookIndex] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   
@@ -32,12 +33,12 @@ export function PublicationsSection() {
   const moveSlider = (dir: 1 | -1) => {
     if (isTransitioning) return
     setIsTransitioning(true)
+    setActiveBookIndex(null) // 이동 시 음영 초기화
     setCurrentIndex(prev => prev + dir)
   }
 
   const handleTransitionEnd = () => {
     setIsTransitioning(false)
-    // 인덱스 범위 보정: 중간 그룹(baseBooks.length ~ baseBooks.length * 2 - 1) 내에 항상 유지
     if (currentIndex <= 2) setCurrentIndex(currentIndex + baseBooks.length)
     else if (currentIndex >= baseBooks.length * 2) setCurrentIndex(currentIndex - baseBooks.length)
   }
@@ -47,7 +48,6 @@ export function PublicationsSection() {
       <div className="absolute inset-0 bg-cover bg-center bg-fixed opacity-40" style={{ backgroundImage: `url(${hero2Bg.src})` }} />
       
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* 제목 및 설명 섹션 복구 */}
         <div className={`mb-16 text-center transition-all duration-1000 transform ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto mt-4 h-0.5 w-12 bg-amber-500 overflow-hidden relative">
@@ -65,11 +65,18 @@ export function PublicationsSection() {
             >
               {books.map((book, idx) => (
                 <div key={idx} className="w-full md:w-1/3 flex-shrink-0 flex justify-center px-4">
-                  <div className={`transition-all duration-500 transform ${currentIndex === idx ? "scale-125 opacity-100" : "scale-[0.85] opacity-70"}`}>
-                    <div className="relative w-[260px] h-[420px] cursor-pointer shadow-2xl bg-transparent" onClick={() => idx !== currentIndex && moveSlider(idx > currentIndex ? 1 : -1)}>
+                  <div className={`transition-all duration-500 transform ${currentIndex === idx ? "scale-125 opacity-100 z-10" : "scale-[0.85] opacity-70"}`}>
+                    <div 
+                      className="relative w-[260px] h-[420px] cursor-pointer shadow-2xl bg-transparent overflow-hidden" 
+                      onClick={() => {
+                        if (idx !== currentIndex) moveSlider(idx > currentIndex ? 1 : -1)
+                        else setActiveBookIndex(activeBookIndex === idx ? null : idx)
+                      }}
+                    >
                       <img src={book.imageSrc} alt={book.title} className="w-full h-full object-fill" />
-                      <div className={`absolute -inset-[1px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx ? "opacity-100" : "opacity-0"}`}>
-                        <p className="text-white text-sm">{book.title}</p>
+                      {/* 음영: -inset-[2px]로 설정하여 표지 사진보다 약간 크게 확장하여 덮음 */}
+                      <div className={`absolute -inset-[2px] bg-stone-900/95 backdrop-blur-sm flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${currentIndex === idx && activeBookIndex === idx ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"}`}>
+                        <p className="text-white font-serif text-sm font-medium text-center">{book.title}</p>
                         <a href={book.purchaseLink} className={btnClass} target="_blank" rel="noopener noreferrer">종이책</a>
                       </div>
                     </div>

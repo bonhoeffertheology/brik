@@ -14,7 +14,7 @@ const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white/50 hover:text-
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ];
@@ -23,54 +23,43 @@ export function PublicationsSection() {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // 패럴렉스 제어를 위한 독립된 DOM 참조(Ref) 추가
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // [보충 내용] 외부 라이브러리(GSAP) 없는 순수 자바스크립트 관성 패럴렉스 엔진
+  // 순수 자바스크립트 관성 패럴렉스 엔진
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
     if (!section || !bg) return;
 
-    let animatedY = -20; // 현재 브라우저에 렌더링 중인 배경 Y축 위치 (%)
-    let targetY = -20;   // 실제 스크롤 위치에 따라 도달해야 하는 목표 위치 (%)
+    let animatedY = -20;
+    let targetY = -20;
     let animationFrameId: number;
 
     const handleScroll = () => {
       const rect = section.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
-      // 성능 최적화: 섹션이 화면 밖에 완전히 벗어나 있으면 연산을 건너뜁니다.
       if (rect.bottom < 0 || rect.top > windowHeight) return;
 
-      // 섹션이 화면 밑에서 나타나서 위로 사라질 때까지의 정밀 진행도 계산 (0 ~ 1)
       const totalDistance = windowHeight + rect.height;
       const scrolledDistance = windowHeight - rect.top;
       const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1);
 
-      // 화면을 내리면(스크롤 다운) 진행도(progress)가 커지며 배경이 -20%에서 +20% 쪽으로 서서히 올라갑니다.
       targetY = -20 + (progress * 40);
     };
 
-    // 선형 보간법(Lerp)과 하드웨어 주사율을 동기화하여 미끄러지는 감속을 만드는 함수
     const updateParallax = () => {
-      const ease = 0.08; // 이 값이 낮을수록 달린 첵 사이트 특유의 묵직하고 우아한 이동이 연출됩니다.
-      
+      const ease = 0.08;
       animatedY += (targetY - animatedY) * ease;
-
-      // 뚝뚝 끊기는 CSS top 대신 GPU 레이어를 타는 translate3d를 인라인으로 주입합니다.
       bg.style.transform = `translate3d(0, ${animatedY}%, 0)`;
-
       animationFrameId = requestAnimationFrame(updateParallax);
     };
 
-    // 스크롤 리스너 등록 (passive 옵션으로 모바일 스크롤 최적화)
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // 초기 진입 시 배경 위치 영점 조절
+    handleScroll();
     animationFrameId = requestAnimationFrame(updateParallax);
 
-    // 컴포넌트 해제 시 리스너 및 애니메이션 루프 완벽 리셋 (메모리 누수 차단)
     return () => {
       window.removeEventListener("scroll", handleScroll);
       cancelAnimationFrame(animationFrameId);
@@ -91,14 +80,8 @@ export function PublicationsSection() {
   };
 
   return (
-    // sectionRef를 연결하여 스크롤 트래킹의 정밀한 기준점 역할을 수행하도록 합니다.
     <section ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
       
-      {/* [패럴렉스 보충 레이어] 기존 bg-fixed div를 대체합니다.
-        - h-[140%]와 top-[-20%]의 스케일 버퍼를 둠으로써, 배경이 상하로 유연하게 슬라이딩할 때 
-          뒷배경의 검은색 여백이 찢어져 노출되는 현상을 완벽하게 구조적으로 차단합니다.
-        - will-change-transform 속성으로 브라우저에게 이 레이어가 상시 가속 레이어임을 인지시킵니다.
-      */}
       <div 
         ref={bgRef}
         className="absolute inset-x-0 top-[-20%] h-[140%] bg-cover bg-center opacity-40 will-change-transform" 
@@ -111,7 +94,6 @@ export function PublicationsSection() {
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
             <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
           </div>
-          {/* 완벽하게 유지된 타이틀 하단 문구 */}
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
@@ -144,9 +126,19 @@ export function PublicationsSection() {
                     {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass}>E-Book</a>}
                   </div>
                 </div>
-                {/* 완벽하게 유지된 도서 하단 안내 문구 */}
-                <div className={`mt-4 w-full transition-opacity duration-500 ease-in-out ${isCenter ? "opacity-100" : "opacity-0"}`}>
-                  <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">책을 클릭하시면<br />구매하실 수 있습니다</p>
+                
+                {/* [수정 핵심 레이어] 안내 문구 트랜지션 보완
+                  - 카드가 좌우로 움직이는 트랜지션 시간(500ms)이 끝날 때쯤 애니메이션이 시작하도록 delay-300을 부여했습니다.
+                  - 비활성화 상태에서는 아래로 12px 이동(`translate-y-3`)해 숨어 있다가, 활성화되면 위로 밀려 올라옵니다.
+                */}
+                <div className={`mt-4 w-full transition-all duration-500 ease-out ${
+                  isCenter 
+                    ? "opacity-100 translate-y-0 delay-300" 
+                    : "opacity-0 translate-y-3 delay-0"
+                }`}>
+                  <p className="font-sans text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
+                    책을 클릭하시면<br />구매하실 수 있습니다
+                  </p>
                 </div>
               </div>
             );

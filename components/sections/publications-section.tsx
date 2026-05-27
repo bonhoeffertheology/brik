@@ -85,7 +85,7 @@ export function PublicationsSection() {
                     책을 클릭하시면 구입하실 수 있습니다
                   </p>
                 </div>
-                 </div>
+                
 
                <div className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${isCenter && activeIdx === i ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full pointer-events-none"}`}>
                   <p className="text-white text-sm font-serif text-center">{book.title}</p>

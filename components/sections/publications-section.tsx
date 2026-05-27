@@ -37,7 +37,7 @@ export function PublicationsSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-6">
        <div className="text-center mb-16">
   {/* 1. 제목 폰트 적용 (font-serif 유지) */}
-  <h2 className="text-3xl md:text-4xl font-serif text-white mb-4">출판물</h2>
+  <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
   
   {/* 2. 노란색 바: 굵기(h-1)와 애니메이션(transition-all 등) 적용 */}
   <div className="w-16 h-1 bg-amber-500 mx-auto mb-6 transition-all duration-1000 ease-in-out hover:w-24" />

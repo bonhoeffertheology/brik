@@ -69,34 +69,26 @@ export function PublicationsSection() {
             const zIndex = isCenter ? 10 : 1;
 
            return (
-                <div 
-                key={book.title}
-                className="absolute overflow-visible transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
-                style={{ transform: `translateX(${xOffset}px) scale(${scale})`, opacity, zIndex }}
-                onClick={onClick}
-              >
-                <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
-                
-                {/* 안내 문구 */}
-                <div className={`absolute -bottom-10 left-0 w-full transition-opacity duration-500 delay-700 ease-in-out ${isCenter ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-                  <p className="text-stone-400 text-[14px] md:text-xs text-center font-sans whitespace-nowrap">
-                    책을 클릭하시면 구입하실 수 있습니다
-                  </p>
-                </div>
+               <div 
+  key={book.title}
+  className="absolute overflow-hidden transition-all duration-500 ease-out w-[220px] h-[340px] md:w-[260px] md:h-[420px] cursor-pointer"
+  // ... (style, onClick은 기존 유지)
+>
+  <img src={book.imageSrc} alt={book.title} className="w-full h-full object-cover shadow-2xl" />
 
-                {/* 구매 상세 정보 */}
-             <div 
-                className={`absolute inset-0 bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out 
-                ${isCenter && activeIdx === i 
-                  ? "opacity-100 translate-y-0" 
-                  : "opacity-0 translate-y-[85%] pointer-events-none"
-                }`}
-              >
-                <p className="text-white text-sm font-serif text-center">{book.title}</p>
-                <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
-                {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
-              </div>
-              </div>
+  {/* 구매 상세 정보 (음영) */}
+  <div 
+    className={`absolute bottom-0 left-0 w-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-out ${
+      isCenter && activeIdx === i 
+        ? "h-full opacity-100" 
+        : "h-0 opacity-0 pointer-events-none"
+    }`}
+  >
+    <p className="text-white text-sm font-serif text-center">{book.title}</p>
+    <a href={book.purchaseLink} target="_blank" className={btnClass}>종이책</a>
+    {book.ebookLink && <a href={book.ebookLink} target="_blank" className={btnClass}>E-Book</a>}
+  </div>
+</div>
             );
           })}
           

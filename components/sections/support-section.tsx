@@ -69,12 +69,12 @@ export function SupportSection() {
                 </div>
                 <div className="text-right">
                   <p className="mb-1 text-sm text-slate-300">계좌번호</p>
-                  <p className="text-xl font-bold">339-04-1455001</p>
+                  <p className="text-xl font-bold">339-04-745500</p>
                 </div>
               </div>
               <div className="rounded-lg bg-white/10 p-4">
                 <p className="mb-1 text-sm text-slate-300">예금주</p>
-                <p className="text-xl font-bold">양석진(한국본회퍼연구소)</p>
+                <p className="text-xl font-bold">양석진(한국본회퍼연구소장)</p>
               </div>
             </div>
           </div>

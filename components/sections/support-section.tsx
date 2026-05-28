@@ -92,7 +92,7 @@ export function SupportSection() {
               든든한 동역자가 되어 주십시오.
             </p>
             <p className="text-sm md:text-base font-light leading-relaxed text-slate-400 tracking-wider">
-              보내주신 후원금은 연구소의 <span className="text-white font-normal border-b border-accent/60 pb-0.5">학술연구, 번역, 출판, NETWORK</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
+              보내주신 후원금은 연구소의 <span className="text-white font-normal border-b border-accent/60 pb-0.5">학술연구, 번역, 출판, 네트워크</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
             </p>
           </div>
         </div>

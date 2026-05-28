@@ -324,7 +324,7 @@ export function ResearchSection() {
 
                   {/* 하단 푸터 장식 */}
                   <div className="mt-6 flex items-center justify-between border-t border-stone-200/60 pt-4 text-xs font-sans tracking-wider text-stone-400">
-                    <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">BRIK</span>
+                    <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">한국본회퍼연구소장</span>
                     <span>{formatDate(post.pubDate)}</span>
                   </div>
                 </a>

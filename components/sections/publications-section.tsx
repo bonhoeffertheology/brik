@@ -10,11 +10,15 @@ interface PublicationBook {
 }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
-const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-7xl md:text-9xl cursor-pointer";
+
+/* 💡 변경된 navBtnClass: 
+   - 'top-0 bottom-0' 대신 'top-[38%] -translate-y-1/2'를 사용하여 모바일/데스크톱 모두 책 이미지 정중앙 높이에 고정합니다.
+   - 'h-fit'을 추가하여 터치 영역이 웅장하게 늘어나는 것을 방지합니다. */
+const navBtnClass = "absolute top-[38%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ];
@@ -115,7 +119,6 @@ export function PublicationsSection() {
                 key={book.title} 
                 className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer select-none"
                 style={{ 
-                  /* scale 조절 시 흐려짐 버그를 해결하기 위해 3D 원근감(perspective) 레이어 강제 병합 */
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
                   transformStyle: "preserve-3d",
@@ -133,11 +136,10 @@ export function PublicationsSection() {
                   <img 
                     src={book.imageSrc} 
                     alt={book.title} 
-                    /* 💡 핵심 수정: 고해상도 이미지가 리사이징될 때 외곽선을 부드럽고 뚜렷하게 보정하는 속성 조합 */
                     className="w-full h-full object-cover" 
                     style={{ 
-                      imageRendering: "-webkit-optimize-contrast", // 크롬/사파리 글자 대비 극대화
-                      WebkitTransform: "translateZ(0) scale(1.0001)", // 미세 픽셀 단위 래스터화 강제 우회
+                      imageRendering: "-webkit-optimize-contrast",
+                      WebkitTransform: "translateZ(0) scale(1.0001)",
                       transform: "translateZ(0) scale(1.0001)"
                     }}
                   />
@@ -162,8 +164,11 @@ export function PublicationsSection() {
             );
           })}
           
-          <button onClick={() => rotate(-1)} className={navBtnClass + " left-0 md:-left-20"}>‹</button>
-          <button onClick={() => rotate(1)} className={navBtnClass + " right-0 md:-right-20"}>›</button>
+          {/* 💡 핵심 수정: 
+             - 모바일 스마트폰 환경에서 기기 화면 맨 끝 구석으로 밀착시켜 책 이미지와의 물리적 거리를 최대한 확보했습니다. (-left-2, -right-2)
+             - 데스크톱 화면(`md:`)에서는 기존에 잘 나오던 넓은 레이아웃 폭(-left-20, -right-20)을 그대로 유지합니다. */}
+          <button onClick={() => rotate(-1)} className={navBtnClass + " -left-2 sm:left-2 md:-left-20"}>‹</button>
+          <button onClick={() => rotate(1)} className={navBtnClass + " -right-2 sm:right-2 md:-right-20"}>›</button>
         </div> 
       </div>
     </section>

@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+// 1. 이미지를 상대 경로로 직접 import 합니다. 
+// 이렇게 하면 Next.js가 빌드 타임에 올바른 해시 경로를 자동으로 찾아줍니다.
+import supportBg from "@/public/images/support.jpg"
 
 export function SupportSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -8,7 +11,7 @@ export function SupportSection() {
   const [parallaxY, setParallaxY] = useState(0)
 
   useEffect(() => {
-    // 1. 등장 애니메이션 트리거 (기존 기능 유지)
+    // 등장 애니메이션 기능 유지
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -22,23 +25,22 @@ export function SupportSection() {
       observer.observe(sectionRef.current)
     }
 
-    // 2. 부드러운 페럴렉스 위치 계산 (스크롤 버그 보완)
+    // 페럴렉스 스크롤 계산 유지
     const handleScroll = () => {
       if (!sectionRef.current) return
       
       const rect = sectionRef.current.getBoundingClientRect()
       const windowHeight = window.innerHeight
 
-      // 섹션이 화면에 보이기 시작할 때부터 끝날 때까지만 계산
       if (rect.top < windowHeight && rect.bottom > 0) {
-        const speed = 0.2 // 숫자가 클수록 배경이 더 많이 움직입니다
+        const speed = 0.15
         const yPos = -(rect.top * speed)
         setParallaxY(yPos)
       }
     }
 
     window.addEventListener("scroll", handleScroll)
-    handleScroll() // 초기 위치 맞추기
+    handleScroll()
 
     return () => {
       observer.disconnect()
@@ -50,46 +52,45 @@ export function SupportSection() {
     <section 
       id="support" 
       ref={sectionRef} 
-      className="relative overflow-hidden bg-slate-900 py-20 md:py-28" // 검은 화면 에러 방지를 위해 명확한 다크 톤 배경 지정
+      className="relative overflow-hidden bg-slate-900 py-20 md:py-28 text-white"
     >
-      {/* [페럴렉스 배경 이미지 레이어] - 이제 선명하게 뒤에서 움직입니다 */}
+      {/* 페럴렉스 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
-          src="/images/support.jpg"
+          // 2. 문자열 경로 "/images/support.jpg" 대신 import한 객체의 .src를 사용합니다.
+          src={supportBg.src}
           alt="Support Background"
-          // h-[140%]로 세로를 늘려 스크롤 시 위아래 여백이 찢어지는 현상 방지
-          className="absolute left-1/2 top-0 h-[140%] w-full min-w-full object-cover will-change-transform"
+          className="absolute left-1/2 top-0 h-[135%] w-full min-w-full object-cover will-change-transform"
           style={{ transform: `translateX(-50%) translateY(${parallaxY}px)` }}
         />
-        {/* 이미지 위에 투명도 40%의 어두운 필터를 씌워, 이미지는 선명하게 보이고 글씨는 잘 읽히도록 조절 */}
-        <div className="absolute inset-0 bg-black/40" />
+        {/* 어두운 오버레이 필터로 가독성 및 선명도 확보 */}
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
-      {/* 기존의 패럴랙스 원형 데코레이션 배경 (z-10) */}
+      {/* 기존의 패럴랙스 원형 데코레이션 배경 유지 */}
       <div className="pointer-events-none absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-primary/5 z-10" />
       <div className="pointer-events-none absolute left-0 top-0 h-[300px] w-[300px] -translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/5 z-10" />
       
-      {/* [콘텐츠 레이어] (z-20으로 올려 이미지 위에 선명하게 배치) */}
+      {/* 콘텐츠 영역 (z-20) */}
       <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        {/* 타이틀 영역 */}
+        {/* 타이틀 */}
         <div
           className={`mb-16 text-center transition-all duration-700 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          {/* 배경 이미지 위에서 잘 보이도록 타이틀 글자색을 white로 변경 */}
           <h2 className="mb-4 font-serif text-3xl font-bold text-white md:text-4xl">후원하기</h2>
           <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
-          <p className="mt-4 text-lg text-slate-200">
+          <p className="mt-4 text-lg text-slate-300">
             한국본회퍼연구소의 문서 선교 사역에<br /> 든든한 동역자가 되어 주십시오
           </p>
         </div>
 
         <div className="mx-auto max-w-4xl">
-          {/* 후원금 사용 안내 박스 (기존의 밝은 그라데이션 카드를 유지하되, 배경 이미지가 살짝 비치도록 backdrop-blur 적용) */}
+          {/* 후원금 사용 안내 (기존 디자인 복구) */}
           <div
             className={`mb-10 rounded-lg bg-gradient-to-r from-slate-50/95 to-blue-50/95 backdrop-blur-sm p-8 shadow-md transition-all duration-700 delay-200 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
@@ -102,7 +103,7 @@ export function SupportSection() {
             </p>
           </div>
 
-          {/* 후원 계좌 안내 박스 (기존 스타일 100% 유지) */}
+          {/* 후원 계좌 안내 (기존 디자인 유지) */}
           <div
             className={`rounded-lg bg-gradient-to-br from-slate-700/90 to-slate-900/90 backdrop-blur-sm p-8 text-white shadow-lg transition-all duration-700 delay-400 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"

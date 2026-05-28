@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-// 1. 이미지를 상대 경로로 직접 import 합니다. 
-// 이렇게 하면 Next.js가 빌드 타임에 올바른 해시 경로를 자동으로 찾아줍니다.
+// 이미지를 상대 경로로 직접 import 하여 경로 에러를 원천 차단합니다.
 import supportBg from "@/public/images/support.jpg"
 
 export function SupportSection() {
@@ -11,7 +10,7 @@ export function SupportSection() {
   const [parallaxY, setParallaxY] = useState(0)
 
   useEffect(() => {
-    // 등장 애니메이션 기능 유지
+    // 1. 등장 애니메이션 트리거 (기존 기능 유지)
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -25,7 +24,7 @@ export function SupportSection() {
       observer.observe(sectionRef.current)
     }
 
-    // 페럴렉스 스크롤 계산 유지
+    // 2. 부드러운 페럴렉스 위치 계산
     const handleScroll = () => {
       if (!sectionRef.current) return
       
@@ -57,13 +56,12 @@ export function SupportSection() {
       {/* 페럴렉스 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
-          // 2. 문자열 경로 "/images/support.jpg" 대신 import한 객체의 .src를 사용합니다.
           src={supportBg.src}
           alt="Support Background"
           className="absolute left-1/2 top-0 h-[135%] w-full min-w-full object-cover will-change-transform"
           style={{ transform: `translateX(-50%) translateY(${parallaxY}px)` }}
         />
-        {/* 어두운 오버레이 필터로 가독성 및 선명도 확보 */}
+        {/* 어두운 오버레이 필터로 가독성 확보 */}
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
@@ -90,20 +88,19 @@ export function SupportSection() {
         </div>
 
         <div className="mx-auto max-w-4xl">
-          {/* 후원금 사용 안내 (기존 디자인 복구) */}
+          {/* 변경된 후원금 사용 안내 배너 (반투명 및 문구 수정) */}
           <div
-            className={`mb-10 rounded-lg bg-gradient-to-r from-slate-50/95 to-blue-50/95 backdrop-blur-sm p-8 shadow-md transition-all duration-700 delay-200 ${
+            className={`mb-10 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 p-8 shadow-xl transition-all duration-700 delay-200 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
             }`}
           >
-            <h3 className="mb-4 text-center text-2xl font-bold text-primary">후원금은 이렇게 사용됩니다</h3>
-            <p className="text-center leading-relaxed text-slate-800">
-              한국본회퍼연구소는 디트리히 본회퍼의 신학과 삶의 연구를 통해 교회와 사회를 온전히 세우는 일에 헌신하고
-              있습니다. 여러분의 후원은 학술 연구, 번역 및 출판, 강의, 교육 프로그램 등의 운영에 사용됩니다.
+            <h3 className="mb-4 text-center text-2xl font-bold text-white">후원금은 이렇게 사용됩니다</h3>
+            <p className="text-center leading-relaxed text-slate-100 tracking-wide">
+              후원금은 한국본회퍼연구소의 학술연구, 번역, 출판, 네트워크 등의 운영에 사용됩니다.
             </p>
           </div>
 
-          {/* 후원 계좌 안내 (기존 디자인 유지) */}
+          {/* 후원 계좌 안내 (기존 기능 100% 유지) */}
           <div
             className={`rounded-lg bg-gradient-to-br from-slate-700/90 to-slate-900/90 backdrop-blur-sm p-8 text-white shadow-lg transition-all duration-700 delay-400 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"

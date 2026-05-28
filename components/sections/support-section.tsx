@@ -39,7 +39,7 @@ export function SupportSection() {
           <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
-          <p className="mt-4 text-lg text-muted-foreground">한국본회퍼연구소의 문서 선교 사역에 든든한 동역자가 되어 주십시오</p>
+          <p className="mt-4 text-lg text-muted-foreground"> 한국본회퍼연구소의 문서 선교 사역에<br /> 든든한 동역자가 되어 주십시오</p>
         </div>
 
         <div className="mx-auto max-w-4xl">

@@ -23,7 +23,7 @@ export function SupportSection() {
       observer.observe(sectionRef.current)
     }
 
-    // 2. 부드럽고 빠른 페럴렉스 (기존 속도 0.3 유지)
+    // 2. 다이내믹 페럴렉스 스크롤 (속도 0.3 유지)
     const handleScroll = () => {
       if (!sectionRef.current) return
       
@@ -50,7 +50,7 @@ export function SupportSection() {
     <section 
       id="support" 
       ref={sectionRef} 
-      className="relative overflow-hidden bg-slate-950 py-24 md:py-32 text-white"
+      className="relative overflow-hidden bg-slate-950 py-24 md:py-36 text-white"
     >
       {/* 페럴렉스 배경 이미지 영역 (기존 유지) */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -60,8 +60,8 @@ export function SupportSection() {
           className="absolute left-1/2 top-0 h-[150%] w-full min-w-full object-cover will-change-transform"
           style={{ transform: `translateX(-50%) translateY(${parallaxY}px)` }}
         />
-        {/* 조금 더 깊이감 있고 세련된 다크 오버레이 */}
-        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px]" />
+        {/* 명암 대비를 깊게 주어 고급스러운 분위기를 연출하는 그라데이션 오버레이 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/90 backdrop-blur-[1px]" />
       </div>
 
       {/* 기존의 패럴랙스 원형 데코레이션 배경 유지 */}
@@ -69,62 +69,69 @@ export function SupportSection() {
       <div className="pointer-events-none absolute left-0 top-0 h-[300px] w-[300px] -translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/5 z-10" />
       
       {/* 콘텐츠 영역 (z-20) */}
-      <div className="relative z-20 mx-auto max-w-5xl px-6 lg:px-8">
+      <div className="relative z-20 mx-auto max-w-4xl px-6 lg:px-8">
         
-        {/* 타이틀 영역 (기존 유지) */}
+        {/* 상단 타이틀 및 문구 통합 영역 */}
         <div
-          className={`mb-20 text-center transition-all duration-700 ${
+          className={`text-center transition-all duration-1000 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          <h2 className="mb-4 font-serif text-3xl font-bold text-white md:text-4xl tracking-wide">후원하기</h2>
+          {/* 타이틀 (기존 유지) */}
+          <h2 className="mb-4 font-serif text-3xl font-bold tracking-widest text-white md:text-4xl">후원하기</h2>
+          
+          {/* 애니메이션 바 (기존 유지) */}
           <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
-          <p className="mt-5 text-base md:text-lg text-slate-300 font-light leading-relaxed">
-            한국본회퍼연구소의 문서 선교 사역에<br /> 든든한 동역자가 되어 주십시오
-          </p>
+          
+          {/* [요청 사항 반영] 기존 서브 문구와 후원금 사용처 안내를 하나로 우아하게 묶은 내러티브 텍스트 */}
+          <div className="mt-8 space-y-4 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl font-light leading-relaxed text-slate-200 tracking-wide">
+              한국본회퍼연구소의 문서 선교 사역에<br />
+              든든한 동역자가 되어 주십시오.
+            </p>
+            <p className="text-sm md:text-base font-light leading-relaxed text-slate-400 tracking-wider">
+              보내주신 후원금은 연구소의 <span className="text-white font-normal border-b border-accent/60 pb-0.5">학술연구, 번역, 출판, 네트워크</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
+            </p>
+          </div>
         </div>
 
-        {/* 하부 디자인: 심플&모던 미니멀 스타일로 전면 개편 */}
+        {/* 하단 계좌 안내: 극도로 정제된 프리미엄 미니멀 프레임 */}
         <div
-          className={`mx-auto max-w-3xl space-y-16 transition-all duration-700 delay-300 ${
+          className={`mt-20 transition-all duration-1000 delay-300 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          {/* 1. 후원금 사용 안내 (카드 형태를 깨고 텍스트에 집중) */}
-          <div className="text-center">
-            <p className="text-lg md:text-xl font-light leading-relaxed text-slate-200 tracking-wide max-w-2xl mx-auto">
-              "후원금은 한국본회퍼연구소의 <span className="text-accent font-medium">학술연구, 번역, 출판, 네트워크</span> 등의 운영에 사용됩니다."
+          <div className="mx-auto max-w-2xl rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md p-8 md:p-10 shadow-2xl">
+            <p className="text-center text-xs tracking-[0.2em] text-slate-500 uppercase mb-8 font-medium">
+              Donation Account
             </p>
-          </div>
-
-          {/* 두 섹션을 구분하는 미니멀한 라인 */}
-          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-          {/* 2. 후원 계좌 안내 (불필요한 박스를 없애고 미니멀한 그리드로 배치) */}
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
+            
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
               {/* 은행 및 계좌번호 */}
-              <div className="flex flex-col items-center md:items-end justify-center pb-6 md:pb-0 md:border-r border-white/10 pr-0 md:pr-12">
-                <span className="text-xs tracking-widest text-slate-400 uppercase mb-1">Account</span>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-lg font-light text-slate-300">신한은행</span>
-                  <span className="text-2xl font-semibold tracking-wider text-white">339-04-745500</span>
-                </div>
+              <div className="text-center md:text-left space-y-1">
+                <span className="text-xs tracking-wider text-slate-400 font-light">신한은행</span>
+                <p className="text-2xl md:text-3xl font-bold tracking-wider text-slate-100 font-mono">
+                  339-04-745500
+                </p>
               </div>
 
+              {/* 가로/세로 경계선 */}
+              <div className="hidden md:block h-10 w-[1px] bg-white/10" />
+              <div className="block md:hidden h-[1px] w-12 bg-white/10" />
+
               {/* 예금주 */}
-              <div className="flex flex-col items-center md:items-start justify-center">
-                <span className="text-xs tracking-widest text-slate-400 uppercase mb-1">Holder</span>
-                <p className="text-xl font-light text-slate-200">
-                  양석진 <span className="text-sm text-slate-400 ml-1">(한국본회퍼연구소장)</span>
+              <div className="text-center md:text-right space-y-1">
+                <span className="text-xs tracking-wider text-slate-400 font-light">예금주</span>
+                <p className="text-lg md:text-xl font-light text-slate-200">
+                  양석진 <span className="text-xs text-slate-400 block md:inline md:ml-1">(한국본회퍼연구소장)</span>
                 </p>
               </div>
             </div>
           </div>
-
         </div>
+
       </div>
     </section>
   )

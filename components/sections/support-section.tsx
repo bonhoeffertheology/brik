@@ -77,8 +77,8 @@ export function SupportSection() {
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          {/* 타이틀 (기존 유지) */}
-          <h2 className="mb-4 font-serif text-3xl font-bold tracking-widest text-white md:text-4xl">후원하기</h2>
+          {/* 타이틀 자간 조정 (tracking-widest -> tracking-normal) */}
+          <h2 className="mb-4 font-serif text-3xl font-bold tracking-normal text-white md:text-4xl">후원하기</h2>
           
           {/* 애니메이션 바 (기존 유지) */}
           <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
@@ -92,27 +92,26 @@ export function SupportSection() {
               든든한 동역자가 되어 주십시오.
             </p>
             <p className="text-sm md:text-base font-light leading-relaxed text-slate-400 tracking-wider">
-              보내주신 후원금은 연구소의 <span className="text-white font-normal border-b border-accent/60 pb-0.5">학술연구, 번역, 출판, 네트워크</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
+              보내주신 후원금은 연구소의 <span className="text-white font-normal border-b border-accent/60 pb-0.5">학술연구, 번역, 출판, NETWORK</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
             </p>
           </div>
         </div>
 
-        {/* 하단 계좌 안내: 반투명 배너 프레임을 완전히 제거한 클린 미니멀 뷰 */}
+        {/* 하단 계좌 안내 */}
         <div
           className={`mt-20 transition-all duration-1000 delay-300 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
           <div className="mx-auto max-w-2xl p-4 md:p-6">
-            {/* 후원계좌 타이틀 크기 살짝 확대 (text-xs -> text-sm) */}
-            <p className="text-center text-sm tracking-[0.2em] text-slate-400 uppercase mb-8 font-medium">
+            <p className="text-center text-base tracking-[0.2em] text-slate-400 uppercase mb-8 font-medium">
               후원계좌
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
-              {/* 은행 및 계좌번호 (신한은행 -> 신한) */}
+              {/* 은행 및 계좌번호 */}
               <div className="text-center md:text-left space-y-1">
-                <span className="text-xs tracking-wider text-slate-400 font-light">신한</span>
+                <span className="text-sm tracking-wider text-slate-100 font-light">신한</span>
                 <p className="text-2xl md:text-3xl font-bold tracking-wider text-slate-100 font-mono">
                   339-04-745500
                 </p>

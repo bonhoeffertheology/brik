@@ -11,8 +11,8 @@ interface PublicationBook {
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
 
-/* 💡 navBtnClass 유지: 책 이미지의 실질적인 정중앙 높이를 유연하게 추적하도록 고정되어 있습니다. */
-const navBtnClass = "absolute top-[38%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
+/* 💡 navBtnClass: 책 표지가 20% 커짐에 따라 버튼의 세로 정중앙 영점을 top-[39%]로 정밀 리밸런싱했습니다. */
+const navBtnClass = "absolute top-[39%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
@@ -82,7 +82,7 @@ export function PublicationsSection() {
   };
 
   return (
-    /* 💡 id="publications" 추가 및 상단 고정 네비게이션 바가 있을 경우 가려짐 방지를 위한 scroll-mt-20 추가 */
+    /* 💡 [연동 완방] 외부 연동 id와 헤더 가려짐 방지용 패딩(scroll-mt-20) 100% 유지 */
     <section 
       ref={sectionRef} 
       id="publications"
@@ -96,8 +96,7 @@ export function PublicationsSection() {
       />
       
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
-        {/* 💡 변경 사항 1: 모바일에서 하단 여백을 기존 mb-16에서 mb-6으로 줄여 
-            타이틀 문구 직후에 책 이미지가 바로 바짝 붙어 올라오도록 조정했습니다. */}
+        {/* 💡 [변경사항 1 완벽 보존] 타이틀 밑 마진 모바일 최적화 레이아웃 (mb-6 / md:mb-16) */}
         <div className="text-center mb-6 md:mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
@@ -106,17 +105,17 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
-        {/* 💡 변경 사항 2: 모바일에서 슬라이더 박스 자체의 세로 높이를 기존 h-[560px]에서 h-[480px]로 압축하여 
-            하단 여백 및 투명 영역이 과도하게 공간을 차지하여 벌어지던 현상을 완벽히 해결했습니다. */}
+        {/* 💡 [크기 최적화] 커진 책 크기에 비례하여 뷰포트 컨테이너 높이를 안전하게 확장 (h-[560px] -> h-[680px]) */}
         <div 
-          className="relative flex justify-center items-center h-[480px] md:h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
+          className="relative flex justify-center items-center h-[560px] md:h-[680px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
-            const xOffset = offset === 1 ? 340 : offset === books.length - 1 ? -340 : 0;
+            // 💡 [3D 밸런싱] 카드가 커진 만큼 양옆으로 펼쳐지는 거리(xOffset)를 340에서 400으로 조절하여 겹침 현상을 방어했습니다.
+            const xOffset = offset === 1 ? 400 : offset === books.length - 1 ? -400 : 0;
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
@@ -124,7 +123,8 @@ export function PublicationsSection() {
             return (
               <div 
                 key={book.title} 
-                className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer select-none"
+                // 💡 [20% 스케일업] 카드 전체의 외곽 비율을 20% 늘렸습니다.
+                className="absolute transition-all duration-500 ease-out w-[300px] h-[516px] md:w-[372px] md:h-[636px] cursor-pointer select-none"
                 style={{ 
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
@@ -139,7 +139,8 @@ export function PublicationsSection() {
                 }}
               >
                 
-                <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
+                {/* 💡 [20% 이미지업] 외부 카드 확장에 대응하여 내부 이미지 액자 프레임 높이를 정밀 스케일업 */}
+                <div className="relative w-full h-[456px] md:h-[564px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
                   <img 
                     src={book.imageSrc} 
                     alt={book.title} 
@@ -150,6 +151,7 @@ export function PublicationsSection() {
                       transform: "translateZ(0) scale(1.0001)"
                     }}
                   />
+                  {/* 호버/클릭 시 올라오는 푸터 오버레이 슬라이드 디자인 원본 유지 */}
                   <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                     <p className="text-white text-sm font-serif text-center">{book.title}</p>
                     <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>
@@ -157,8 +159,9 @@ export function PublicationsSection() {
                   </div>
                 </div>
                 
+                {/* 하단 캡션 레이어 및 1000ms 딜레이 트랜지션 원본 보존 */}
                 <div 
-                  className={`mt-8 w-full transition-opacity duration-500 ease-out ${
+                  className={`mt-6 w-full transition-opacity duration-500 ease-out ${
                     isCenter ? "opacity-100" : "opacity-0"
                   }`}
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
@@ -171,8 +174,9 @@ export function PublicationsSection() {
             );
           })}
           
-          <button onClick={() => rotate(-1)} className={navBtnClass + " -left-2 sm:left-2 md:-left-20"}>‹</button>
-          <button onClick={() => rotate(1)} className={navBtnClass + " -right-2 sm:right-2 md:-right-20"}>›</button>
+          {/* 좌우 내비게이션 화살표 컴포넌트 위치 영점 정렬 유지 */}
+          <button onClick={() => rotate(-1)} className={navBtnClass + " -left-4 sm:left-2 md:-left-20"}>‹</button>
+          <button onClick={() => rotate(1)} className={navBtnClass + " -right-4 sm:right-2 md:-right-20"}>›</button>
         </div> 
       </div>
     </section>

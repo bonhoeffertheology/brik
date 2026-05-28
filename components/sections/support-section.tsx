@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react"
 export function SupportSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const [offsetY, setOffsetY] = useState(0)
 
   useEffect(() => {
+    // Intersection Observer to set visibility
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -20,15 +22,32 @@ export function SupportSection() {
       observer.observe(sectionRef.current)
     }
 
-    return () => observer.disconnect()
+    // Scroll event handler for parallax effect
+    const handleScroll = () => {
+      setOffsetY(window.pageYOffset)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("scroll", handleScroll)
+    }
   }, [])
 
   return (
     <section id="support" ref={sectionRef} className="relative overflow-hidden bg-card py-20 md:py-28">
-      {/* Parallax decorative background */}
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-primary/3" />
-      <div className="pointer-events-none absolute left-0 top-0 h-[300px] w-[300px] -translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/3" />
-      
+      {/* Background Image with Parallax Effect */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/images/support.jpg"
+          alt="Support Background"
+          className="absolute h-full w-full object-cover"
+          style={{ transform: `translateY(${offsetY * 0.5}px)` }}
+        />
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           className={`mb-16 text-center transition-all duration-700 ${
@@ -39,7 +58,9 @@ export function SupportSection() {
           <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
-          <p className="mt-4 text-lg text-muted-foreground"> 한국본회퍼연구소의 문서 선교 사역에<br /> 든든한 동역자가 되어 주십시오</p>
+          <p className="mt-4 text-lg text-muted-foreground">
+            한국본회퍼연구소의 문서 선교 사역에<br /> 든든한 동역자가 되어 주십시오
+          </p>
         </div>
 
         <div className="mx-auto max-w-4xl">

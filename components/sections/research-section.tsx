@@ -267,7 +267,7 @@ export function ResearchSection() {
           className="absolute inset-x-0 top-[-20%] h-[140%] bg-cover bg-center opacity-100 will-change-transform" 
           style={{ backgroundImage: `url('images/back21.png')` }} 
         />
-        <div className="absolute inset-0 bg-stone-900/50 pointer-events-none" />
+        <div className="absolute inset-0 bg-stone-900/20 pointer-events-none" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

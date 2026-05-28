@@ -4,8 +4,6 @@ import hero2Bg from "@/public/images/hero3.png";
 
 interface PublicationBook { 
   title: string; 
-  subtitle?: string; // 💡 서브타이틀 분리
-  description?: string; // 💡 하단 소개글 분리
   imageSrc: string; 
   purchaseLink: string; 
   ebookLink?: string; 
@@ -15,27 +13,10 @@ const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-m
 const navBtnClass = "absolute top-0 bottom-0 z-40 px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-7xl md:text-9xl cursor-pointer";
 
 export function PublicationsSection() {
-  // 💡 데이터 구조에 뭉개지던 글자들을 텍스트로 직접 주입했습니다.
   const books: PublicationBook[] = [
-    { 
-      title: "그리스도를 따라서 Vol. 1", 
-      subtitle: "디트리히 본회퍼 저 | 양석진 역",
-      description: "시대를 성찰하고자 했던 본회퍼의 <나를 따르라>가 새로운 번역으로 돌아왔습니다. 우리를 참다운 제자의 길로 인도해 줄 것입니다.",
-      imageSrc: "images/vol1.jpg", 
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" 
-    },
-    { 
-      title: "하나님과 함께 (전면개정판)", 
-      imageSrc: "images/withr.jpg", 
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", 
-      ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" 
-    },
-    { 
-      title: "하나님과 함께 (초판)", 
-      imageSrc: "images/with.jpg", 
-      purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", 
-      ebookLink: "https://jelsayou.upaper.kr/content/1153861" 
-    }
+    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
+    { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -134,6 +115,7 @@ export function PublicationsSection() {
                 key={book.title} 
                 className="absolute transition-all duration-500 ease-out w-[250px] h-[430px] md:w-[310px] md:h-[530px] cursor-pointer select-none"
                 style={{ 
+                  /* scale 조절 시 흐려짐 버그를 해결하기 위해 3D 원근감(perspective) 레이어 강제 병합 */
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
                   transformStyle: "preserve-3d",
@@ -147,36 +129,19 @@ export function PublicationsSection() {
                 }}
               >
                 
-                {/* 💡 카드 레이아웃 고도화: 흰색 배경과 깔끔한 레이아웃 구조 채택 */}
-                <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl rounded-sm bg-white flex flex-col" style={{ transform: "translateZ(0)" }}>
-                  
-                  {/* 상단: 순수 책 표지 그래픽 영역 (축소되어도 절대 안 깨짐) */}
-                  <div className="relative w-full flex-1 overflow-hidden bg-stone-100">
-                    <img 
-                      src={book.imageSrc} 
-                      alt={book.title} 
-                      className="w-full h-full object-cover" 
-                      style={{ 
-                        imageRendering: "-webkit-optimize-contrast",
-                        WebkitTransform: "translateZ(0) scale(1.0001)",
-                        transform: "translateZ(0) scale(1.0001)"
-                      }}
-                    />
-                  </div>
-
-                  {/* 💡 하단: 뭉개지던 작은 글자들을 실제 시스템 텍스트로 하단에 선명하게 배치 */}
-                  {book.description && (
-                    <div className="p-4 bg-white border-t border-stone-100 flex flex-col justify-center min-h-[130px] md:min-h-[150px]">
-                      <h4 className="font-serif font-bold text-stone-900 text-sm md:text-base leading-tight">{book.title}</h4>
-                      {book.subtitle && <p className="text-[11px] font-sans text-stone-500 mt-1">{book.subtitle}</p>}
-                      <p className="text-[11px] md:text-xs font-sans text-stone-600 mt-2 leading-relaxed tracking-tight line-clamp-3">
-                        {book.description}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* 클릭 시 올라오는 오버레이 레이어 */}
-                  <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/95 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
+                <div className="relative w-full h-[380px] md:h-[470px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
+                  <img 
+                    src={book.imageSrc} 
+                    alt={book.title} 
+                    /* 💡 핵심 수정: 고해상도 이미지가 리사이징될 때 외곽선을 부드럽고 뚜렷하게 보정하는 속성 조합 */
+                    className="w-full h-full object-cover" 
+                    style={{ 
+                      imageRendering: "-webkit-optimize-contrast", // 크롬/사파리 글자 대비 극대화
+                      WebkitTransform: "translateZ(0) scale(1.0001)", // 미세 픽셀 단위 래스터화 강제 우회
+                      transform: "translateZ(0) scale(1.0001)"
+                    }}
+                  />
+                  <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                     <p className="text-white text-sm font-serif text-center">{book.title}</p>
                     <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>
                     {book.ebookLink && <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass}>E-Book</a>}

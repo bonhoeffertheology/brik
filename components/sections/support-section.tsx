@@ -61,7 +61,7 @@ export function SupportSection() {
           style={{ transform: `translateX(-50%) translateY(${parallaxY}px)` }}
         />
         {/* 명암 대비를 깊게 주어 고급스러운 분위기를 연출하는 그라데이션 오버레이 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/90 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-slate-950/40 to-slate-950/50 backdrop-blur-[1px]" />
       </div>
 
       {/* 기존의 패럴랙스 원형 데코레이션 배경 유지 */}

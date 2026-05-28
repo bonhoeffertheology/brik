@@ -97,35 +97,34 @@ export function SupportSection() {
           </div>
         </div>
 
-        {/* 하단 계좌 안내: 극도로 정제된 프리미엄 미니멀 프레임 */}
+        {/* 하단 계좌 안내: 반투명 배너 프레임을 완전히 제거한 클린 미니멀 뷰 */}
         <div
           className={`mt-20 transition-all duration-1000 delay-300 ${
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          <div className="mx-auto max-w-2xl rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md p-8 md:p-10 shadow-2xl">
-            {/* Donation Account -> 후원계좌 변경 */}
-            <p className="text-center text-xs tracking-[0.2em] text-slate-500 uppercase mb-8 font-medium">
+          <div className="mx-auto max-w-2xl p-4 md:p-6">
+            {/* 후원계좌 타이틀 크기 살짝 확대 (text-xs -> text-sm) */}
+            <p className="text-center text-sm tracking-[0.2em] text-slate-400 uppercase mb-8 font-medium">
               후원계좌
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
-              {/* 은행 및 계좌번호 */}
+              {/* 은행 및 계좌번호 (신한은행 -> 신한) */}
               <div className="text-center md:text-left space-y-1">
-                <span className="text-xs tracking-wider text-slate-400 font-light">신한은행</span>
+                <span className="text-xs tracking-wider text-slate-400 font-light">신한</span>
                 <p className="text-2xl md:text-3xl font-bold tracking-wider text-slate-100 font-mono">
                   339-04-745500
                 </p>
               </div>
 
-              {/* 가로/세로 경계선 */}
+              {/* 가로/세로 경계선 (기존 유지) */}
               <div className="hidden md:block h-10 w-[1px] bg-white/10" />
               <div className="block md:hidden h-[1px] w-12 bg-white/10" />
 
-              {/* 예금주 정보 수정 */}
+              {/* 예금주 정보 */}
               <div className="text-center md:text-right space-y-1">
                 <span className="text-xs tracking-wider text-slate-400 font-light">예금주</span>
-                {/* 폰트 크기를 계좌번호 크기 밸런스에 맞춰 text-lg md:text-xl 및 흰색(text-slate-100)으로 통일 */}
                 <p className="text-lg md:text-xl font-light tracking-wide text-slate-100">
                   한국본회퍼연구소장 양석진
                 </p>

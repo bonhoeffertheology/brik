@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-// 이미지를 상대 경로로 직접 import 하여 경로 에러를 원천 차단합니다.
 import supportBg from "@/public/images/support.jpg"
 
 export function SupportSection() {
@@ -24,7 +23,7 @@ export function SupportSection() {
       observer.observe(sectionRef.current)
     }
 
-    // 2. 부드러운 페럴렉스 위치 계산
+    // 2. 한층 더 빨라진 페럴렉스 위치 계산
     const handleScroll = () => {
       if (!sectionRef.current) return
       
@@ -32,7 +31,8 @@ export function SupportSection() {
       const windowHeight = window.innerHeight
 
       if (rect.top < windowHeight && rect.bottom > 0) {
-        const speed = 0.15
+        // 속도 수치를 0.15에서 0.3으로 높여 더 다이내믹하게 움직이도록 수정했습니다.
+        const speed = 0.3 
         const yPos = -(rect.top * speed)
         setParallaxY(yPos)
       }
@@ -58,10 +58,10 @@ export function SupportSection() {
         <img
           src={supportBg.src}
           alt="Support Background"
-          className="absolute left-1/2 top-0 h-[135%] w-full min-w-full object-cover will-change-transform"
+          // 속도가 빨라진 만큼 위아래 공백 노출을 방지하기 위해 높이를 h-[150%]로 늘렸습니다.
+          className="absolute left-1/2 top-0 h-[150%] w-full min-w-full object-cover will-change-transform"
           style={{ transform: `translateX(-50%) translateY(${parallaxY}px)` }}
         />
-        {/* 어두운 오버레이 필터로 가독성 확보 */}
         <div className="absolute inset-0 bg-black/50" />
       </div>
 
@@ -88,7 +88,7 @@ export function SupportSection() {
         </div>
 
         <div className="mx-auto max-w-4xl">
-          {/* 변경된 후원금 사용 안내 배너 (반투명 및 문구 수정) */}
+          {/* 후원금 사용 안내 배너 (반투명 스타일) */}
           <div
             className={`mb-10 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 p-8 shadow-xl transition-all duration-700 delay-200 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
@@ -100,15 +100,16 @@ export function SupportSection() {
             </p>
           </div>
 
-          {/* 후원 계좌 안내 (기존 기능 100% 유지) */}
+          {/* 변경된 후원 계좌 안내 배너 (상단 배너와 동일한 반투명 스타일로 통일) */}
           <div
-            className={`rounded-lg bg-gradient-to-br from-slate-700/90 to-slate-900/90 backdrop-blur-sm p-8 text-white shadow-lg transition-all duration-700 delay-400 ${
+            className={`rounded-lg bg-white/10 backdrop-blur-md border border-white/10 p-8 text-white shadow-xl transition-all duration-700 delay-400 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
             }`}
           >
             <h3 className="mb-6 text-center text-2xl font-bold">후원 계좌 안내</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg bg-white/10 p-4">
+              {/* 내부 정보 칸들도 부드러운 반투명(white/5)으로 조화롭게 배치 */}
+              <div className="flex items-center justify-between rounded-lg bg-white/5 border border-white/5 p-4">
                 <div>
                   <p className="mb-1 text-sm text-slate-300">은행명</p>
                   <p className="text-xl font-bold">신한은행</p>
@@ -118,7 +119,7 @@ export function SupportSection() {
                   <p className="text-xl font-bold">339-04-745500</p>
                 </div>
               </div>
-              <div className="rounded-lg bg-white/10 p-4">
+              <div className="rounded-lg bg-white/5 border border-white/5 p-4">
                 <p className="mb-1 text-sm text-slate-300">예금주</p>
                 <p className="text-xl font-bold">양석진(한국본회퍼연구소장)</p>
               </div>

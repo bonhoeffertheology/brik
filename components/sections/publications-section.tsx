@@ -149,7 +149,7 @@ export function PublicationsSection() {
                 </div>
                 
                 <div 
-                  className={`mt-4 w-full transition-opacity duration-500 ease-out ${
+                  className={`mt-8 w-full transition-opacity duration-500 ease-out ${
                     isCenter ? "opacity-100" : "opacity-0"
                   }`}
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}

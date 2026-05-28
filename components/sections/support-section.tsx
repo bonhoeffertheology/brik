@@ -85,7 +85,7 @@ export function SupportSection() {
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
           
-          {/* [요청 사항 반영] 기존 서브 문구와 후원금 사용처 안내를 하나로 우아하게 묶은 내러티브 텍스트 */}
+          {/* 기존 서브 문구와 후원금 사용처 안내를 하나로 우아하게 묶은 내러티브 텍스트 */}
           <div className="mt-8 space-y-4 max-w-2xl mx-auto">
             <p className="text-lg md:text-xl font-light leading-relaxed text-slate-200 tracking-wide">
               한국본회퍼연구소의 문서 선교 사역에<br />
@@ -104,8 +104,9 @@ export function SupportSection() {
           }`}
         >
           <div className="mx-auto max-w-2xl rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md p-8 md:p-10 shadow-2xl">
+            {/* Donation Account -> 후원계좌 변경 */}
             <p className="text-center text-xs tracking-[0.2em] text-slate-500 uppercase mb-8 font-medium">
-              Donation Account
+              후원계좌
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
@@ -121,11 +122,12 @@ export function SupportSection() {
               <div className="hidden md:block h-10 w-[1px] bg-white/10" />
               <div className="block md:hidden h-[1px] w-12 bg-white/10" />
 
-              {/* 예금주 */}
+              {/* 예금주 정보 수정 */}
               <div className="text-center md:text-right space-y-1">
                 <span className="text-xs tracking-wider text-slate-400 font-light">예금주</span>
-                <p className="text-lg md:text-xl font-light text-slate-200">
-                  양석진 <span className="text-xs text-slate-400 block md:inline md:ml-1">(한국본회퍼연구소장)</span>
+                {/* 폰트 크기를 계좌번호 크기 밸런스에 맞춰 text-lg md:text-xl 및 흰색(text-slate-100)으로 통일 */}
+                <p className="text-lg md:text-xl font-light tracking-wide text-slate-100">
+                  한국본회퍼연구소장 양석진
                 </p>
               </div>
             </div>

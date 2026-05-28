@@ -82,7 +82,12 @@ export function PublicationsSection() {
   };
 
   return (
-    <section ref={sectionRef} className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900">
+    /* 💡 id="publications" 추가 및 상단 고정 네비게이션 바가 있을 경우 가려짐 방지를 위한 scroll-mt-20 추가 */
+    <section 
+      ref={sectionRef} 
+      id="publications"
+      className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900 scroll-mt-20"
+    >
       
       <div 
         ref={bgRef}
@@ -92,7 +97,7 @@ export function PublicationsSection() {
       
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
         {/* 💡 변경 사항 1: 모바일에서 하단 여백을 기존 mb-16에서 mb-6으로 줄여 
-           타이틀 문구 직후에 책 이미지가 바로 바짝 붙어 올라오도록 조정했습니다. */}
+            타이틀 문구 직후에 책 이미지가 바로 바짝 붙어 올라오도록 조정했습니다. */}
         <div className="text-center mb-6 md:mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
@@ -102,7 +107,7 @@ export function PublicationsSection() {
         </div>
 
         {/* 💡 변경 사항 2: 모바일에서 슬라이더 박스 자체의 세로 높이를 기존 h-[560px]에서 h-[480px]로 압축하여 
-           하단 여백 및 투명 영역이 과도하게 공간을 차지하여 벌어지던 현상을 완벽히 해결했습니다. */}
+            하단 여백 및 투명 영역이 과도하게 공간을 차지하여 벌어지던 현상을 완벽히 해결했습니다. */}
         <div 
           className="relative flex justify-center items-center h-[480px] md:h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}

@@ -10,16 +10,19 @@ interface BlogPost {
 }
 
 const CACHE_KEY = "brik_blog_cache"
-const CACHE_DURATION = 10 * 60 * 1000 // 10분
+const CACHE_DURATION = 10 * 60 * 1000 // 💡 [기존 기능 보존] 10분 캐시 타임아웃
 
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const bgRef = useRef<HTMLDivElement>(null) // 💡 [추가] 고급 패럴렉스 배경용 레퍼런스
+  
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
+  // 💡 [기존 기능 보존] 드래그 및 스와이프 인터랙션용 상태값들
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [mouseStart, setMouseStart] = useState<number | null>(null)
@@ -28,6 +31,7 @@ export function ResearchSection() {
   const blogId = "jelsayou"
   const minSwipeDistance = 50
 
+  // 💡 [기존 기능 보존] 로컬스토리지 캐시 로드 매커니즘
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
       const cached = localStorage.getItem(CACHE_KEY)
@@ -41,12 +45,14 @@ export function ResearchSection() {
     return null
   }, [])
 
+  // 💡 [기존 기능 보존] 로컬스토리지 캐시 저장 매커니즘
   const setCachedPosts = useCallback((posts: BlogPost[]) => {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify({ posts, timestamp: Date.now() }))
     } catch { /* 무시 */ }
   }, [])
 
+  // 💡 [기존 기능 보존] 네이버 블로그 전용 RSS XML 파싱 엔진
   const parseRSS = useCallback((xmlText: string): BlogPost[] | null => {
     try {
       const parser = new DOMParser()
@@ -63,6 +69,7 @@ export function ResearchSection() {
     } catch { return null }
   }, [blogId])
 
+  // 💡 [기존 기능 보존] 프록시 서버용 타임아웃 네트워크 요청
   const fetchWithTimeout = useCallback(async (url: string, timeout = 5000): Promise<string> => {
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
@@ -77,6 +84,7 @@ export function ResearchSection() {
     }
   }, [])
 
+  // 💡 [기존 기능 보존] 3중 멀티 프록시 교차 호출 백업 시스템 (CORS 우회)
   const loadBlogPosts = useCallback(async () => {
     setIsLoading(true)
     setError(null)
@@ -112,6 +120,47 @@ export function ResearchSection() {
     loadBlogPosts()
   }, [loadBlogPosts])
 
+  // 💡 [새로운 고성능 기능] PublicationsSection과 동일한 자바스크립트 관성 패럴렉스 엔진
+  useEffect(() => {
+    const section = sectionRef.current
+    const bg = bgRef.current
+    if (!section || !bg) return
+
+    let animatedY = -20
+    let targetY = -20
+    let animationFrameId: number
+
+    const handleScroll = () => {
+      const rect = section.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+
+      if (rect.bottom < 0 || rect.top > windowHeight) return
+
+      const totalDistance = windowHeight + rect.height
+      const scrolledDistance = windowHeight - rect.top
+      const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1)
+
+      targetY = -20 + (progress * 40)
+    }
+
+    const updateParallax = () => {
+      const ease = 0.08
+      animatedY += (targetY - animatedY) * ease
+      bg.style.transform = `translate3d(0, ${animatedY}%, 0)`
+      animationFrameId = requestAnimationFrame(updateParallax)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll()
+    animationFrameId = requestAnimationFrame(updateParallax)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
+
+  // 💡 [기존 기능 보존] 컴포넌트 뷰포트 등장 감지용 오버저버
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
@@ -123,6 +172,7 @@ export function ResearchSection() {
 
   const displayPosts = allPosts
 
+  // 💡 [기존 기능 보존] 스마트폰 스와이프 제스처 핸들러 (좌우 밀어서 접기/펼치기)
   const onTouchStart = (e: React.TouchEvent) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX) }
   const onTouchMove = (e: React.TouchEvent) => { setTouchEnd(e.targetTouches[0].clientX) }
   const onTouchEnd = () => {
@@ -131,6 +181,8 @@ export function ResearchSection() {
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
     if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
   }
+
+  // 💡 [기존 기능 보존] PC 마우스 드래그 제스처 핸들러
   const onMouseDown = (e: React.MouseEvent) => { setMouseStart(e.clientX); setIsDragging(true) }
   const onMouseMove = (e: React.MouseEvent) => { if (isDragging) e.preventDefault() }
   const onMouseUp = (e: React.MouseEvent) => {
@@ -141,7 +193,7 @@ export function ResearchSection() {
     setMouseStart(null); setIsDragging(false)
   }
 
-  // 안전성이 검증된 날짜 출력용 로직
+  // 💡 [기존 기능 보존] 안전 규격 날짜 포맷팅 함수 (YYYY.MM.DD)
   const formatDate = (dateString: string | undefined | null) => {
     if (!dateString) return ""
     try {
@@ -153,6 +205,7 @@ export function ResearchSection() {
     }
   }
 
+  // 💡 [기존 기능 보존] HTML 태그 제거 및 110자 제한 정제 함수
   const formatDescription = (html: string) => {
     const text = html.replace(/<[^>]*>/g, "")
     return text.length > 110 ? text.substring(0, 110) + "..." : text
@@ -162,7 +215,7 @@ export function ResearchSection() {
     <section 
       id="research" 
       ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32"
+      className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -171,6 +224,7 @@ export function ResearchSection() {
       onMouseUp={onMouseUp}
       onMouseLeave={() => setIsDragging(false)}
     >
+      {/* 💡 [기존 기능 보존] 핵심 인터랙션 애니메이션 전용 내부 스타일시트 */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes customShimmer {
           0% { transform: translateX(-100%); }
@@ -182,13 +236,6 @@ export function ResearchSection() {
         }
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
-        }
-        .parallax-bg-fixed {
-          background-image: url('images/back21.png');
-          background-attachment: fixed;
-          background-position: center;
-          background-repeat: no-repeat;
-          background-size: cover;
         }
         .research-grid-container {
           transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -204,9 +251,6 @@ export function ResearchSection() {
           animation: cardFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @media (max-width: 768px) {
-          .parallax-bg-fixed {
-            background-attachment: scroll;
-          }
           .research-grid-container {
             max-height: 1850px;
           }
@@ -216,10 +260,14 @@ export function ResearchSection() {
         }
       `}} />
 
-      {/* 패럴렉스 배경 및 어두운 레이어 오버레이 */}
+      {/* 💡 [정밀 수정] 끊김 없는 부드러운 패럴렉스 모션용 배경 엘리먼트 설계 */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
-        <div className="absolute inset-0 bg-stone-900/50" />
+        <div 
+          ref={bgRef}
+          className="absolute inset-x-0 top-[-20%] h-[140%] bg-cover bg-center opacity-40 will-change-transform" 
+          style={{ backgroundImage: `url('images/back21.png')` }} 
+        />
+        <div className="absolute inset-0 bg-stone-900/50 pointer-events-none" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -239,7 +287,7 @@ export function ResearchSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">본회퍼의 신학과 사상을 연구하고 나눕니다</p>
         </div>
 
-        {/* 로딩 / 에러 */}
+        {/* 로딩 / 에러 UI 상호작용 */}
         {isLoading && allPosts.length === 0 && (
           <div className="text-center text-white/70 py-16 font-sans">블로그 데이터를 불러오는 중입니다...</div>
         )}
@@ -247,7 +295,7 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구활동 배너 그리드 목록 */}
+        {/* 💡 [기존 기능 보존] 연구활동 배너 그리드 목록 (더보기 접기/펼치기 유기적 연동) */}
         {allPosts.length > 0 && (
           <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
             {displayPosts.map((post, index) => {
@@ -264,17 +312,17 @@ export function ResearchSection() {
                     display: isHidden ? "none" : "flex",
                   }}
                 >
-                  {/* 제목: 중후하고 고풍스러운 고딕체 적용 */}
+                  {/* 제목 학술 스타일 폰트 */}
                   <h3 className="font-serif text-xl font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
                   
-                  {/* 본문: 가독성이 뛰어난 학술 스타일 웹 고딕체 적용 */}
+                  {/* 본문 서술 단락 */}
                   <p className="mt-4 flex-1 font-serif text-[15px] font-normal leading-relaxed text-stone-600 line-clamp-4">
                     {formatDescription(post.description)}
                   </p>
 
-                  {/* 하단 영역: 단조로움을 없애는 장식선 및 데이터 표기 */}
+                  {/* 하단 푸터 장식 */}
                   <div className="mt-6 flex items-center justify-between border-t border-stone-200/60 pt-4 text-xs font-sans tracking-wider text-stone-400">
                     <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">Bonhoeffer Institute</span>
                     <span>{formatDate(post.pubDate)}</span>
@@ -285,7 +333,7 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 더보기 버튼 구역 */}
+        {/* 💡 [기존 기능 보존] 토글 버튼 동적 노출 장치 */}
         {allPosts.length > 3 && (
           <div className="mt-12 text-center">
             <button 

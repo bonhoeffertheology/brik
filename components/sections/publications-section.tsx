@@ -11,14 +11,12 @@ interface PublicationBook {
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
 
-/* 💡 변경된 navBtnClass: 
-   - 'top-0 bottom-0' 대신 'top-[38%] -translate-y-1/2'를 사용하여 모바일/데스크톱 모두 책 이미지 정중앙 높이에 고정합니다.
-   - 'h-fit'을 추가하여 터치 영역이 웅장하게 늘어나는 것을 방지합니다. */
+/* 💡 navBtnClass 유지: 책 이미지의 실질적인 정중앙 높이를 유연하게 추적하도록 고정되어 있습니다. */
 const navBtnClass = "absolute top-[38%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { title: "그ريس도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { title: "그리스도를 따라서 Vol. 1", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }
   ];
@@ -93,7 +91,9 @@ export function PublicationsSection() {
       />
       
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
-        <div className="text-center mb-16">
+        {/* 💡 변경 사항 1: 모바일에서 하단 여백을 기존 mb-16에서 mb-6으로 줄여 
+           타이틀 문구 직후에 책 이미지가 바로 바짝 붙어 올라오도록 조정했습니다. */}
+        <div className="text-center mb-6 md:mb-16">
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
             <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
@@ -101,8 +101,10 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
+        {/* 💡 변경 사항 2: 모바일에서 슬라이더 박스 자체의 세로 높이를 기존 h-[560px]에서 h-[480px]로 압축하여 
+           하단 여백 및 투명 영역이 과도하게 공간을 차지하여 벌어지던 현상을 완벽히 해결했습니다. */}
         <div 
-          className="relative flex justify-center items-center h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
+          className="relative flex justify-center items-center h-[480px] md:h-[560px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -164,9 +166,6 @@ export function PublicationsSection() {
             );
           })}
           
-          {/* 💡 핵심 수정: 
-             - 모바일 스마트폰 환경에서 기기 화면 맨 끝 구석으로 밀착시켜 책 이미지와의 물리적 거리를 최대한 확보했습니다. (-left-2, -right-2)
-             - 데스크톱 화면(`md:`)에서는 기존에 잘 나오던 넓은 레이아웃 폭(-left-20, -right-20)을 그대로 유지합니다. */}
           <button onClick={() => rotate(-1)} className={navBtnClass + " -left-2 sm:left-2 md:-left-20"}>‹</button>
           <button onClick={() => rotate(1)} className={navBtnClass + " -right-2 sm:right-2 md:-right-20"}>›</button>
         </div> 

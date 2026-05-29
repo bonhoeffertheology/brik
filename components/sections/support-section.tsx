@@ -9,7 +9,7 @@ export function SupportSection() {
   const [parallaxY, setParallaxY] = useState(0)
 
   useEffect(() => {
-    // 1. 등장 애니메이션 트리거 (기존 유지)
+    // 1. 등장 애니메이션 트리거
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -41,6 +41,7 @@ export function SupportSection() {
     handleScroll()
 
     return () => {
+      
       observer.disconnect()
       window.removeEventListener("scroll", handleScroll)
     }
@@ -52,7 +53,7 @@ export function SupportSection() {
       ref={sectionRef} 
       className="relative overflow-hidden bg-slate-950 py-24 md:py-36 text-white"
     >
-      {/* 페럴렉스 배경 이미지 영역 (기존 유지) */}
+      {/* 페럴렉스 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
           src={supportBg.src}
@@ -60,11 +61,10 @@ export function SupportSection() {
           className="absolute left-1/2 top-0 h-[150%] w-full min-w-full object-cover will-change-transform"
           style={{ transform: `translateX(-50%) translateY(${parallaxY}px)` }}
         />
-        {/* 명암 대비를 깊게 주어 고급스러운 분위기를 연출하는 그라데이션 오버레이 */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-slate-950/20 to-slate-950/30 backdrop-blur-[1px]" />
       </div>
 
-      {/* 기존의 패럴랙스 원형 데코레이션 배경 유지 */}
+      {/* 패럴랙스 원형 데코레이션 배경 */}
       <div className="pointer-events-none absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/4 translate-y-1/4 rounded-full bg-primary/5 z-10" />
       <div className="pointer-events-none absolute left-0 top-0 h-[300px] w-[300px] -translate-x-1/4 -translate-y-1/4 rounded-full bg-accent/5 z-10" />
       
@@ -77,22 +77,23 @@ export function SupportSection() {
             isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          {/* 타이틀 자간 조정 (tracking-widest -> tracking-normal) */}
           <h2 className="mb-4 font-serif text-3xl font-bold tracking-normal text-white md:text-4xl">후원하기</h2>
           
-          {/* 애니메이션 바 (기존 유지) */}
+          {/* 애니메이션 바 */}
           <div className="mx-auto h-0.5 w-16 overflow-hidden bg-accent">
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
           
-          {/* 기존 서브 문구와 후원금 사용처 안내를 하나로 우아하게 묶은 내러티브 텍스트 */}
+          {/* 본문 설명 글씨체 색상 강화 */}
           <div className="mt-8 space-y-4 max-w-2xl mx-auto">
-            <p className="text-lg md:text-xl font-light leading-relaxed text-slate-200 tracking-wide">
+            {/* 기존 text-slate-200 -> text-white로 변경하여 선명도 극대화 */}
+            <p className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
               한국본회퍼연구소의 문서 선교 사역에<br />
               든든한 동역자가 되어 주십시오.
             </p>
-            <p className="text-sm md:text-base font-light leading-relaxed text-slate-400 tracking-wider">
-              보내주신 후원금은 연구소의 <span className="text-white font-normal border-b border-accent/60 pb-0.5">학술연구, 번역, 출판, 네트워크</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
+            {/* 기존 text-slate-400 -> text-slate-200으로 변경하여 연한 느낌 제거 */}
+            <p className="text-sm md:text-base font-light leading-relaxed text-slate-200 tracking-wider">
+              보내주신 후원금은 연구소의 <span className="text-white font-medium border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
             </p>
           </div>
         </div>
@@ -104,27 +105,30 @@ export function SupportSection() {
           }`}
         >
           <div className="mx-auto max-w-2xl p-4 md:p-6">
-            <p className="text-center text-base tracking-[0.2em] text-slate-400 uppercase mb-8 font-medium">
+            {/* 기존 text-slate-400 -> text-slate-300으로 변경 */}
+            <p className="text-center text-base tracking-[0.2em] text-slate-300 uppercase mb-8 font-semibold">
               후원계좌
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
               {/* 은행 및 계좌번호 */}
               <div className="text-center md:text-left space-y-1">
-                <span className="text-sm tracking-wider text-slate-100 font-light">신한</span>
-                <p className="text-2xl md:text-3xl font-bold tracking-wider text-slate-100 font-mono">
+                {/* 기존 text-slate-100 유지 (이미 충분히 밝음) */}
+                <span className="text-sm tracking-wider text-slate-100 font-normal">신한</span>
+                <p className="text-2xl md:text-3xl font-bold tracking-wider text-white font-mono">
                   339-04-745500
                 </p>
               </div>
 
-              {/* 가로/세로 경계선 (기존 유지) */}
-              <div className="hidden md:block h-10 w-[1px] bg-white/10" />
-              <div className="block md:hidden h-[1px] w-12 bg-white/10" />
+              {/* 경계선 가독성을 위해 bg-white/10 -> bg-white/20으로 변경 */}
+              <div className="hidden md:block h-10 w-[1px] bg-white/20" />
+              <div className="block md:hidden h-[1px] w-12 bg-white/20" />
 
               {/* 예금주 정보 */}
               <div className="text-center md:text-right space-y-1">
-                <span className="text-xs tracking-wider text-slate-400 font-light">예금주</span>
-                <p className="text-lg md:text-xl font-light tracking-wide text-slate-100">
+                {/* 기존 text-slate-400 -> text-slate-200으로 변경 */}
+                <span className="text-xs tracking-wider text-slate-200 font-normal">예금주</span>
+                <p className="text-lg md:text-xl font-normal tracking-wide text-slate-100">
                   한국본회퍼연구소장 양석진
                 </p>
               </div>

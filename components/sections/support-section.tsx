@@ -90,7 +90,7 @@ export function SupportSection() {
               든든한 동역자가 되어 주십시오.
             </p>
             <p className="text-sm md:text-base font-light leading-relaxed text-slate-200 tracking-wider">
-              <span className="text-primary font-medium">보내주신 후원금은 연구소의 </span>
+              <span className="text-primary font-medium">후원금은 본 연구소의 </span>
               {/* 수정 부분: ' 등'을 span 내부로 이동하여 흰색, 세미볼드, 밑줄을 함께 적용 */}
               <span className="text-white font-semibold border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크 등</span>
               <span className="text-primary font-medium"><br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.</span>

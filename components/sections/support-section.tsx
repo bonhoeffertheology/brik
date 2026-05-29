@@ -41,7 +41,6 @@ export function SupportSection() {
     handleScroll()
 
     return () => {
-      
       observer.disconnect()
       window.removeEventListener("scroll", handleScroll)
     }
@@ -86,14 +85,16 @@ export function SupportSection() {
           
           {/* 본문 설명 글씨체 색상 강화 */}
           <div className="mt-8 space-y-4 max-w-2xl mx-auto">
-            {/* 기존 text-slate-200 -> text-white로 변경하여 선명도 극대화 */}
             <p className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
               한국본회퍼연구소의 문서 선교 사역에<br />
               든든한 동역자가 되어 주십시오.
             </p>
-            {/* 기존 text-slate-400 -> text-slate-200으로 변경하여 연한 느낌 제거 */}
             <p className="text-sm md:text-base font-light leading-relaxed text-slate-200 tracking-wider">
-              보내주신 후원금은 연구소의 <span className="text-white font-medium border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크</span> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.
+              {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
+              <span className="text-primary">보내주신 후원금은 연구소의 </span>
+              <span className="text-white font-medium border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크</span>
+              {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
+              <span className="text-primary"> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.</span>
             </p>
           </div>
         </div>
@@ -105,15 +106,14 @@ export function SupportSection() {
           }`}
         >
           <div className="mx-auto max-w-2xl p-4 md:p-6">
-            {/* 기존 text-slate-400 -> text-slate-300으로 변경 */}
-            <p className="text-center text-base tracking-[0.2em] text-slate-300 uppercase mb-8 font-semibold">
+            {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
+            <p className="text-center text-base tracking-[0.2em] text-primary uppercase mb-8 font-semibold">
               후원계좌
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
               {/* 은행 및 계좌번호 */}
               <div className="text-center md:text-left space-y-1">
-                {/* 기존 text-slate-100 유지 (이미 충분히 밝음) */}
                 <span className="text-sm tracking-wider text-slate-100 font-normal">신한</span>
                 <p className="text-2xl md:text-3xl font-bold tracking-wider text-white font-mono">
                   339-04-745500
@@ -126,8 +126,8 @@ export function SupportSection() {
 
               {/* 예금주 정보 */}
               <div className="text-center md:text-right space-y-1">
-                {/* 기존 text-slate-400 -> text-slate-200으로 변경 */}
-                <span className="text-xs tracking-wider text-slate-200 font-normal">예금주</span>
+                {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
+                <span className="text-xs tracking-wider text-primary font-normal">예금주</span>
                 <p className="text-lg md:text-xl font-normal tracking-wide text-slate-100">
                   한국본회퍼연구소장 양석진
                 </p>

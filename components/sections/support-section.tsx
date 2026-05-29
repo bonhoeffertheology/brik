@@ -90,11 +90,11 @@ export function SupportSection() {
               든든한 동역자가 되어 주십시오.
             </p>
             <p className="text-sm md:text-base font-light leading-relaxed text-slate-200 tracking-wider">
-              {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
-              <span className="text-primary">보내주신 후원금은 연구소의 </span>
-              <span className="text-white font-medium border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크</span>
-              {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
-              <span className="text-primary"> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.</span>
+              {/* 요청 반영: 글씨 두께를 font-medium으로 변경 */}
+              <span className="text-primary font-medium">보내주신 후원금은 연구소의 </span>
+              <span className="text-white font-semibold border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크</span>
+              {/* 요청 반영: 글씨 두께를 font-medium으로 변경 */}
+              <span className="text-primary font-medium"> 등<br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.</span>
             </p>
           </div>
         </div>
@@ -106,15 +106,16 @@ export function SupportSection() {
           }`}
         >
           <div className="mx-auto max-w-2xl p-4 md:p-6">
-            {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
-            <p className="text-center text-base tracking-[0.2em] text-primary uppercase mb-8 font-semibold">
+            {/* 요청 반영: text-base -> text-lg로 크기 확장 */}
+            <p className="text-center text-lg tracking-[0.2em] text-primary uppercase mb-8 font-semibold">
               후원계좌
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
               {/* 은행 및 계좌번호 */}
               <div className="text-center md:text-left space-y-1">
-                <span className="text-sm tracking-wider text-slate-100 font-normal">신한</span>
+                {/* 요청 반영: text-sm -> text-base로 크기 확장 */}
+                <span className="text-base tracking-wider text-slate-100 font-normal">신한</span>
                 <p className="text-2xl md:text-3xl font-bold tracking-wider text-white font-mono">
                   339-04-745500
                 </p>
@@ -126,8 +127,8 @@ export function SupportSection() {
 
               {/* 예금주 정보 */}
               <div className="text-center md:text-right space-y-1">
-                {/* 푸터 배경색과 동일한 primary 컬러 적용 */}
-                <span className="text-xs tracking-wider text-primary font-normal">예금주</span>
+                {/* 요청 반영: text-xs -> text-sm으로 크기 확장 */}
+                <span className="text-sm tracking-wider text-primary font-normal">예금주</span>
                 <p className="text-lg md:text-xl font-normal tracking-wide text-slate-100">
                   한국본회퍼연구소장 양석진
                 </p>

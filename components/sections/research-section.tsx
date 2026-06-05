@@ -225,6 +225,7 @@ export function ResearchSection() {
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
+        /* 💡 [모션 닫힘 최적화 포인트 1] 접힐 때(transition)와 펼칠 때 균일하고 부드러운 하이 엔드 트랜지션 곡선을 주어 부드럽게 축소되도록 제어 */
         .research-grid-container {
           transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
           max-height: 595px;
@@ -234,6 +235,7 @@ export function ResearchSection() {
         }
         .motion-card {
           opacity: 0;
+          transition: opacity 0.4s ease, transform 0.4s ease;
         }
         .research-grid-container.visible .motion-card {
           animation: cardFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -248,7 +250,7 @@ export function ResearchSection() {
         }
       `}} />
 
-      {/* 💡 고성능 패럴렉스 수직 무빙 백그라운드 레이어 */}
+      {/* 고성능 패럴렉스 수직 무빙 백그라운드 레이어 */}
       <div className="absolute inset-x-0 top-[-20%] h-[140%] z-0 will-change-transform" ref={bgRef}>
         <div 
           className="w-full h-full bg-cover bg-center bg-no-repeat" 
@@ -284,21 +286,21 @@ export function ResearchSection() {
 
         {/* 연구활동 배너 그리드 목록 */}
         {allPosts.length > 0 && (
-          /* 💡 [짤림 방지 pt-3 여백 확보] 카드가 호버 모션으로 올라올 때 컨테이너 경계선 상단에서 깎이지 않도록 패딩을 배치했습니다. */
           <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden pt-3 ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
             {displayPosts.map((post, index) => {
-              const isHidden = !isExpanded && index >= 3;
+              /* 💡 [모션 닫힘 최적화 포인트 2] 
+                 기존 'display: none' 처리는 애니메이션을 즉시 소멸시키므로 지우고, 
+                 대신 컨테이너의 max-height와 overflow-hidden으로 부드럽게 자연 압축 가림 처리되도록 구조를 개선했습니다.
+              */
               return (
                 <a 
                   key={index} 
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  /* 💡 [짤림 방지 호버 레이어 정렬] hover:z-10과 will-change-transform을 추가하여 하드웨어 가속을 태워 위쪽 커팅 현상을 완벽 차단했습니다. */
                   className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-stone-200/40 hover:border-amber-700/40 motion-card hover:z-10 will-change-transform relative"
                   style={{
-                    animationDelay: `${(index % 3) * 0.15}s`,
-                    display: isHidden ? "none" : "flex",
+                    animationDelay: isExpanded ? "0s" : `${(index % 3) * 0.15}s`,
                   }}
                 >
                   {/* 제목: 중후하고 고풍스러운 고딕체 적용 */}
@@ -313,7 +315,8 @@ export function ResearchSection() {
 
                   {/* 하단 영역: 단조로움을 없애는 장식선 및 데이터 표기 */}
                   <div className="mt-6 flex items-center justify-between border-t border-stone-200/60 pt-4 text-xs font-sans tracking-wider text-stone-400">
-                    <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">Bonhoeffer Institute</span>
+                    {/* 💡 요청 사항: 원본 명칭을 '한국본회퍼연구소장'으로 교체 완료 */}
+                    <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">한국본회퍼연구소장</span>
                     <span>{formatDate(post.pubDate)}</span>
                   </div>
                 </a>
@@ -329,7 +332,6 @@ export function ResearchSection() {
               onClick={() => setIsExpanded(!isExpanded)} 
               className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
             >
-              {/* 💡 중복 코드를 정리하고 단일 이름 규칙 매핑 완료 */}
               {isExpanded ? "접기" : "더보기"}
             </button>
           </div>

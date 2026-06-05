@@ -14,6 +14,7 @@ const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const bgRef = useRef<HTMLDivElement>(null) // 💡 패럴렉스 제어용 Ref 추가
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
@@ -112,6 +113,7 @@ export function ResearchSection() {
     loadBlogPosts()
   }, [loadBlogPosts])
 
+  // 1. 컴포넌트 등장 뷰포트 감시
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
@@ -119,6 +121,47 @@ export function ResearchSection() {
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
+  }, [])
+
+  // 💡 2. 순수 자바스크립트 관성 패럴렉스 엔진 연동 (튀는 fixed 방식 전면 교체)
+  useEffect(() => {
+    const section = sectionRef.current
+    const bg = bgRef.current
+    if (!section || !bg) return
+
+    let animatedY = -20
+    let targetY = -20
+    let animationFrameId: number
+
+    const handleScroll = () => {
+      const rect = section.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+
+      if (rect.bottom < 0 || rect.top > windowHeight) return
+
+      const totalDistance = windowHeight + rect.height
+      const scrolledDistance = windowHeight - rect.top
+      const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1)
+
+      // 스크롤 시 -20%에서 +20% 구간을 유연하게 패럴렉스 무빙
+      targetY = -20 + (progress * 40)
+    };
+
+    const updateParallax = () => {
+      const ease = 0.08
+      animatedY += (targetY - animatedY) * ease
+      bg.style.transform = `translate3d(0, ${animatedY}%, 0)`
+      animationFrameId = requestAnimationFrame(updateParallax)
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll()
+    animationFrameId = requestAnimationFrame(updateParallax)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      cancelAnimationFrame(animationFrameId)
+    };
   }, [])
 
   const displayPosts = allPosts
@@ -141,7 +184,6 @@ export function ResearchSection() {
     setMouseStart(null); setIsDragging(false)
   }
 
-  // 안전성이 검증된 날짜 출력용 로직
   const formatDate = (dateString: string | undefined | null) => {
     if (!dateString) return ""
     try {
@@ -162,7 +204,7 @@ export function ResearchSection() {
     <section 
       id="research" 
       ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32"
+      className="relative w-full overflow-hidden py-24 md:py-32 border-x-2 border-white"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -183,17 +225,9 @@ export function ResearchSection() {
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
-        .parallax-bg-fixed {
-          background-image: url('images/Front%20%26%20back%20cover.webp');
-          background-image: url('images/back21.png');
-          background-attachment: fixed;
-          background-position: center;
-          background-repeat: no-repeat;
-          background-size: cover;
-        }
         .research-grid-container {
           transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-          max-height: 590px;
+          max-height: 595px;
         }
         .research-grid-container.expanded {
           max-height: 4500px;
@@ -205,11 +239,8 @@ export function ResearchSection() {
           animation: cardFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @media (max-width: 768px) {
-          .parallax-bg-fixed {
-            background-attachment: scroll;
-          }
           .research-grid-container {
-            max-height: 1850px;
+            max-height: 1855px;
           }
           .research-grid-container.expanded {
             max-height: 9000px;
@@ -217,11 +248,14 @@ export function ResearchSection() {
         }
       `}} />
 
-      {/* 패럴렉스 배경 및 어두운 레이어 오버레이 */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 w-full h-full parallax-bg-fixed" />
-        <div className="absolute inset-0 bg-stone-900/50" />
+      {/* 💡 고성능 패럴렉스 수직 무빙 백그라운드 레이어 */}
+      <div className="absolute inset-x-0 top-[-20%] h-[140%] z-0 will-change-transform" ref={bgRef}>
+        <div 
+          className="w-full h-full bg-cover bg-center bg-no-repeat" 
+          style={{ backgroundImage: `url('images/back21.png')` }} 
+        />
       </div>
+      <div className="absolute inset-0 bg-stone-900/50 z-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
@@ -250,7 +284,8 @@ export function ResearchSection() {
 
         {/* 연구활동 배너 그리드 목록 */}
         {allPosts.length > 0 && (
-          <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
+          /* 💡 [짤림 방지 pt-3 여백 확보] 카드가 호버 모션으로 올라올 때 컨테이너 경계선 상단에서 깎이지 않도록 패딩을 배치했습니다. */
+          <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden pt-3 ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
             {displayPosts.map((post, index) => {
               const isHidden = !isExpanded && index >= 3;
               return (
@@ -259,19 +294,18 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-stone-200/40 hover:border-amber-700/40 motion-card"
+                  /* 💡 [짤림 방지 호버 레이어 정렬] hover:z-10과 will-change-transform을 추가하여 하드웨어 가속을 태워 위쪽 커팅 현상을 완벽 차단했습니다. */
+                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-stone-200/40 hover:border-amber-700/40 motion-card hover:z-10 will-change-transform relative"
                   style={{
                     animationDelay: `${(index % 3) * 0.15}s`,
                     display: isHidden ? "none" : "flex",
                   }}
                 >
-                  {/* 제목: 중후하고 고풍스러운 명조체 적용 */}
                   {/* 제목: 중후하고 고풍스러운 고딕체 적용 */}
                   <h3 className="font-serif text-xl font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
 
-                  {/* 본문: 가독성이 뛰어난 학술 스타일 웹 명조체 적용 */}
                   {/* 본문: 가독성이 뛰어난 학술 스타일 웹 고딕체 적용 */}
                   <p className="mt-4 flex-1 font-serif text-[15px] font-normal leading-relaxed text-stone-600 line-clamp-4">
                     {formatDescription(post.description)}
@@ -295,7 +329,7 @@ export function ResearchSection() {
               onClick={() => setIsExpanded(!isExpanded)} 
               className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
             >
-              {isExpanded ? "연구글 접기" : "연구글 더보기"}
+              {/* 💡 중복 코드를 정리하고 단일 이름 규칙 매핑 완료 */}
               {isExpanded ? "접기" : "더보기"}
             </button>
           </div>

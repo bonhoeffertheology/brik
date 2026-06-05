@@ -14,7 +14,7 @@ const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const bgRef = useRef<HTMLDivElement>(null) // 패럴렉스 제어용 Ref
+  const bgRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
@@ -113,7 +113,6 @@ export function ResearchSection() {
     loadBlogPosts()
   }, [loadBlogPosts])
 
-  // 1. 컴포넌트 등장 뷰포트 감시
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
@@ -123,7 +122,6 @@ export function ResearchSection() {
     return () => observer.disconnect()
   }, [])
 
-  // 2. 순수 자바스크립트 관성 패럴렉스 엔진 연동
   useEffect(() => {
     const section = sectionRef.current
     const bg = bgRef.current
@@ -163,11 +161,9 @@ export function ResearchSection() {
     };
   }, [])
 
-  // 💡 [개선 포인트 2] 접기 버튼 클릭 시 부드러운 스크롤 핸들러 정의
   const handleToggleExpand = () => {
     if (isExpanded) {
       setIsExpanded(false)
-      // 즉시 닫히는 모션 타이밍에 맞춰 연구활동 최상단 타이틀 구역으로 스무스 스크롤 이동
       setTimeout(() => {
         sectionRef.current?.scrollIntoView({
           behavior: "smooth",
@@ -248,17 +244,22 @@ export function ResearchSection() {
           max-height: 4500px;
         }
         
-        /* 💡 [개선 포인트 1] 딱딱한 호버 현상 제거 - 고성능 큐빅 베지에 곡선 적용 및 트랜지션 명시 */
+        /* 💡 [정밀 튜닝] 글자 흐려짐 방지 및 완벽하게 서서히 올라가고 서서히 내려오는 호버 엔진 */
         .motion-card {
           opacity: 0;
-          transform: translateY(0) scale(1);
-          transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), 
-                      box-shadow 0.45s cubic-bezier(0.25, 1, 0.5, 1), 
-                      border-color 0.45s ease, 
+          transform: translateY(0);
+          backface-visibility: hidden;
+          -webkit-font-smoothing: antialiased;
+          /* 진입과 복귀 모두 대칭형 부드러운 하이엔드 트랜지션 곡선 고정 */
+          transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                      box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                      border-color 0.4s ease, 
                       opacity 0.4s ease;
         }
+        
+        /* 마우스를 올렸을 때 서서히 이동 */
         .motion-card:hover {
-          transform: translateY(-8px) scale(1.01) !important;
+          transform: translateY(-10px);
         }
         
         .research-grid-container.visible .motion-card {
@@ -318,8 +319,8 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  /* 💡 스타일시트에서 명시적으로 제어하도록 호버 관련 복합 클래스를 클래스명에서 간소화하고 고정 트랜지션을 주입했습니다. */
-                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card hover:z-10 will-change-transform relative"
+                  /* 💡 충돌 요소를 전면 배제하여 스타일시트가 트랜지션을 오롯이 핸들링하도록 설계했습니다. */
+                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 relative"
                   style={{
                     animationDelay: isExpanded ? "0s" : `${(index % 3) * 0.15}s`,
                   }}

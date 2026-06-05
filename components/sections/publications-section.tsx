@@ -111,10 +111,6 @@ export function PublicationsSection() {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* 💡 [양 옆 흰색 베젤 테두리 오버레이] - 클릭 방해 방지를 위해 pointer-events-none 필수 지정 */}
-          <div className="absolute left-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-r from-white/10 to-transparent z-30 pointer-events-none hidden md:block" />
-          <div className="absolute right-0 top-0 bottom-0 w-12 md:w-32 bg-gradient-to-l from-white/10 to-transparent z-30 pointer-events-none hidden md:block" />
-
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;

@@ -240,31 +240,28 @@ export function ResearchSection() {
           max-height: 4500px;
         }
         
-        /* 💡 [핵심 교정 완료] 끊김 현상의 주원인이었던 강제 keyframe 방식을 제거하고 복합 트런지션 설계 */
+        /* 💡 [트랜지션 완전 분리] 하드웨어 가속 및 글자 왜곡 방지 속성 설정 */
         .motion-card {
           backface-visibility: hidden;
-          -webkit-font-smoothing: antialiased;
-          
-          /* 첫 로드 시 아래(translateY(35px))에 배치하고 투명화 처리 */
+          transform: translateY(35px);
           opacity: 0;
-          transform: translateY(35px) translateZ(0);
           
-          /* 진입 처리 및 호버 시 유연하게 가속/감속되도록 트랜지션 곡선을 일원화 통합 */
-          transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                      box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+          /* 진입과 호버 복귀 시 사용될 딜레이 없는 순수 부드러운 감속 트랜지션 정의 */
+          transition: transform 0.45s cubic-bezier(0.215, 0.610, 0.355, 1.000), 
+                      box-shadow 0.45s cubic-bezier(0.215, 0.610, 0.355, 1.000), 
                       border-color 0.4s ease, 
-                      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+                      opacity 0.6s ease;
         }
         
-        /* 💡 컴포넌트가 화면에 감지되어 visible 클래스가 붙으면 부드럽게 원위치로 상승 */
+        /* 💡 스크롤 진입 시 원위치 상승 */
         .research-grid-container.visible .motion-card {
           opacity: 1;
-          transform: translateY(0) translateZ(0);
+          transform: translateY(0);
         }
         
-        /* 💡 마우스 호버 시 앞선 애니메이션 방해 없이 서서히 부드럽게 추가 상승 */
-        .motion-card:hover {
-          transform: translateY(-12px) translateZ(0) !important;
+        /* 💡 호버 시 부드럽게 위로 상승 (중첩 클래스로 우선순위 완전 보장) */
+        .research-grid-container .motion-card:hover {
+          transform: translateY(-12px) !important;
         }
         
         @media (max-width: 768px) {
@@ -323,8 +320,8 @@ export function ResearchSection() {
                   rel="noopener noreferrer" 
                   className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 relative"
                   style={{
-                    /* 처음 나타날 때의 순차적 시간차 딜레이(지연) 효과 설정 */
-                    transitionDelay: isVisible ? `${(index % 3) * 0.12}s` : "0s",
+                    /* 💡 인라인 transitionDelay는 처음 등장(visible이 아닐 때)할 때만 순차적으로 적용되게 하고, 등장 이후에는 0s로 소멸시켜 호버 모션에 절대 간섭하지 못하게 격리했습니다. */
+                    transitionDelay: isVisible ? "0s" : `${(index % 3) * 0.12}s`,
                   }}
                 >
                   {/* 제목 */}

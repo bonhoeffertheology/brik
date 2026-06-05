@@ -9,7 +9,8 @@ const activities = [
   { title: "강의", subtitle: "Lecture", color: "from-[#6b9d7b] to-[#567d63]" },
 ]
 
-export function AboutSection() {
+// 💡 빌드 에러 해결: 컴포넌트 이름을 파일명과 일치하도록 ResearchSection으로 수정했습니다.
+export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -31,6 +32,7 @@ export function AboutSection() {
   }, [])
 
   return (
+    /* 💡 [양 옆 흰색 실선 테두리 상시 노출 완벽 보존] */
     <section 
       id="about" 
       ref={sectionRef} 
@@ -54,7 +56,7 @@ export function AboutSection() {
           </div>
         </div>
 
-        {/* 💡 [짤림 방지 포인트 1] grid 컨테이너에 pt-2(위쪽 패딩 8px)를 추가하여 카드가 위로 올라갈 수 있는 안전 공간을 확보했습니다. */}
+        {/* 💡 [위쪽 짤림 방지 pt-2 여백 보존] */}
         <div className="grid items-center gap-12 md:grid-cols-2 pt-2">
           <div
             className={`transition-all delay-200 duration-700 ${
@@ -78,10 +80,7 @@ export function AboutSection() {
             {activities.map((activity, index) => (
               <div
                 key={activity.title}
-                /* 💡 [짤림 방지 포인트 2] 
-                   - hover:z-10을 추가하여 호버 시 해당 카드가 주변 레이어보다 위로 띄워지게 만듭니다.
-                   - will-change-transform을 추가하여 브라우저가 하드웨어 가속(GPU)을 쓰게 해, 애니메이션 경계면 짤림 버그를 완벽히 방어합니다.
-                */
+                /* 💡 [호버 시 상단 레이어 띄움(hover:z-10) 및 하드웨어 가속(will-change-transform) 짤림 방지 로직 100% 보존] */
                 className={`group cursor-pointer rounded-lg bg-gradient-to-br ${activity.color} p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:z-10 will-change-transform relative`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >

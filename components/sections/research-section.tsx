@@ -244,22 +244,23 @@ export function ResearchSection() {
           max-height: 4500px;
         }
         
-        /* 💡 [정밀 튜닝] 글자 흐려짐 방지 및 완벽하게 서서히 올라가고 서서히 내려오는 호버 엔진 */
+        /* 💡 [모션 전면 수정] 클래스 충돌 우회 및 완벽한 대칭형 호버 모션 제어 */
         .motion-card {
           opacity: 0;
-          transform: translateY(0);
           backface-visibility: hidden;
           -webkit-font-smoothing: antialiased;
-          /* 진입과 복귀 모두 대칭형 부드러운 하이엔드 트랜지션 곡선 고정 */
-          transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
-                      box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
-                      border-color 0.4s ease, 
-                      opacity 0.4s ease;
+          transform: translateY(0) translateZ(0) !important;
+          
+          /* 마우스가 들어오고 나갈 때 모두 0.4초 동안 부드럽게 감속 작동 */
+          transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important, 
+                      box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important, 
+                      border-color 0.4s ease !important, 
+                      opacity 0.4s ease !important;
         }
         
-        /* 마우스를 올렸을 때 서서히 이동 */
+        /* 💡 마우스를 올렸을 때 서서히 -12px 만큼 수직 이동 */
         .motion-card:hover {
-          transform: translateY(-10px);
+          transform: translateY(-12px) translateZ(0) !important;
         }
         
         .research-grid-container.visible .motion-card {
@@ -319,7 +320,7 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  /* 💡 충돌 요소를 전면 배제하여 스타일시트가 트랜지션을 오롯이 핸들링하도록 설계했습니다. */
+                  /* 💡 Tailwind의 transition-all, transform 클래스를 완전히 제거하여 커스텀 CSS(.motion-card)와 충돌하지 않도록 조치했습니다. */
                   className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 relative"
                   style={{
                     animationDelay: isExpanded ? "0s" : `${(index % 3) * 0.15}s`,

@@ -14,7 +14,7 @@ const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const bgRef = useRef<HTMLDivElement>(null) // 💡 패럴렉스 제어용 Ref 추가
+  const bgRef = useRef<HTMLDivElement>(null) // 패럴렉스 제어용 Ref
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
@@ -123,7 +123,7 @@ export function ResearchSection() {
     return () => observer.disconnect()
   }, [])
 
-  // 💡 2. 순수 자바스크립트 관성 패럴렉스 엔진 연동 (튀는 fixed 방식 전면 교체)
+  // 2. 순수 자바스크립트 관성 패럴렉스 엔진 연동
   useEffect(() => {
     const section = sectionRef.current
     const bg = bgRef.current
@@ -143,7 +143,6 @@ export function ResearchSection() {
       const scrolledDistance = windowHeight - rect.top
       const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1)
 
-      // 스크롤 시 -20%에서 +20% 구간을 유연하게 패럴렉스 무빙
       targetY = -20 + (progress * 40)
     };
 
@@ -164,6 +163,22 @@ export function ResearchSection() {
     };
   }, [])
 
+  // 💡 [개선 포인트 2] 접기 버튼 클릭 시 부드러운 스크롤 핸들러 정의
+  const handleToggleExpand = () => {
+    if (isExpanded) {
+      setIsExpanded(false)
+      // 즉시 닫히는 모션 타이밍에 맞춰 연구활동 최상단 타이틀 구역으로 스무스 스크롤 이동
+      setTimeout(() => {
+        sectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        })
+      }, 50)
+    } else {
+      setIsExpanded(true)
+    }
+  }
+
   const displayPosts = allPosts
 
   const onTouchStart = (e: React.TouchEvent) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX) }
@@ -172,7 +187,7 @@ export function ResearchSection() {
     if (!touchStart || !touchEnd) return
     const distance = touchStart - touchEnd
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
-    if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
+    if (distance < -minSwipeDistance && isExpanded) handleToggleExpand()
   }
   const onMouseDown = (e: React.MouseEvent) => { setMouseStart(e.clientX); setIsDragging(true) }
   const onMouseMove = (e: React.MouseEvent) => { if (isDragging) e.preventDefault() }
@@ -180,7 +195,7 @@ export function ResearchSection() {
     if (!isDragging || !mouseStart) return
     const distance = mouseStart - e.clientX
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
-    if (distance < -minSwipeDistance && isExpanded) setIsExpanded(false)
+    if (distance < -minSwipeDistance && isExpanded) handleToggleExpand()
     setMouseStart(null); setIsDragging(false)
   }
 
@@ -225,7 +240,6 @@ export function ResearchSection() {
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
-        /* 💡 [모션 닫힘 최적화 포인트 1] 접힐 때(transition)와 펼칠 때 균일하고 부드러운 하이 엔드 트랜지션 곡선을 주어 부드럽게 축소되도록 제어 */
         .research-grid-container {
           transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
           max-height: 595px;
@@ -233,10 +247,20 @@ export function ResearchSection() {
         .research-grid-container.expanded {
           max-height: 4500px;
         }
+        
+        /* 💡 [개선 포인트 1] 딱딱한 호버 현상 제거 - 고성능 큐빅 베지에 곡선 적용 및 트랜지션 명시 */
         .motion-card {
           opacity: 0;
-          transition: opacity 0.4s ease, transform 0.4s ease;
+          transform: translateY(0) scale(1);
+          transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), 
+                      box-shadow 0.45s cubic-bezier(0.25, 1, 0.5, 1), 
+                      border-color 0.45s ease, 
+                      opacity 0.4s ease;
         }
+        .motion-card:hover {
+          transform: translateY(-8px) scale(1.01) !important;
+        }
+        
         .research-grid-container.visible .motion-card {
           animation: cardFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -288,34 +312,30 @@ export function ResearchSection() {
         {allPosts.length > 0 && (
           <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden pt-3 ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
             {displayPosts.map((post, index) => {
-              /* 💡 [모션 닫힘 최적화 포인트 2] 
-                 기존 'display: none' 처리는 애니메이션을 즉시 소멸시키므로 지우고, 
-                 대신 컨테이너의 max-height와 overflow-hidden으로 부드럽게 자연 압축 가림 처리되도록 구조를 개선했습니다.
-              */
               return (
                 <a 
                   key={index} 
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-stone-200/40 hover:border-amber-700/40 motion-card hover:z-10 will-change-transform relative"
+                  /* 💡 스타일시트에서 명시적으로 제어하도록 호버 관련 복합 클래스를 클래스명에서 간소화하고 고정 트랜지션을 주입했습니다. */
+                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card hover:z-10 will-change-transform relative"
                   style={{
                     animationDelay: isExpanded ? "0s" : `${(index % 3) * 0.15}s`,
                   }}
                 >
-                  {/* 제목: 중후하고 고풍스러운 고딕체 적용 */}
+                  {/* 제목 */}
                   <h3 className="font-serif text-xl font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
 
-                  {/* 본문: 가독성이 뛰어난 학술 스타일 웹 고딕체 적용 */}
+                  {/* 본문 */}
                   <p className="mt-4 flex-1 font-serif text-[15px] font-normal leading-relaxed text-stone-600 line-clamp-4">
                     {formatDescription(post.description)}
                   </p>
 
-                  {/* 하단 영역: 단조로움을 없애는 장식선 및 데이터 표기 */}
+                  {/* 하단 영역 */}
                   <div className="mt-6 flex items-center justify-between border-t border-stone-200/60 pt-4 text-xs font-sans tracking-wider text-stone-400">
-                    {/* 💡 요청 사항: 원본 명칭을 '한국본회퍼연구소장'으로 교체 완료 */}
                     <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">한국본회퍼연구소장</span>
                     <span>{formatDate(post.pubDate)}</span>
                   </div>
@@ -329,7 +349,7 @@ export function ResearchSection() {
         {allPosts.length > 3 && (
           <div className="mt-12 text-center">
             <button 
-              onClick={() => setIsExpanded(!isExpanded)} 
+              onClick={handleToggleExpand} 
               className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
             >
               {isExpanded ? "접기" : "더보기"}

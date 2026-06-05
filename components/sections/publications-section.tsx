@@ -11,8 +11,8 @@ interface PublicationBook {
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
 
-/* 💡 navBtnClass: 책 표지가 20% 커짐에 따라 버튼의 세로 정중앙 영점을 top-[39%]로 정밀 리밸런싱했습니다. */
-const navBtnClass = "absolute top-[39%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
+/* 💡 navBtnClass: 책 표지가 15% 작아짐에 따라 버튼의 세로 정중앙 영점을 top-[41%]로 정밀 리밸런싱했습니다. */
+const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
@@ -105,17 +105,17 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
-        {/* 💡 [크기 최적화] 커진 책 크기에 비례하여 뷰포트 컨테이너 높이를 안전하게 확장 (h-[560px] -> h-[680px]) */}
+        {/* 💡 [크기 리밸런싱] 15% 축소된 책 크기에 맞춰 뷰포트 컨테이너 높이를 안전하게 재정렬 (h-[480px] md:h-[580px]) */}
         <div 
-          className="relative flex justify-center items-center h-[560px] md:h-[680px] w-full max-w-7xl mx-auto touch-pan-y"
+          className="relative flex justify-center items-center h-[480px] md:h-[580px] w-full max-w-7xl mx-auto touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
-            // 💡 [3D 밸런싱] 카드가 커진 만큼 양옆으로 펼쳐지는 거리(xOffset)를 340에서 400으로 조절하여 겹침 현상을 방어했습니다.
-            const xOffset = offset === 1 ? 400 : offset === books.length - 1 ? -400 : 0;
+            // 💡 [3D 밸런싱] 책이 작아짐에 따라 양옆으로 펼쳐지는 거리(xOffset)를 400에서 320으로 조절하여 시각적 안정감을 유지합니다.
+            const xOffset = offset === 1 ? 320 : offset === books.length - 1 ? -320 : 0;
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : 1;
             const isActive = isCenter && activeIdx === i;
@@ -123,8 +123,8 @@ export function PublicationsSection() {
             return (
               <div 
                 key={book.title} 
-                // 💡 [20% 스케일업] 카드 전체의 외곽 비율을 20% 늘렸습니다.
-                className="absolute transition-all duration-500 ease-out w-[300px] h-[516px] md:w-[372px] md:h-[636px] cursor-pointer select-none"
+                // 💡 [15% 스케일 다운] 카드 외곽 크기를 약 15% 줄였습니다.
+                className="absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] cursor-pointer select-none"
                 style={{ 
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
@@ -139,8 +139,8 @@ export function PublicationsSection() {
                 }}
               >
                 
-                {/* 💡 [20% 이미지업] 외부 카드 확장에 대응하여 내부 이미지 액자 프레임 높이를 정밀 스케일업 */}
-                <div className="relative w-full h-[456px] md:h-[564px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
+                {/* 💡 [15% 이미지 다운] 축소된 카드 비율에 맞춰 내부 이미지 액자 프레임 높이를 정밀 조정 */}
+                <div className="relative w-full h-[388px] md:h-[480px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
                   <img 
                     src={book.imageSrc} 
                     alt={book.title} 

@@ -229,10 +229,6 @@ export function ResearchSection() {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
-        @keyframes cardFadeInUp {
-          0% { opacity: 0; transform: translateY(35px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
@@ -244,28 +240,33 @@ export function ResearchSection() {
           max-height: 4500px;
         }
         
-        /* 💡 [모션 전면 수정] 클래스 충돌 우회 및 완벽한 대칭형 호버 모션 제어 */
+        /* 💡 [핵심 교정 완료] 끊김 현상의 주원인이었던 강제 keyframe 방식을 제거하고 복합 트런지션 설계 */
         .motion-card {
-          opacity: 0;
           backface-visibility: hidden;
           -webkit-font-smoothing: antialiased;
-          transform: translateY(0) translateZ(0) !important;
           
-          /* 마우스가 들어오고 나갈 때 모두 0.4초 동안 부드럽게 감속 작동 */
-          transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important, 
-                      box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important, 
-                      border-color 0.4s ease !important, 
-                      opacity 0.4s ease !important;
+          /* 첫 로드 시 아래(translateY(35px))에 배치하고 투명화 처리 */
+          opacity: 0;
+          transform: translateY(35px) translateZ(0);
+          
+          /* 진입 처리 및 호버 시 유연하게 가속/감속되도록 트랜지션 곡선을 일원화 통합 */
+          transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                      box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                      border-color 0.4s ease, 
+                      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        /* 💡 마우스를 올렸을 때 서서히 -12px 만큼 수직 이동 */
+        /* 💡 컴포넌트가 화면에 감지되어 visible 클래스가 붙으면 부드럽게 원위치로 상승 */
+        .research-grid-container.visible .motion-card {
+          opacity: 1;
+          transform: translateY(0) translateZ(0);
+        }
+        
+        /* 💡 마우스 호버 시 앞선 애니메이션 방해 없이 서서히 부드럽게 추가 상승 */
         .motion-card:hover {
           transform: translateY(-12px) translateZ(0) !important;
         }
         
-        .research-grid-container.visible .motion-card {
-          animation: cardFadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
         @media (max-width: 768px) {
           .research-grid-container {
             max-height: 1855px;
@@ -320,10 +321,10 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  /* 💡 Tailwind의 transition-all, transform 클래스를 완전히 제거하여 커스텀 CSS(.motion-card)와 충돌하지 않도록 조치했습니다. */
                   className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 relative"
                   style={{
-                    animationDelay: isExpanded ? "0s" : `${(index % 3) * 0.15}s`,
+                    /* 처음 나타날 때의 순차적 시간차 딜레이(지연) 효과 설정 */
+                    transitionDelay: isVisible ? `${(index % 3) * 0.12}s` : "0s",
                   }}
                 >
                   {/* 제목 */}

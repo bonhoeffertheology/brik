@@ -232,44 +232,48 @@ export function ResearchSection() {
         .animate-shimmer-core {
           animation: customShimmer 2.5s infinite linear;
         }
+        
+        /* 💡 [구조 대수술] 2행 잘림 현상 해결을 위해 기본 max-height를 1250px로 변경 */
         .research-grid-container {
-          transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-          max-height: 595px;
+          transition: max-height 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+          max-height: 1250px; /* 기존 595px에서 대폭 확장하여 2행(6개)까지 완벽히 소화 */
+          padding-bottom: 20px; /* 호버 시 위로 올라갈 때 컨테이너 마진 확보용 */
         }
         .research-grid-container.expanded {
-          max-height: 4500px;
+          max-height: 6000px;
         }
         
-        /* 💡 [트랜지션 완전 분리] 하드웨어 가속 및 글자 왜곡 방지 속성 설정 */
+        /* 💡 마우스 호버 및 이탈 시 하드웨어 가속 최적화 */
         .motion-card {
           backface-visibility: hidden;
-          transform: translateY(35px);
+          -webkit-font-smoothing: antialiased;
+          transform: translateY(35px) translateZ(0);
           opacity: 0;
           
-          /* 진입과 호버 복귀 시 사용될 딜레이 없는 순수 부드러운 감속 트랜지션 정의 */
-          transition: transform 0.45s cubic-bezier(0.215, 0.610, 0.355, 1.000), 
-                      box-shadow 0.45s cubic-bezier(0.215, 0.610, 0.355, 1.000), 
-                      border-color 0.4s ease, 
+          /* 가속/감속 피드백 궤적을 렌더링에 가장 유연한 값으로 정밀 보정 */
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                      box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                      border-color 0.3s ease, 
                       opacity 0.6s ease;
         }
         
-        /* 💡 스크롤 진입 시 원위치 상승 */
         .research-grid-container.visible .motion-card {
           opacity: 1;
-          transform: translateY(0);
+          transform: translateY(0) translateZ(0);
         }
         
-        /* 💡 호버 시 부드럽게 위로 상승 (중첩 클래스로 우선순위 완전 보장) */
+        /* 호버 동작 시 translateZ(0)을 주어 60fps 프레임 드랍 완벽 방어 */
         .research-grid-container .motion-card:hover {
-          transform: translateY(-12px) !important;
+          transform: translateY(-12px) translateZ(0) !important;
         }
         
+        /* 모바일 스크린 환경 최적화 (모바일은 1열 배열이므로 2행=2개 기준 높이 적용) */
         @media (max-width: 768px) {
           .research-grid-container {
-            max-height: 1855px;
+            max-height: 1280px; 
           }
           .research-grid-container.expanded {
-            max-height: 9000px;
+            max-height: 12000px;
           }
         }
       `}} />
@@ -320,7 +324,6 @@ export function ResearchSection() {
                   rel="noopener noreferrer" 
                   className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 relative"
                   style={{
-                    /* 💡 인라인 transitionDelay는 처음 등장(visible이 아닐 때)할 때만 순차적으로 적용되게 하고, 등장 이후에는 0s로 소멸시켜 호버 모션에 절대 간섭하지 못하게 격리했습니다. */
                     transitionDelay: isVisible ? "0s" : `${(index % 3) * 0.12}s`,
                   }}
                 >
@@ -346,7 +349,7 @@ export function ResearchSection() {
         )}
 
         {/* 더보기 버튼 구역 */}
-        {allPosts.length > 3 && (
+        {allPosts.length > 6 && (
           <div className="mt-12 text-center">
             <button 
               onClick={handleToggleExpand} 

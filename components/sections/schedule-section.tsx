@@ -58,17 +58,31 @@ export function ScheduleSection() {
 
   return (
     <section ref={sectionRef} className="py-20 bg-muted/30" id="schedule">
+      {/* 노란색 바 Shimmer 애니메이션을 위한 키프레임 스타일 */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes scheduleShimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-schedule-shimmer {
+          animation: scheduleShimmer 2.5s infinite linear;
+        }
+      `}} />
+
       <div className="container px-4 mx-auto">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground font-serif">
             사역일정
           </h2>
-          {/* 노란색 바 대신 흰색 배경 + 등장 애니메이션(width, opacity) 적용 */}
+          
+          {/* 노란색/앰버 톤 Base + 진입 시 Width 확장 + 내부 Shimmer 광원 무한 이동 */}
           <div
-            className={`h-1 bg-white mx-auto mt-4 rounded transition-all duration-700 ease-out ${
+            className={`h-1 bg-amber-500/80 mx-auto mt-4 rounded overflow-hidden relative transition-all duration-700 ease-out ${
               isVisible ? "w-12 opacity-100" : "w-0 opacity-0"
             }`}
-          />
+          >
+            <div className="absolute inset-0 h-full w-full animate-schedule-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+          </div>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-6">

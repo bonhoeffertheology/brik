@@ -29,7 +29,7 @@ export function ScheduleSection() {
       id: "sch-3",
       day: "25",
       month: "9월",
-      title: "3<하나님과 함께>영문 번역 진행",
+      title: "<하나님과 함께>영문 번역 진행",
       dateInfo: "2026년 9월 25일",
       description: "아마존 출판 예정"
     }

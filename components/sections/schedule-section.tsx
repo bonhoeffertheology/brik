@@ -11,27 +11,27 @@ export function ScheduleSection() {
   const schedules = [
     {
       id: "sch-1",
-      day: "5",
-      month: "6월",
-      title: "<그리스도를 따라서> 2권 번역",
-      dateInfo: "2026년 6월 5일 · 오전 7시",
-      description: "1권에 이어 2권 번역이 계속됩니다."
+      day: "31",
+      month: "7월",
+      title: "<그리스도를 따라서> 2권 출판",
+      dateInfo: "2026년 7월 31일 · 오전 7시",
+      description: "교보문고에서 2권을 출판합니다."
     },
     {
       id: "sch-2",
-      day: "15",
-      month: "6월",
-      title: "<하나님과 함께> 영문 번역 작업",
-      dateInfo: "2026년 6월 15일 · 오전 11시",
-      description: "이제 영미권에서도 볼 수 있어요"
+      day: "30",
+      month: "8월",
+      title: "<그리스도를 따라서> 3권 번역 작업",
+      dateInfo: "2026년 8월 30일 · 오전 11시",
+      description: "마지막 3권까지 최선을 다해!"
     },
     {
       id: "sch-3",
       day: "25",
-      month: "6월",
-      title: "홈페이지 서버 관리",
-      dateInfo: "2026년 6월 25일 · 3일간",
-      description: "메뉴 및 프레임 디자인"
+      month: "9월",
+      title: "3권 번역 계속작업 및 다음책 선정",
+      dateInfo: "2026년 9월 25일",
+      description: "틈틈히 2권 수정작업 진행"
     }
   ]
 

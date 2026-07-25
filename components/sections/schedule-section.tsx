@@ -23,15 +23,15 @@ export function ScheduleSection() {
       month: "8월",
       title: "<그리스도를 따라서> 3권 번역 작업",
       dateInfo: "2026년 8월 30일 · 오전 11시",
-      description: "마지막 3권까지 최선을 다해!"
+      description: "3권 작업 후 교정가 선발 예정""
     },
     {
       id: "sch-3",
       day: "25",
       month: "9월",
-      title: "3권 번역 계속작업 및 다음책 선정",
+      title: "3<하나님과 함께>영문 번역 진행",
       dateInfo: "2026년 9월 25일",
-      description: "틈틈히 2권 수정작업 진행"
+      description: "아마존 출판 예정"
     }
   ]
 

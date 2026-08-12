@@ -6,7 +6,7 @@ import Link from "next/link"
 const navLinks = [
   { href: "#about", label: "연구소 소개" },
   { href: "#research", label: "연구 활동" },
-  { href: "#publications", label: "출판물" },
+  { href: "#publications", label: "출판서적" },
   { href: "#schedule", label: "연구일정" },
   { href: "#support", label: "후원하기" },
 ]

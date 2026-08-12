@@ -98,7 +98,7 @@ export function PublicationsSection() {
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12">
         {/* 💡 [변경사항 1 완벽 보존] 타이틀 밑 마진 모바일 최적화 레이아웃 (mb-6 / md:mb-16) */}
         <div className="text-center mb-6 md:mb-16">
-          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판물</h2>
+          <h2 className="mb-4 font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">출판서적</h2>
           <div className="mx-auto h-0.5 w-12 overflow-hidden bg-amber-500 relative">
             <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
           </div>

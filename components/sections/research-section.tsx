@@ -16,12 +16,15 @@ export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const holdIntervalRef = useRef<number | null>(null)
   
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
-  const [isExpanded, setIsExpanded] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
 
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
@@ -29,7 +32,7 @@ export function ResearchSection() {
   const [isDragging, setIsDragging] = useState(false)
 
   const blogId = "jelsayou"
-  const minSwipeDistance = 50
+  const minSwipeDistance = 40
 
   const getCachedPosts = useCallback((): BlogPost[] | null => {
     try {
@@ -124,6 +127,23 @@ export function ResearchSection() {
     return () => observer.disconnect()
   }, [])
 
+  // 스크롤 위치 감지 (화살표 활성화 상태 업데이트)
+  const updateScrollButtons = useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    setCanScrollLeft(container.scrollLeft > 5)
+    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 5)
+  }, [])
+
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    container.addEventListener("scroll", updateScrollButtons, { passive: true })
+    updateScrollButtons()
+    return () => container.removeEventListener("scroll", updateScrollButtons)
+  }, [updateScrollButtons, allPosts])
+
+  // 배경 패럴렉스
   useEffect(() => {
     const section = sectionRef.current
     const bg = bgRef.current
@@ -163,19 +183,17 @@ export function ResearchSection() {
     };
   }, [])
 
-  // 데스크톱 마우스 휠을 가로 스크롤로 자연스럽게 변환
+  // 데스크톱 마우스 휠 -> 부드러운 가로 스크롤
   useEffect(() => {
     const container = scrollContainerRef.current
     if (!container) return
 
     const handleWheel = (e: WheelEvent) => {
-      if (!isExpanded) return
-      // 세로 휠 입력을 가로 스크롤로 전달
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        const canScrollLeft = container.scrollLeft > 0
-        const canScrollRight = container.scrollLeft < (container.scrollWidth - container.clientWidth - 1)
+        const atLeft = container.scrollLeft <= 0
+        const atRight = container.scrollLeft >= (container.scrollWidth - container.clientWidth - 1)
         
-        if ((e.deltaY > 0 && canScrollRight) || (e.deltaY < 0 && canScrollLeft)) {
+        if ((e.deltaY > 0 && !atRight) || (e.deltaY < 0 && !atLeft)) {
           e.preventDefault()
           container.scrollBy({
             left: e.deltaY * 1.5,
@@ -187,53 +205,65 @@ export function ResearchSection() {
 
     container.addEventListener("wheel", handleWheel, { passive: false })
     return () => container.removeEventListener("wheel", handleWheel)
-  }, [isExpanded])
+  }, [])
 
-  const handleToggleExpand = () => {
-    if (isExpanded) {
-      setIsExpanded(false)
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" })
-      }
-    } else {
-      setIsExpanded(true)
+  // 💡 화살표 버튼을 누르고 있는 동안 부드럽게 연속 스크롤 처리 (requestAnimationFrame 기반)
+  const stopHolding = useCallback(() => {
+    if (holdIntervalRef.current !== null) {
+      cancelAnimationFrame(holdIntervalRef.current)
+      holdIntervalRef.current = null
     }
+  }, [])
+
+  const startHolding = (direction: "left" | "right") => {
+    stopHolding()
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const scrollSpeed = direction === "left" ? -14 : 14 // 1프레임당 스크롤 픽셀 수 (부드럽고 쾌적한 속도)
+
+    const scrollLoop = () => {
+      container.scrollLeft += scrollSpeed
+      updateScrollButtons()
+      holdIntervalRef.current = requestAnimationFrame(scrollLoop)
+    }
+
+    holdIntervalRef.current = requestAnimationFrame(scrollLoop)
   }
 
-  // 좌/우 버튼 클릭 스크롤 핸들러
-  const handleScrollByStep = (direction: "left" | "right") => {
-    if (!scrollContainerRef.current) return
-    const scrollAmount = 380 // 카드 너비 + 간격 단위 이동
-    scrollContainerRef.current.scrollBy({
+  // 단순 1회 클릭 시의 스텝 이동
+  const handleSingleClick = (direction: "left" | "right") => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    const scrollAmount = 370 // 1개 카드 너비 + 여백
+    container.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth"
     })
   }
 
-  const displayPosts = allPosts
-
+  // 모바일 및 마우스 제스처
   const onTouchStart = (e: React.TouchEvent) => { setTouchEnd(null); setTouchStart(e.targetTouches[0].clientX) }
   const onTouchMove = (e: React.TouchEvent) => { setTouchEnd(e.targetTouches[0].clientX) }
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
+    if (!touchStart || !touchEnd || !scrollContainerRef.current) return
     const distance = touchStart - touchEnd
-    if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
-    if (distance < -minSwipeDistance && isExpanded && scrollContainerRef.current?.scrollLeft === 0) {
-      handleToggleExpand()
+    if (Math.abs(distance) > minSwipeDistance) {
+      scrollContainerRef.current.scrollBy({
+        left: distance * 1.2,
+        behavior: "smooth"
+      })
     }
   }
-  
+
   const onMouseDown = (e: React.MouseEvent) => { setMouseStart(e.clientX); setIsDragging(true) }
-  const onMouseMove = (e: React.MouseEvent) => { if (isDragging) e.preventDefault() }
-  const onMouseUp = (e: React.MouseEvent) => {
-    if (!isDragging || !mouseStart) return
-    const distance = mouseStart - e.clientX
-    if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
-    if (distance < -minSwipeDistance && isExpanded && scrollContainerRef.current?.scrollLeft === 0) {
-      handleToggleExpand()
-    }
-    setMouseStart(null); setIsDragging(false)
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !mouseStart || !scrollContainerRef.current) return
+    const walk = (mouseStart - e.clientX) * 0.8
+    scrollContainerRef.current.scrollLeft += walk
+    setMouseStart(e.clientX)
   }
+  const onMouseUp = () => { setIsDragging(false); setMouseStart(null) }
 
   const formatDate = (dateString: string | undefined | null) => {
     if (!dateString) return ""
@@ -255,14 +285,14 @@ export function ResearchSection() {
     <section 
       id="research" 
       ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32 border-x-2 border-white"
+      className="relative w-full overflow-hidden py-24 md:py-32 border-x-2 border-white select-none"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
-      onMouseLeave={() => setIsDragging(false)}
+      onMouseLeave={() => { onMouseUp(); stopHolding(); }}
     >
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes customShimmer {
@@ -275,18 +305,18 @@ export function ResearchSection() {
         
         /* 세련된 가로 슬림 스크롤바 */
         .horizontal-scroll-container::-webkit-scrollbar {
-          height: 5px;
+          height: 4px;
         }
         .horizontal-scroll-container::-webkit-scrollbar-track {
           background: rgba(255, 255, 255, 0.05);
           border-radius: 9999px;
         }
         .horizontal-scroll-container::-webkit-scrollbar-thumb {
-          background: rgba(245, 158, 11, 0.4);
+          background: rgba(245, 158, 11, 0.35);
           border-radius: 9999px;
         }
         .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
-          background: rgba(245, 158, 11, 0.8);
+          background: rgba(245, 158, 11, 0.7);
         }
 
         .motion-card {
@@ -311,20 +341,19 @@ export function ResearchSection() {
         }
       `}} />
 
-      {/* 패럴렉스 배경 레이어 (배경 감상도 극대화) */}
+      {/* 패럴렉스 배경 레이어 */}
       <div className="absolute inset-x-0 top-[-20%] h-[140%] z-0 will-change-transform" ref={bgRef}>
         <div 
           className="w-full h-full bg-cover bg-center bg-no-repeat" 
           style={{ backgroundImage: `url('images/back21.png')` }} 
         />
       </div>
-      {/* 얇고 맑은 오버레이로 배경 시안성 극대화 */}
       <div className="absolute inset-0 bg-stone-950/30 backdrop-blur-[0.5px] z-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* 상단 타이틀 구역 및 우측 상단 컨트롤 바 */}
-        <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-white/10 pb-8">
+        {/* 상단 타이틀 구역 & 우측 즉시 이동 화살표 컨트롤 */}
+        <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-white/10 pb-8">
           <div>
             <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
             <div className="mt-3 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
@@ -335,46 +364,51 @@ export function ResearchSection() {
             </p>
           </div>
 
-          {/* 우측 컨트롤 바: 더보기 버튼 & 좌우 스크롤 탐색 버튼 */}
-          {allPosts.length > 6 && (
-            <div className="flex items-center gap-3 self-end md:self-auto">
-              {/* 확장 시 나타나는 좌/우 탐색 내비게이터 (데스크톱 최적화) */}
-              {isExpanded && (
-                <div className="flex items-center gap-1.5 bg-black/30 backdrop-blur-md p-1 rounded-xl border border-white/15 shadow-sm">
-                  <button
-                    onClick={() => handleScrollByStep("left")}
-                    aria-label="이전 목록 보기"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-white/15 hover:text-white transition-colors"
-                  >
-                    <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleScrollByStep("right")}
-                    aria-label="다음 목록 보기"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:bg-white/15 hover:text-white transition-colors"
-                  >
-                    <svg className="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-
-              {/* 우측 상단 더보기 / 접기 토글 버튼 */}
-              <button 
-                onClick={handleToggleExpand} 
-                className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all duration-300 transform active:scale-95 shadow-sm ${
-                  isExpanded 
-                    ? "bg-amber-500 text-stone-950 font-semibold hover:bg-amber-400" 
-                    : "border border-white/30 bg-black/25 backdrop-blur-md text-white hover:bg-white/20 hover:border-white/50"
+          {/* 우측 즉각 탐색 컨트롤러 (클릭 시 스텝 이동 / 길게 누르면 연속 스크롤) */}
+          {allPosts.length > 0 && (
+            <div className="flex items-center gap-2 self-end md:self-auto bg-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 shadow-md">
+              {/* 왼쪽 화살표 */}
+              <button
+                type="button"
+                onClick={() => handleSingleClick("left")}
+                onMouseDown={() => startHolding("left")}
+                onMouseUp={stopHolding}
+                onMouseLeave={stopHolding}
+                onTouchStart={() => startHolding("left")}
+                onTouchEnd={stopHolding}
+                disabled={!canScrollLeft}
+                aria-label="이전 연구활동 목록 보기"
+                className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
+                  canScrollLeft
+                    ? "text-white bg-white/10 hover:bg-amber-500 hover:text-stone-950 cursor-pointer shadow-sm"
+                    : "text-white/30 cursor-not-allowed opacity-40"
                 }`}
               >
-                <span>{isExpanded ? "접기" : "더보기"}</span>
-                <span className="text-xs transition-transform duration-300">
-                  {isExpanded ? "◀" : "▶"}
-                </span>
+                <svg className="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* 오른쪽 화살표 */}
+              <button
+                type="button"
+                onClick={() => handleSingleClick("right")}
+                onMouseDown={() => startHolding("right")}
+                onMouseUp={stopHolding}
+                onMouseLeave={stopHolding}
+                onTouchStart={() => startHolding("right")}
+                onTouchEnd={stopHolding}
+                disabled={!canScrollRight}
+                aria-label="다음 연구활동 목록 보기"
+                className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
+                  canScrollRight
+                    ? "text-white bg-white/10 hover:bg-amber-500 hover:text-stone-950 cursor-pointer shadow-sm"
+                    : "text-white/30 cursor-not-allowed opacity-40"
+                }`}
+              >
+                <svg className="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           )}
@@ -388,22 +422,18 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 글래스모피즘(반투명) 연구활동 카드 구역 */}
+        {/* 연구활동 카드 리스트: 2행 가로 배치 & 바로 탐색 가능 */}
         {allPosts.length > 0 && (
           <div 
             ref={scrollContainerRef}
-            className={`horizontal-scroll-container px-1 py-4 transition-all duration-500 ${
-              isExpanded 
-                ? "overflow-x-auto scroll-smooth cursor-grab active:cursor-grabbing" 
-                : "overflow-hidden"
-            }`}
+            className="horizontal-scroll-container overflow-x-auto px-1 py-4 transition-all duration-300 cursor-grab active:cursor-grabbing"
           >
             <div 
               className={`research-grid-container grid grid-rows-2 grid-flow-col gap-x-6 gap-y-5 min-w-max ${
                 isVisible ? "visible" : ""
               }`}
             >
-              {displayPosts.map((post, index) => (
+              {allPosts.map((post, index) => (
                 <a 
                   key={index} 
                   href={post.link} 

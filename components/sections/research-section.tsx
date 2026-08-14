@@ -306,33 +306,38 @@ export function ResearchSection() {
             </div>
             
             <div className="divide-y divide-white/5">
-              {extendedPosts.map((post, index) => (
-                <a
-                  key={index}
-                  href={post.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
-                >
-                  {/* 제목 */}
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <span className="text-amber-500/70 text-xs font-mono shrink-0">
-                      {String(index + 7).padStart(2, '0')}
-                    </span>
-                    <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors truncate">
-                      {post.title}
-                    </h4>
-                  </div>
+              {extendedPosts.map((post, index) => {
+                // 전체 포스트 기준 역순 번호 계산 (가장 오래된 첫 글이 01번)
+                const reverseNumber = allPosts.length - (index + 6);
+                
+                return (
+                  <a
+                    key={index}
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
+                  >
+                    {/* 역순 번호 & 제목 */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <span className="text-amber-500/70 text-xs font-mono shrink-0">
+                        {String(reverseNumber).padStart(2, '0')}
+                      </span>
+                      <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors truncate">
+                        {post.title}
+                      </h4>
+                    </div>
 
-                  {/* 날짜 및 바로가기 */}
-                  <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80">
-                    <span>{formatDate(post.pubDate)}</span>
-                    <span className="text-stone-400 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all">
-                      →
-                    </span>
-                  </div>
-                </a>
-              ))}
+                    {/* 날짜 및 바로가기 */}
+                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80">
+                      <span>{formatDate(post.pubDate)}</span>
+                      <span className="text-stone-400 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all">
+                        →
+                      </span>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           </div>
         )}

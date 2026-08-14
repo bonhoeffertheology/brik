@@ -352,67 +352,70 @@ export function ResearchSection() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* 상단 타이틀 구역 & 우측 컨트롤 */}
-        <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-white/10 pb-8">
-          <div>
-            {/* 타이틀 및 노란색 바 중앙 정렬 */}
-            <div className="inline-flex flex-col items-center">
-              <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">연구활동</h2>
-              <div className="mt-3 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
-                <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-              </div>
+        {/* 상단 타이틀 구역 (전체 화면 기준 중앙 정렬) & 우측 화살표 컨트롤러 */}
+        <div className="relative mb-12 border-b border-white/10 pb-8">
+          
+          {/* 타이틀 및 설명 문구: 화면 전체 폭 기준 완벽한 중앙 정렬 */}
+          <div className="flex flex-col items-center text-center">
+            <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              연구활동
+            </h2>
+            <div className="mt-3 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
+              <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
             </div>
             <p className="mt-4 font-sans text-sm md:text-base font-light tracking-wide text-stone-200/90">
               본회퍼의 신학과 사상을 연구하고 나눕니다
             </p>
           </div>
 
-          {/* 우측 즉각 탐색 컨트롤러 */}
+          {/* 우측 즉각 탐색 컨트롤러 (데스크톱: 우측 상단 정렬 / 모바일: 하단 중앙 정렬) */}
           {allPosts.length > 0 && (
-            <div className="flex items-center gap-2 self-end md:self-auto bg-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 shadow-md">
-              {/* 왼쪽 화살표 */}
-              <button
-                type="button"
-                onClick={() => handleSingleClick("left")}
-                onMouseDown={() => startHolding("left")}
-                onMouseUp={stopHolding}
-                onMouseLeave={stopHolding}
-                onTouchStart={() => startHolding("left")}
-                onTouchEnd={stopHolding}
-                disabled={!canScrollLeft}
-                aria-label="이전 연구활동 목록 보기"
-                className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
-                  canScrollLeft
-                    ? "text-white bg-white/10 hover:bg-amber-500 hover:text-stone-950 cursor-pointer shadow-sm"
-                    : "text-white/30 cursor-not-allowed opacity-40"
-                }`}
-              >
-                <svg className="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+            <div className="mt-6 flex justify-center md:mt-0 md:absolute md:right-0 md:bottom-8">
+              <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-1.5 rounded-2xl border border-white/15 shadow-md">
+                {/* 왼쪽 화살표 */}
+                <button
+                  type="button"
+                  onClick={() => handleSingleClick("left")}
+                  onMouseDown={() => startHolding("left")}
+                  onMouseUp={stopHolding}
+                  onMouseLeave={stopHolding}
+                  onTouchStart={() => startHolding("left")}
+                  onTouchEnd={stopHolding}
+                  disabled={!canScrollLeft}
+                  aria-label="이전 연구활동 목록 보기"
+                  className={`flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
+                    canScrollLeft
+                      ? "text-white bg-white/10 hover:bg-amber-500 hover:text-stone-950 cursor-pointer shadow-sm"
+                      : "text-white/30 cursor-not-allowed opacity-40"
+                  }`}
+                >
+                  <svg className="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
-              {/* 오른쪽 화살표 */}
-              <button
-                type="button"
-                onClick={() => handleSingleClick("right")}
-                onMouseDown={() => startHolding("right")}
-                onMouseUp={stopHolding}
-                onMouseLeave={stopHolding}
-                onTouchStart={() => startHolding("right")}
-                onTouchEnd={stopHolding}
-                disabled={!canScrollRight}
-                aria-label="다음 연구활동 목록 보기"
-                className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
-                  canScrollRight
-                    ? "text-white bg-white/10 hover:bg-amber-500 hover:text-stone-950 cursor-pointer shadow-sm"
-                    : "text-white/30 cursor-not-allowed opacity-40"
-                }`}
-              >
-                <svg className="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+                {/* 오른쪽 화살표 */}
+                <button
+                  type="button"
+                  onClick={() => handleSingleClick("right")}
+                  onMouseDown={() => startHolding("right")}
+                  onMouseUp={stopHolding}
+                  onMouseLeave={stopHolding}
+                  onTouchStart={() => startHolding("right")}
+                  onTouchEnd={stopHolding}
+                  disabled={!canScrollRight}
+                  aria-label="다음 연구활동 목록 보기"
+                  className={`flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
+                    canScrollRight
+                      ? "text-white bg-white/10 hover:bg-amber-500 hover:text-stone-950 cursor-pointer shadow-sm"
+                      : "text-white/30 cursor-not-allowed opacity-40"
+                  }`}
+                >
+                  <svg className="w-5 h-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
         </div>

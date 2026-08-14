@@ -16,7 +16,7 @@ const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { title: "그리스도를 따라서 (2권)", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220871856/" },
+    { title: "그리스도를 따라서 (2권)", imageSrc: "images/vol2.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220871856/" },
     { title: "그리스도를 따라서 (1권)", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
     { title: "하나님과 함께 (초판)", imageSrc: "images/with.jpg", purchaseLink: "https://smartstore.naver.com/bonhoeffer/products/6989986386/", ebookLink: "https://jelsayou.upaper.kr/content/1153861" }

@@ -15,6 +15,8 @@ const CACHE_DURATION = 10 * 60 * 1000 // 10분
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
@@ -164,12 +166,10 @@ export function ResearchSection() {
   const handleToggleExpand = () => {
     if (isExpanded) {
       setIsExpanded(false)
-      setTimeout(() => {
-        sectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        })
-      }, 50)
+      // 접을 때는 가로 스크롤을 맨 앞으로 초기화
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" })
+      }
     } else {
       setIsExpanded(true)
     }
@@ -183,15 +183,20 @@ export function ResearchSection() {
     if (!touchStart || !touchEnd) return
     const distance = touchStart - touchEnd
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
-    if (distance < -minSwipeDistance && isExpanded) handleToggleExpand()
+    if (distance < -minSwipeDistance && isExpanded && scrollContainerRef.current?.scrollLeft === 0) {
+      handleToggleExpand()
+    }
   }
+  
   const onMouseDown = (e: React.MouseEvent) => { setMouseStart(e.clientX); setIsDragging(true) }
   const onMouseMove = (e: React.MouseEvent) => { if (isDragging) e.preventDefault() }
   const onMouseUp = (e: React.MouseEvent) => {
     if (!isDragging || !mouseStart) return
     const distance = mouseStart - e.clientX
     if (distance > minSwipeDistance && !isExpanded) setIsExpanded(true)
-    if (distance < -minSwipeDistance && isExpanded) handleToggleExpand()
+    if (distance < -minSwipeDistance && isExpanded && scrollContainerRef.current?.scrollLeft === 0) {
+      handleToggleExpand()
+    }
     setMouseStart(null); setIsDragging(false)
   }
 
@@ -233,24 +238,27 @@ export function ResearchSection() {
           animation: customShimmer 2.5s infinite linear;
         }
         
-        /* 💡 [구조 대수술] 2행 잘림 현상 해결을 위해 기본 max-height를 1250px로 변경 */
-        .research-grid-container {
-          transition: max-height 0.9s cubic-bezier(0.25, 1, 0.5, 1);
-          max-height: 1250px; /* 기존 595px에서 대폭 확장하여 2행(6개)까지 완벽히 소화 */
-          padding-bottom: 20px; /* 호버 시 위로 올라갈 때 컨테이너 마진 확보용 */
+        /* 가로 스크롤 부드러운 스크롤바 디자인 */
+        .horizontal-scroll-container::-webkit-scrollbar {
+          height: 6px;
         }
-        .research-grid-container.expanded {
-          max-height: 6000px;
+        .horizontal-scroll-container::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 4px;
         }
-        
-        /* 💡 마우스 호버 및 이탈 시 하드웨어 가속 최적화 */
+        .horizontal-scroll-container::-webkit-scrollbar-thumb {
+          background: rgba(245, 158, 11, 0.5);
+          border-radius: 4px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: rgba(245, 158, 11, 0.8);
+        }
+
         .motion-card {
           backface-visibility: hidden;
           -webkit-font-smoothing: antialiased;
           transform: translateY(35px) translateZ(0);
           opacity: 0;
-          
-          /* 가속/감속 피드백 궤적을 렌더링에 가장 유연한 값으로 정밀 보정 */
           transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
                       box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
                       border-color 0.3s ease, 
@@ -262,23 +270,12 @@ export function ResearchSection() {
           transform: translateY(0) translateZ(0);
         }
         
-        /* 호버 동작 시 translateZ(0)을 주어 60fps 프레임 드랍 완벽 방어 */
         .research-grid-container .motion-card:hover {
-          transform: translateY(-12px) translateZ(0) !important;
-        }
-        
-        /* 모바일 스크린 환경 최적화 (모바일은 1열 배열이므로 2행=2개 기준 높이 적용) */
-        @media (max-width: 768px) {
-          .research-grid-container {
-            max-height: 1280px; 
-          }
-          .research-grid-container.expanded {
-            max-height: 12000px;
-          }
+          transform: translateY(-8px) translateZ(0) !important;
         }
       `}} />
 
-      {/* 고성능 패럴렉스 수직 무빙 백그라운드 레이어 */}
+      {/* 패럴렉스 배경 레이어 */}
       <div className="absolute inset-x-0 top-[-20%] h-[140%] z-0 will-change-transform" ref={bgRef}>
         <div 
           className="w-full h-full bg-cover bg-center bg-no-repeat" 
@@ -289,9 +286,9 @@ export function ResearchSection() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* 상단 타이틀 구역 */}
+        {/* 타이틀 구역 */}
         <div 
-          className="mb-20 text-center transition-all duration-1000 transform"
+          className="mb-16 text-center transition-all duration-1000 transform"
           style={{
             transform: isVisible ? "translateY(0)" : "translateY(40px)",
             opacity: isVisible ? 1 : 0
@@ -312,50 +309,70 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구활동 배너 그리드 목록 */}
+        {/* 연구활동 카드 구역: 2행(세로 2줄) 고정 + 우측 확장 구조 */}
         {allPosts.length > 0 && (
-          <div className={`research-grid-container grid gap-8 md:grid-cols-2 lg:grid-cols-3 overflow-hidden pt-3 ${isVisible ? "visible" : ""} ${isExpanded ? "expanded" : ""}`}>
-            {displayPosts.map((post, index) => {
-              return (
+          <div 
+            ref={scrollContainerRef}
+            className={`horizontal-scroll-container pb-4 transition-all duration-500 ${
+              isExpanded 
+                ? "overflow-x-auto scroll-smooth" 
+                : "overflow-hidden"
+            }`}
+          >
+            <div 
+              className={`research-grid-container grid grid-rows-2 grid-flow-col gap-6 pt-3 min-w-full ${
+                isVisible ? "visible" : ""
+              }`}
+              style={{
+                // 각 카드의 너비를 반응형으로 고정하여 2행 가로 배치를 안정적으로 유지
+                gridAutoColumns: "minmax(300px, 1fr)"
+              }}
+            >
+              {displayPosts.map((post, index) => (
                 <a 
                   key={index} 
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="group flex flex-col rounded-3xl bg-stone-50/95 p-9 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 relative"
+                  className="group flex flex-col justify-between rounded-3xl bg-stone-50/95 p-7 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 w-[300px] sm:w-[340px] lg:w-[380px] h-[260px]"
                   style={{
-                    transitionDelay: isVisible ? "0s" : `${(index % 3) * 0.12}s`,
+                    transitionDelay: isVisible ? "0s" : `${(index % 6) * 0.08}s`,
                   }}
                 >
-                  {/* 제목 */}
-                  <h3 className="font-serif text-xl font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
+                  <div>
+                    {/* 제목 */}
+                    <h3 className="font-serif text-lg font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
 
-                  {/* 본문 */}
-                  <p className="mt-4 flex-1 font-serif text-[15px] font-normal leading-relaxed text-stone-600 line-clamp-4">
-                    {formatDescription(post.description)}
-                  </p>
+                    {/* 본문 요약 */}
+                    <p className="mt-3 font-serif text-[14px] font-normal leading-relaxed text-stone-600 line-clamp-3">
+                      {formatDescription(post.description)}
+                    </p>
+                  </div>
 
-                  {/* 하단 영역 */}
-                  <div className="mt-6 flex items-center justify-between border-t border-stone-200/60 pt-4 text-xs font-sans tracking-wider text-stone-400">
+                  {/* 하단 정보 */}
+                  <div className="mt-4 flex items-center justify-between border-t border-stone-200/60 pt-3 text-xs font-sans tracking-wider text-stone-400">
                     <span className="font-medium text-stone-500 group-hover:text-amber-800 transition-colors">한국본회퍼연구소장</span>
                     <span>{formatDate(post.pubDate)}</span>
                   </div>
                 </a>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* 더보기 버튼 구역 */}
+        {/* 더보기 / 접기 컨트롤 버튼 */}
         {allPosts.length > 6 && (
-          <div className="mt-12 text-center">
+          <div className="mt-10 flex items-center justify-center gap-3 text-center">
             <button 
               onClick={handleToggleExpand} 
-              className="rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-102 active:scale-98 shadow-sm"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-sm"
             >
-              {isExpanded ? "접기" : "더보기"}
+              <span>{isExpanded ? "접기" : "더보기"}</span>
+              <span className="text-xs transition-transform duration-300">
+                {isExpanded ? "◀" : "▶"}
+              </span>
             </button>
           </div>
         )}

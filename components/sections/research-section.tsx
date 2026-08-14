@@ -166,7 +166,6 @@ export function ResearchSection() {
   const handleToggleExpand = () => {
     if (isExpanded) {
       setIsExpanded(false)
-      // 접을 때는 가로 스크롤을 맨 앞으로 초기화
       if (scrollContainerRef.current) {
         scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" })
       }
@@ -238,29 +237,29 @@ export function ResearchSection() {
           animation: customShimmer 2.5s infinite linear;
         }
         
-        /* 가로 스크롤 부드러운 스크롤바 디자인 */
+        /* 세련된 가로 슬림 스크롤바 */
         .horizontal-scroll-container::-webkit-scrollbar {
           height: 6px;
         }
         .horizontal-scroll-container::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 9999px;
         }
         .horizontal-scroll-container::-webkit-scrollbar-thumb {
-          background: rgba(245, 158, 11, 0.5);
-          border-radius: 4px;
+          background: rgba(245, 158, 11, 0.6);
+          border-radius: 9999px;
         }
         .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
-          background: rgba(245, 158, 11, 0.8);
+          background: rgba(245, 158, 11, 0.9);
         }
 
         .motion-card {
           backface-visibility: hidden;
           -webkit-font-smoothing: antialiased;
-          transform: translateY(35px) translateZ(0);
+          transform: translateY(30px) translateZ(0);
           opacity: 0;
-          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
-                      box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
                       border-color 0.3s ease, 
                       opacity 0.6s ease;
         }
@@ -271,7 +270,7 @@ export function ResearchSection() {
         }
         
         .research-grid-container .motion-card:hover {
-          transform: translateY(-8px) translateZ(0) !important;
+          transform: translateY(-6px) translateZ(0) !important;
         }
       `}} />
 
@@ -282,13 +281,13 @@ export function ResearchSection() {
           style={{ backgroundImage: `url('images/back21.png')` }} 
         />
       </div>
-      <div className="absolute inset-0 bg-stone-900/50 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-stone-900/55 backdrop-blur-[1px] z-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* 타이틀 구역 */}
         <div 
-          className="mb-16 text-center transition-all duration-1000 transform"
+          className="mb-14 text-center transition-all duration-1000 transform"
           style={{
             transform: isVisible ? "translateY(0)" : "translateY(40px)",
             opacity: isVisible ? 1 : 0
@@ -309,24 +308,20 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 연구활동 카드 구역: 2행(세로 2줄) 고정 + 우측 확장 구조 */}
+        {/* 연구활동 카드 구역: 2행 가로 확장 + 시각적 여백 최적화 */}
         {allPosts.length > 0 && (
           <div 
             ref={scrollContainerRef}
-            className={`horizontal-scroll-container pb-4 transition-all duration-500 ${
+            className={`horizontal-scroll-container px-2 py-4 transition-all duration-500 ${
               isExpanded 
                 ? "overflow-x-auto scroll-smooth" 
                 : "overflow-hidden"
             }`}
           >
             <div 
-              className={`research-grid-container grid grid-rows-2 grid-flow-col gap-6 pt-3 min-w-full ${
+              className={`research-grid-container grid grid-rows-2 grid-flow-col gap-x-7 gap-y-6 min-w-max ${
                 isVisible ? "visible" : ""
               }`}
-              style={{
-                // 각 카드의 너비를 반응형으로 고정하여 2행 가로 배치를 안정적으로 유지
-                gridAutoColumns: "minmax(300px, 1fr)"
-              }}
             >
               {displayPosts.map((post, index) => (
                 <a 
@@ -334,19 +329,19 @@ export function ResearchSection() {
                   href={post.link} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="group flex flex-col justify-between rounded-3xl bg-stone-50/95 p-7 shadow-lg hover:shadow-2xl border border-stone-200/40 hover:border-amber-700/40 motion-card z-10 w-[300px] sm:w-[340px] lg:w-[380px] h-[260px]"
+                  className="group flex flex-col justify-between shrink-0 w-[300px] sm:w-[340px] lg:w-[370px] h-[250px] rounded-2xl bg-white/95 backdrop-blur-md p-6 shadow-md hover:shadow-2xl border border-stone-200/70 hover:border-amber-500/50 motion-card z-10 transition-all duration-300"
                   style={{
                     transitionDelay: isVisible ? "0s" : `${(index % 6) * 0.08}s`,
                   }}
                 >
-                  <div>
+                  <div className="flex-1">
                     {/* 제목 */}
-                    <h3 className="font-serif text-lg font-bold leading-snug text-stone-900 group-hover:text-amber-900 transition-colors line-clamp-2">
+                    <h3 className="font-serif text-[17px] font-bold leading-snug text-stone-900 group-hover:text-amber-800 transition-colors line-clamp-2">
                       {post.title}
                     </h3>
 
                     {/* 본문 요약 */}
-                    <p className="mt-3 font-serif text-[14px] font-normal leading-relaxed text-stone-600 line-clamp-3">
+                    <p className="mt-3 font-serif text-[13.5px] font-normal leading-relaxed text-stone-600 line-clamp-3">
                       {formatDescription(post.description)}
                     </p>
                   </div>
@@ -362,12 +357,12 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 더보기 / 접기 컨트롤 버튼 */}
+        {/* 더보기 / 접기 버튼 */}
         {allPosts.length > 6 && (
-          <div className="mt-10 flex items-center justify-center gap-3 text-center">
+          <div className="mt-8 flex items-center justify-center gap-3 text-center">
             <button 
               onClick={handleToggleExpand} 
-              className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-sm"
+              className="inline-flex items-center gap-2.5 rounded-xl border border-white/30 bg-white/5 px-8 py-3 text-sm font-medium text-white hover:bg-white hover:text-stone-950 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-sm"
             >
               <span>{isExpanded ? "접기" : "더보기"}</span>
               <span className="text-xs transition-transform duration-300">

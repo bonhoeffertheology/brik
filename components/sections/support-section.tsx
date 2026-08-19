@@ -86,8 +86,6 @@ export function SupportSection() {
           {/* 본문 설명 글씨체 색상 강화 */}
           <div className="mt-8 space-y-4 max-w-2xl mx-auto">
             <p className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
-              한국본회퍼연구소의 문서 선교 사역에<br />
-              든든한 동역자가 되어 주십시오.
               한국본회퍼연구소의 문서 선교 사역은 <br />
               한국교회의 회복을 위한 가장 중요한 사역입니다.<br />
               이 귀한 선교사역에 든든한 동역자가 되어 주십시오.

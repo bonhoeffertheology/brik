@@ -1,362 +1,98 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState } from "react"
 
-interface BlogPost {
-  title: string
-  link: string
-  description: string
-  pubDate: string
-}
-
-const CACHE_KEY = "brik_blog_cache"
-const CACHE_DURATION = 10 * 60 * 1000 // 10분
-
-export function ResearchSection() {
+export function SupportSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const bgRef = useRef<HTMLDivElement>(null)
-
   const [isVisible, setIsVisible] = useState(false)
-  const [allPosts, setAllPosts] = useState<BlogPost[]>([])
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
-  const blogId = "jelsayou"
-
-  const getCachedPosts = useCallback((): BlogPost[] | null => {
-    try {
-      if (typeof window === "undefined") return null
-      const cached = localStorage.getItem(CACHE_KEY)
-      if (cached) {
-        const parsed = JSON.parse(cached)
-        if (
-          parsed &&
-          Date.now() - parsed.timestamp < CACHE_DURATION &&
-          Array.isArray(parsed.posts) &&
-          parsed.posts.length > 0
-        ) {
-          return parsed.posts as BlogPost[]
-        }
-      }
-    } catch (_err) {
-      // 캐시 읽기 실패 무시
-    }
-    return null
-  }, [])
-
-  const setCachedPosts = useCallback((posts: BlogPost[]) => {
-    try {
-      if (typeof window === "undefined") return
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ posts, timestamp: Date.now() }))
-    } catch (_err) {
-      // 캐시 저장 실패 무시
-    }
-  }, [])
-
-  const parseRSS = useCallback((xmlText: string): BlogPost[] | null => {
-    try {
-      if (typeof window === "undefined") return null
-      const parser = new DOMParser()
-      const xmlDoc = parser.parseFromString(xmlText, "text/xml")
-      const items = xmlDoc.querySelectorAll("item")
-      if (!items || items.length === 0) return null
-
-      return Array.from(items).map((item) => ({
-        title: item.querySelector("title")?.textContent || "제목 없음",
-        link: item.querySelector("link")?.textContent || `https://blog.naver.com/${blogId}`,
-        description: item.querySelector("description")?.textContent || "",
-        pubDate: item.querySelector("pubDate")?.textContent || new Date().toISOString(),
-      }))
-    } catch (_err) {
-      return null
-    }
-  }, [blogId])
-
-  const fetchWithTimeout = useCallback(async (url: string, timeout = 5000): Promise<string> => {
-    const controller = new AbortController()
-    const timerId = setTimeout(() => controller.abort(), timeout)
-    try {
-      const response = await fetch(url, { signal: controller.signal })
-      clearTimeout(timerId)
-      if (!response.ok) throw new Error("Response not OK")
-      return await response.text()
-    } catch (err) {
-      clearTimeout(timerId)
-      throw err
-    }
-  }, [])
-
-  const loadBlogPosts = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    const cached = getCachedPosts()
-    if (cached) {
-      setAllPosts(cached)
-      setIsLoading(false)
-    }
-
-    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
-    const proxies = [
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-      `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
-    ]
-
-    let fetchedXml: string | null = null
-
-    // Promise.any 타입 호환성 대체 (순차 또는 안전한 병렬 폴백)
-    for (const proxyUrl of proxies) {
-      try {
-        const text = await fetchWithTimeout(proxyUrl)
-        if (text && text.includes("<rss")) {
-          fetchedXml = text
-          break
-        }
-      } catch (_err) {
-        continue
-      }
-    }
-
-    if (fetchedXml) {
-      const posts = parseRSS(fetchedXml)
-      if (posts && posts.length > 0) {
-        setAllPosts(posts)
-        setCachedPosts(posts)
-        setIsLoading(false)
-        return
-      }
-    }
-
-    if (!cached) {
-      setError("최신 글을 불러오는 중 문제가 발생했습니다.")
-      setIsLoading(false)
-    }
-  }, [blogId, getCachedPosts, setCachedPosts, fetchWithTimeout, parseRSS])
-
-  useEffect(() => {
-    loadBlogPosts()
-  }, [loadBlogPosts])
+  // 연구소 후원 계좌 정보
+  const accountNumber = "1002-850-845607"
+  const bankName = "우리은행"
+  const accountHolder = "한국본회퍼연구소"
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) setIsVisible(true)
       },
-      { threshold: 0.1 }
+      { threshold: 0.15 }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
-  // 배경 패럴렉스
-  useEffect(() => {
-    const section = sectionRef.current
-    const bg = bgRef.current
-    if (!section || !bg) return
-
-    let animatedY = -20
-    let targetY = -20
-    let animationFrameId: number
-
-    const handleScroll = () => {
-      const rect = section.getBoundingClientRect()
-      const windowHeight = window.innerHeight
-
-      if (rect.bottom < 0 || rect.top > windowHeight) return
-
-      const totalDistance = windowHeight + rect.height
-      const scrolledDistance = windowHeight - rect.top
-      const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1)
-
-      targetY = -20 + progress * 40
-    }
-
-    const updateParallax = () => {
-      const ease = 0.08
-      animatedY += (targetY - animatedY) * ease
-      bg.style.transform = `translate3d(0, ${animatedY}%, 0)`
-      animationFrameId = requestAnimationFrame(updateParallax)
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    handleScroll()
-    animationFrameId = requestAnimationFrame(updateParallax)
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [])
-
-  const handleToggleExpand = () => {
-    if (isExpanded) {
-      setIsExpanded(false)
-      setTimeout(() => {
-        sectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        })
-      }, 50)
-    } else {
-      setIsExpanded(true)
-    }
-  }
-
-  const formatDate = (dateString: string | undefined | null) => {
-    if (!dateString) return ""
+  const handleCopy = async () => {
     try {
-      const d = new Date(dateString)
-      if (isNaN(d.getTime())) return ""
-      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`
+      await navigator.clipboard.writeText(`${bankName} ${accountNumber} ${accountHolder}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     } catch (_err) {
-      return ""
+      // 복사 실패 시 무시
     }
   }
-
-  const formatDescription = (html: string) => {
-    const text = html.replace(/<[^>]*>/g, "")
-    return text.length > 100 ? text.substring(0, 100) + "..." : text
-  }
-
-  const mainCards = allPosts.slice(0, 6)
-  const extendedPosts = allPosts.slice(6)
 
   return (
     <section
-      id="research"
+      id="support"
       ref={sectionRef}
-      className="relative w-full overflow-hidden py-24 md:py-32 border-x-2 border-white select-none bg-stone-950"
+      className="relative w-full overflow-hidden bg-stone-950 py-24 md:py-32 border-x-2 border-white select-none"
     >
-      {/* 패럴렉스 배경 레이어 */}
-      <div className="absolute inset-x-0 top-[-20%] h-[140%] z-0 will-change-transform" ref={bgRef}>
-        <div
-          className="w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/images/back21.png')" }}
-        />
-      </div>
-      <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px] z-0 pointer-events-none" />
-
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* 상단 타이틀 구역 */}
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        
+        {/* 상단 타이틀 */}
         <div className="mb-14 border-b border-white/10 pb-8 text-center">
           <div className="inline-flex flex-col items-center">
+            <span className="mb-2 font-mono text-xs uppercase tracking-[0.25em] text-amber-400/80">
+              Support & Partnership
+            </span>
             <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              연구활동
+              사역 후원
             </h2>
             <div className="mt-3 h-0.5 w-12 bg-amber-500 relative overflow-hidden">
               <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/80 to-transparent animate-pulse" />
             </div>
           </div>
-
-          <p className="mt-5 font-sans text-sm md:text-base font-light tracking-wide text-stone-200/90 leading-relaxed md:leading-loose">
-            한국본회퍼연구소의 문서 선교 사역은<br />
-            한국교회의 회복을 위한 가장 중요한 사역입니다.<br />
-            이 귀한 선교사역에 든든한 동역자가 되어 주십시오.
+          
+          <p className="mt-5 font-sans text-sm md:text-base font-light tracking-wide text-stone-200/90 leading-relaxed">
+            한국본회퍼연구소의 학술 연구와 문서 선교 사역은<br className="hidden sm:inline" />
+            동역자 여러분의 기도와 소중한 후원으로 이어집니다.
           </p>
         </div>
 
-        {/* 로딩 / 에러 */}
-        {isLoading && allPosts.length === 0 && (
-          <div className="text-center text-white/80 py-16 font-sans">
-            블로그 데이터를 불러오는 중입니다...
-          </div>
-        )}
-        {error && !isLoading && (
-          <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
-        )}
-
-        {/* 1. 기본 3열 × 2행 주요 카드 그리드 */}
-        {mainCards.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-            {mainCards.map((post, index) => (
-              <a
-                key={index}
-                href={post.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`group flex flex-col justify-between rounded-2xl bg-stone-900/40 hover:bg-stone-900/75 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl border border-white/15 hover:border-amber-400/60 transition-all duration-300 hover:-translate-y-1.5 min-h-[220px] ${
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-                }`}
-                style={{
-                  transitionDelay: isVisible ? `${(index % 6) * 0.08}s` : "0s",
-                }}
-              >
-                <div className="flex-1">
-                  <h3 className="font-serif text-[16.5px] font-bold leading-snug text-stone-100 group-hover:text-amber-300 transition-colors line-clamp-2">
-                    {post.title}
-                  </h3>
-                  <p className="mt-3 font-serif text-[13px] font-light leading-relaxed text-stone-300/85 line-clamp-3">
-                    {formatDescription(post.description)}
-                  </p>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-xs font-sans tracking-wider text-stone-400">
-                  <span className="font-medium text-stone-300 group-hover:text-amber-300 transition-colors">
-                    한국본회퍼연구소장
-                  </span>
-                  <span className="text-stone-400/80">{formatDate(post.pubDate)}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
-
-        {/* 2. '더보기' 활성화 시 펼쳐지는 아카이브 리스트 */}
-        {isExpanded && extendedPosts.length > 0 && (
-          <div className="mt-8 rounded-2xl bg-stone-900/30 backdrop-blur-md border border-white/10 p-4 sm:p-6 divide-y divide-white/5">
-            <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
-              이전 연구활동 목록 ({extendedPosts.length})
-            </div>
-
-            <div className="divide-y divide-white/5">
-              {extendedPosts.map((post, index) => {
-                const reverseNumber = allPosts.length - (index + 6)
-
-                return (
-                  <a
-                    key={index}
-                    href={post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3.5 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
-                  >
-                    <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                      <span className="text-amber-500/70 text-xs font-mono shrink-0 pt-0.5 sm:pt-0">
-                        {String(reverseNumber).padStart(2, "0")}
-                      </span>
-                      <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors line-clamp-2 sm:line-clamp-1 break-keep leading-snug">
-                        {post.title}
-                      </h4>
-                    </div>
-
-                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80 pl-7 sm:pl-0">
-                      <span>{formatDate(post.pubDate)}</span>
-                      <span className="text-stone-400 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all">
-                        →
-                      </span>
-                    </div>
-                  </a>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* 3. 더보기 / 접기 토글 버튼 */}
-        {allPosts.length > 6 && (
-          <div className="mt-12 text-center">
-            <button
-              onClick={handleToggleExpand}
-              className="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-black/25 backdrop-blur-md px-8 py-3 text-sm font-medium text-white hover:bg-amber-500 hover:text-stone-950 hover:border-amber-500 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-sm"
-            >
-              <span>{isExpanded ? "목록 접기" : `더보기 (${extendedPosts.length}개 더보기)`}</span>
-              <span className="text-xs transition-transform duration-300">
-                {isExpanded ? "▲" : "▼"}
+        {/* 후원 안내 카드 */}
+        <div
+          className={`rounded-3xl border border-white/15 bg-stone-900/40 p-8 sm:p-12 backdrop-blur-md shadow-2xl transition-all duration-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-3 text-center md:text-left">
+              <span className="inline-block rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 font-mono text-xs font-medium text-amber-300">
+                후원 계좌 안내
               </span>
+              <div className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-wide">
+                {bankName} <span className="font-mono text-amber-400">{accountNumber}</span>
+              </div>
+              <div className="font-sans text-sm text-stone-300">
+                예금주: <strong className="text-white font-medium">{accountHolder}</strong>
+              </div>
+            </div>
+
+            <button
+              onClick={handleCopy}
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-500/50 bg-amber-500/20 hover:bg-amber-500 hover:text-stone-950 px-6 py-3.5 text-sm font-semibold text-amber-300 transition-all duration-200 shadow-md active:scale-95"
+            >
+              <span>{copied ? "계좌번호 복사됨 ✓" : "계좌번호 복사하기"}</span>
             </button>
           </div>
-        )}
+
+          <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs font-sans text-stone-400/80 leading-relaxed">
+            보내주신 후원금은 본회퍼 원전 번역 및 연구 서적 출판, 학술 세미나 사역을 위해 투명하고 정직하게 사용됩니다.
+          </div>
+        </div>
+
       </div>
     </section>
   )

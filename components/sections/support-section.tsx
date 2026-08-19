@@ -12,41 +12,10 @@ interface BlogPost {
 const CACHE_KEY = "brik_blog_cache"
 const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
-const customStyles = `
-  @keyframes customShimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  .animate-shimmer-core {
-    animation: customShimmer 2.5s infinite linear;
-  }
-
-  .motion-card {
-    backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-    transform: translateY(30px) translateZ(0);
-    opacity: 0;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
-                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
-                border-color 0.3s ease, 
-                background-color 0.3s ease, 
-                opacity 0.6s ease;
-  }
-  
-  .research-grid-container.visible .motion-card {
-    opacity: 1;
-    transform: translateY(0) translateZ(0);
-  }
-  
-  .research-grid-container .motion-card:hover {
-    transform: translateY(-6px) translateZ(0) !important;
-  }
-`
-
 export function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
-  
+
   const [isVisible, setIsVisible] = useState(false)
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
@@ -60,12 +29,19 @@ export function ResearchSection() {
       if (typeof window === "undefined") return null
       const cached = localStorage.getItem(CACHE_KEY)
       if (cached) {
-        const { posts, timestamp } = JSON.parse(cached)
-        if (Date.now() - timestamp < CACHE_DURATION && Array.isArray(posts) && posts.length > 0) {
-          return posts as BlogPost[]
+        const parsed = JSON.parse(cached)
+        if (
+          parsed &&
+          Date.now() - parsed.timestamp < CACHE_DURATION &&
+          Array.isArray(parsed.posts) &&
+          parsed.posts.length > 0
+        ) {
+          return parsed.posts as BlogPost[]
         }
       }
-    } catch { /* 무시 */ }
+    } catch (_err) {
+      // 캐시 읽기 실패 무시
+    }
     return null
   }, [])
 
@@ -73,7 +49,9 @@ export function ResearchSection() {
     try {
       if (typeof window === "undefined") return
       localStorage.setItem(CACHE_KEY, JSON.stringify({ posts, timestamp: Date.now() }))
-    } catch { /* 무시 */ }
+    } catch (_err) {
+      // 캐시 저장 실패 무시
+    }
   }, [])
 
   const parseRSS = useCallback((xmlText: string): BlogPost[] | null => {
@@ -82,7 +60,7 @@ export function ResearchSection() {
       const parser = new DOMParser()
       const xmlDoc = parser.parseFromString(xmlText, "text/xml")
       const items = xmlDoc.querySelectorAll("item")
-      if (items.length === 0) return null
+      if (!items || items.length === 0) return null
 
       return Array.from(items).map((item) => ({
         title: item.querySelector("title")?.textContent || "제목 없음",
@@ -90,20 +68,22 @@ export function ResearchSection() {
         description: item.querySelector("description")?.textContent || "",
         pubDate: item.querySelector("pubDate")?.textContent || new Date().toISOString(),
       }))
-    } catch { return null }
+    } catch (_err) {
+      return null
+    }
   }, [blogId])
 
   const fetchWithTimeout = useCallback(async (url: string, timeout = 5000): Promise<string> => {
     const controller = new AbortController()
-    const id = setTimeout(() => controller.abort(), timeout)
+    const timerId = setTimeout(() => controller.abort(), timeout)
     try {
       const response = await fetch(url, { signal: controller.signal })
-      clearTimeout(id)
+      clearTimeout(timerId)
       if (!response.ok) throw new Error("Response not OK")
       return await response.text()
-    } catch (e) {
-      clearTimeout(id)
-      throw e
+    } catch (err) {
+      clearTimeout(timerId)
+      throw err
     }
   }, [])
 
@@ -115,26 +95,42 @@ export function ResearchSection() {
       setAllPosts(cached)
       setIsLoading(false)
     }
-    try {
-      const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
-      const xmlText = await Promise.any([
-        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`),
-        fetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(rssUrl)}`),
-        fetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`),
-      ])
-      const posts = parseRSS(xmlText)
+
+    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
+    const proxies = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+    ]
+
+    let fetchedXml: string | null = null
+
+    // Promise.any 타입 호환성 대체 (순차 또는 안전한 병렬 폴백)
+    for (const proxyUrl of proxies) {
+      try {
+        const text = await fetchWithTimeout(proxyUrl)
+        if (text && text.includes("<rss")) {
+          fetchedXml = text
+          break
+        }
+      } catch (_err) {
+        continue
+      }
+    }
+
+    if (fetchedXml) {
+      const posts = parseRSS(fetchedXml)
       if (posts && posts.length > 0) {
         setAllPosts(posts)
         setCachedPosts(posts)
         setIsLoading(false)
-      } else if (!cached) {
-        throw new Error("파싱 불가")
+        return
       }
-    } catch {
-      if (!cached) {
-        setError("최신 글을 불러오는 중 문제가 발생했습니다.")
-        setIsLoading(false)
-      }
+    }
+
+    if (!cached) {
+      setError("최신 글을 불러오는 중 문제가 발생했습니다.")
+      setIsLoading(false)
     }
   }, [blogId, getCachedPosts, setCachedPosts, fetchWithTimeout, parseRSS])
 
@@ -144,7 +140,9 @@ export function ResearchSection() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true)
+      },
       { threshold: 0.1 }
     )
     if (sectionRef.current) observer.observe(sectionRef.current)
@@ -171,7 +169,7 @@ export function ResearchSection() {
       const scrolledDistance = windowHeight - rect.top
       const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1)
 
-      targetY = -20 + (progress * 40)
+      targetY = -20 + progress * 40
     }
 
     const updateParallax = () => {
@@ -197,7 +195,7 @@ export function ResearchSection() {
       setTimeout(() => {
         sectionRef.current?.scrollIntoView({
           behavior: "smooth",
-          block: "start"
+          block: "start",
         })
       }, 50)
     } else {
@@ -210,8 +208,8 @@ export function ResearchSection() {
     try {
       const d = new Date(dateString)
       if (isNaN(d.getTime())) return ""
-      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
-    } catch {
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`
+    } catch (_err) {
       return ""
     }
   }
@@ -225,35 +223,32 @@ export function ResearchSection() {
   const extendedPosts = allPosts.slice(6)
 
   return (
-    <section 
-      id="research" 
-      ref={sectionRef} 
-      className="relative w-full overflow-hidden py-24 md:py-32 border-x-2 border-white select-none"
+    <section
+      id="research"
+      ref={sectionRef}
+      className="relative w-full overflow-hidden py-24 md:py-32 border-x-2 border-white select-none bg-stone-950"
     >
-      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-
       {/* 패럴렉스 배경 레이어 */}
       <div className="absolute inset-x-0 top-[-20%] h-[140%] z-0 will-change-transform" ref={bgRef}>
-        <div 
-          className="w-full h-full bg-cover bg-center bg-no-repeat" 
-          style={{ backgroundImage: `url('/images/back21.png')` }} 
+        <div
+          className="w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/back21.png')" }}
         />
       </div>
-      <div className="absolute inset-0 bg-stone-950/35 backdrop-blur-[0.5px] z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px] z-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
         {/* 상단 타이틀 구역 */}
         <div className="mb-14 border-b border-white/10 pb-8 text-center">
           <div className="inline-flex flex-col items-center">
             <h2 className="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl">
               연구활동
             </h2>
-            <div className="mt-3 h-0.5 w-12 overflow-hidden bg-amber-500 relative">
-              <div className="absolute inset-0 h-full w-full animate-shimmer-core bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+            <div className="mt-3 h-0.5 w-12 bg-amber-500 relative overflow-hidden">
+              <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/80 to-transparent animate-pulse" />
             </div>
           </div>
-          
+
           <p className="mt-5 font-sans text-sm md:text-base font-light tracking-wide text-stone-200/90 leading-relaxed md:leading-loose">
             한국본회퍼연구소의 문서 선교 사역은<br />
             한국교회의 회복을 위한 가장 중요한 사역입니다.<br />
@@ -263,7 +258,9 @@ export function ResearchSection() {
 
         {/* 로딩 / 에러 */}
         {isLoading && allPosts.length === 0 && (
-          <div className="text-center text-white/80 py-16 font-sans">블로그 데이터를 불러오는 중입니다...</div>
+          <div className="text-center text-white/80 py-16 font-sans">
+            블로그 데이터를 불러오는 중입니다...
+          </div>
         )}
         {error && !isLoading && (
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
@@ -271,16 +268,18 @@ export function ResearchSection() {
 
         {/* 1. 기본 3열 × 2행 주요 카드 그리드 */}
         {mainCards.length > 0 && (
-          <div className={`research-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2 ${isVisible ? "visible" : ""}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
             {mainCards.map((post, index) => (
-              <a 
-                key={index} 
-                href={post.link} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="group flex flex-col justify-between rounded-2xl bg-stone-900/40 hover:bg-stone-900/70 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl border border-white/15 hover:border-amber-400/60 motion-card min-h-[220px]"
+              <a
+                key={index}
+                href={post.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`group flex flex-col justify-between rounded-2xl bg-stone-900/40 hover:bg-stone-900/75 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl border border-white/15 hover:border-amber-400/60 transition-all duration-300 hover:-translate-y-1.5 min-h-[220px] ${
+                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                }`}
                 style={{
-                  transitionDelay: isVisible ? "0s" : `${(index % 6) * 0.08}s`,
+                  transitionDelay: isVisible ? `${(index % 6) * 0.08}s` : "0s",
                 }}
               >
                 <div className="flex-1">
@@ -293,7 +292,9 @@ export function ResearchSection() {
                 </div>
 
                 <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-xs font-sans tracking-wider text-stone-400">
-                  <span className="font-medium text-stone-300 group-hover:text-amber-300 transition-colors">한국본회퍼연구소장</span>
+                  <span className="font-medium text-stone-300 group-hover:text-amber-300 transition-colors">
+                    한국본회퍼연구소장
+                  </span>
                   <span className="text-stone-400/80">{formatDate(post.pubDate)}</span>
                 </div>
               </a>
@@ -307,11 +308,11 @@ export function ResearchSection() {
             <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
               이전 연구활동 목록 ({extendedPosts.length})
             </div>
-            
+
             <div className="divide-y divide-white/5">
               {extendedPosts.map((post, index) => {
-                const reverseNumber = allPosts.length - (index + 6);
-                
+                const reverseNumber = allPosts.length - (index + 6)
+
                 return (
                   <a
                     key={index}
@@ -322,7 +323,7 @@ export function ResearchSection() {
                   >
                     <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
                       <span className="text-amber-500/70 text-xs font-mono shrink-0 pt-0.5 sm:pt-0">
-                        {String(reverseNumber).padStart(2, '0')}
+                        {String(reverseNumber).padStart(2, "0")}
                       </span>
                       <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors line-clamp-2 sm:line-clamp-1 break-keep leading-snug">
                         {post.title}
@@ -336,7 +337,7 @@ export function ResearchSection() {
                       </span>
                     </div>
                   </a>
-                );
+                )
               })}
             </div>
           </div>
@@ -345,8 +346,8 @@ export function ResearchSection() {
         {/* 3. 더보기 / 접기 토글 버튼 */}
         {allPosts.length > 6 && (
           <div className="mt-12 text-center">
-            <button 
-              onClick={handleToggleExpand} 
+            <button
+              onClick={handleToggleExpand}
               className="inline-flex items-center gap-2.5 rounded-xl border border-white/20 bg-black/25 backdrop-blur-md px-8 py-3 text-sm font-medium text-white hover:bg-amber-500 hover:text-stone-950 hover:border-amber-500 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-sm"
             >
               <span>{isExpanded ? "목록 접기" : `더보기 (${extendedPosts.length}개 더보기)`}</span>
@@ -356,7 +357,6 @@ export function ResearchSection() {
             </button>
           </div>
         )}
-
       </div>
     </section>
   )

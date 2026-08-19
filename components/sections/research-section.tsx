@@ -138,14 +138,14 @@ export function ResearchSection() {
       const progress = Math.min(Math.max(scrolledDistance / totalDistance, 0), 1)
 
       targetY = -20 + (progress * 40)
-    };
+    }
 
     const updateParallax = () => {
       const ease = 0.08
       animatedY += (targetY - animatedY) * ease
       bg.style.transform = `translate3d(0, ${animatedY}%, 0)`
       animationFrameId = requestAnimationFrame(updateParallax)
-    };
+    }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
     handleScroll()
@@ -154,7 +154,7 @@ export function ResearchSection() {
     return () => {
       window.removeEventListener("scroll", handleScroll)
       cancelAnimationFrame(animationFrameId)
-    };
+    }
   }, [])
 
   const handleToggleExpand = () => {
@@ -214,7 +214,7 @@ export function ResearchSection() {
           transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
                       box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
                       border-color 0.3s ease, 
-                      background-color 0.3s ease,
+                      background-color 0.3s ease, 
                       opacity 0.6s ease;
         }
         
@@ -298,7 +298,7 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 2. '더보기' 활성화 시 펼쳐지는 슬림한 제목 아카이브 리스트 */}
+        {/* 2. '더보기' 활성화 시 펼쳐지는 아카이브 리스트 */}
         {isExpanded && extendedPosts.length > 0 && (
           <div className="mt-8 rounded-2xl bg-stone-900/30 backdrop-blur-md border border-white/10 p-4 sm:p-6 divide-y divide-white/5 animate-fadeIn">
             <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
@@ -307,7 +307,6 @@ export function ResearchSection() {
             
             <div className="divide-y divide-white/5">
               {extendedPosts.map((post, index) => {
-                // 전체 포스트 기준 역순 번호 계산 (가장 오래된 첫 글이 01번)
                 const reverseNumber = allPosts.length - (index + 6);
                 
                 return (
@@ -316,20 +315,20 @@ export function ResearchSection() {
                     href={post.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
+                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3.5 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
                   >
-                    {/* 역순 번호 & 제목 */}
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <span className="text-amber-500/70 text-xs font-mono shrink-0">
+                    {/* 역순 번호 & 제목 (모바일 2줄 표시) */}
+                    <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                      <span className="text-amber-500/70 text-xs font-mono shrink-0 pt-0.5 sm:pt-0">
                         {String(reverseNumber).padStart(2, '0')}
                       </span>
-                      <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors truncate">
+                      <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors line-clamp-2 sm:line-clamp-1 break-keep leading-snug">
                         {post.title}
                       </h4>
                     </div>
 
                     {/* 날짜 및 바로가기 */}
-                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80 pl-7 sm:pl-0">
                       <span>{formatDate(post.pubDate)}</span>
                       <span className="text-stone-400 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all">
                         →

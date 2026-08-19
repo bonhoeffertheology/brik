@@ -235,7 +235,8 @@ export function ResearchSection() {
           style={{ backgroundImage: `url('images/back21.png')` }} 
         />
       </div>
-      <div className="absolute inset-0 bg-stone-950/35 backdrop-blur-[0.5px] z-0 pointer-events-none" />
+      {/* 배경 밝기 조정 (어두운 오버레이 농도 축소) */}
+      <div className="absolute inset-0 bg-stone-950/15 backdrop-blur-[0.5px] z-0 pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 

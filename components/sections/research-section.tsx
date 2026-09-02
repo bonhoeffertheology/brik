@@ -9,7 +9,8 @@ interface BlogPost {
   pubDate: string
 }
 
-const CACHE_KEY = "brik_blog_cache"
+// 캐시 키 버전을 올려 기존 10개 캐시 강제 무효화
+const CACHE_KEY = "brik_blog_cache_v2"
 const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
@@ -53,7 +54,7 @@ export function ResearchSection() {
       const dom = parser.parseFromString(`<!doctype html><body>${text}`, "text/html")
       return dom.body.textContent || ""
     } catch {
-      return text.replace(/<[^>]*>/g, "")
+      return text.replace(/<[^>]*>/g, "").trim()
     }
   }
 
@@ -102,57 +103,71 @@ export function ResearchSection() {
     setError(null)
 
     const cached = getCachedPosts()
-    if (cached) {
+    if (cached && cached.length > 10) {
       setAllPosts(cached)
       setIsLoading(false)
+      return
     }
 
-    // 네이버 RSS 최대 요청 건수 파라미터 추가
-    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml?count=100`
-
-    // 1. Next.js 내부 API 라우트 우선 확인
+    // 1. 네이버 블로그 전체 포스트 목록 API 호출 (최대 100개 이상 글 전체 취합)
     try {
-      const localRes = await fetchWithTimeout("/api/blog-rss", 3000)
-      if (localRes.ok) {
-        const text = await localRes.text()
-        const parsed = parseXML(text)
-        if (parsed && parsed.length > 0) {
-          setAllPosts(parsed)
-          setCachedPosts(parsed)
-          setIsLoading(false)
-          return
+      const naverListUrl = `https://blog.naver.com/PostTitleListAsync.naver?blogId=${blogId}&countPerPage=100&currentPage=1`
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(naverListUrl)}`
+      
+      const res = await fetchWithTimeout(proxyUrl, 6000)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.contents) {
+          // JSON 포맷 정규화
+          const cleanedJson = data.contents.replace(/\\'/g, "'").trim()
+          const parsedData = JSON.parse(cleanedJson)
+          
+          if (parsedData.postList && Array.isArray(parsedData.postList) && parsedData.postList.length > 0) {
+            const fullPosts: BlogPost[] = parsedData.postList.map((item: any) => {
+              const decodedTitle = decodeURIComponent((item.title || "제목 없음").replace(/\+/g, " "))
+              const dateRaw = item.addDate || ""
+              
+              return {
+                title: decodeHtml(decodedTitle),
+                link: `https://blog.naver.com/${blogId}/${item.logNo}`,
+                description: "한국본회퍼연구소 연구 자료 및 사상 나눔 글입니다.",
+                pubDate: dateRaw ? new Date(dateRaw).toISOString() : new Date().toISOString(),
+              }
+            })
+
+            // 기존 RSS의 설명(요약문)과 결합하여 상위 글에 상세 설명 유지
+            const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
+            try {
+              const rssRes = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`, 4000)
+              if (rssRes.ok) {
+                const rssXml = await rssRes.text()
+                const rssPosts = parseXML(rssXml)
+                if (rssPosts) {
+                  rssPosts.forEach((rp) => {
+                    const match = fullPosts.find(fp => fp.link === rp.link || fp.title === rp.title)
+                    if (match && rp.description) {
+                      match.description = rp.description
+                    }
+                  })
+                }
+              }
+            } catch {
+              /* RSS 보조 설명 결합 실패 시 기존 데이터 사용 */
+            }
+
+            setAllPosts(fullPosts)
+            setCachedPosts(fullPosts)
+            setIsLoading(false)
+            return
+          }
         }
       }
     } catch {
-      /* 내부 API 부재 시 프록시 폴백 */
+      /* 포스트 리스트 API 실패 시 기본 RSS 프록시로 폴백 */
     }
 
-    // 2. RSS to JSON API 호출 (count=100 적용)
-    try {
-      const jsonRes = await fetchWithTimeout(
-        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=100`,
-        5000
-      )
-      if (jsonRes.ok) {
-        const data = await jsonRes.json()
-        if (data.status === "ok" && Array.isArray(data.items) && data.items.length > 0) {
-          const parsed: BlogPost[] = data.items.map((item: any) => ({
-            title: decodeHtml(item.title || "제목 없음"),
-            link: item.link || `https://blog.naver.com/${blogId}`,
-            description: decodeHtml(item.description || ""),
-            pubDate: item.pubDate || new Date().toISOString(),
-          }))
-          setAllPosts(parsed)
-          setCachedPosts(parsed)
-          setIsLoading(false)
-          return
-        }
-      }
-    } catch {
-      /* 다음 프록시 시도 */
-    }
-
-    // 3. Raw XML CORS 프록시 다중 시도
+    // 2. RSS 기반 다중 폴백
+    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
     const proxyUrls = [
       `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
       `https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`,
@@ -176,7 +191,10 @@ export function ResearchSection() {
       }
     }
 
-    if (!cached) {
+    if (cached) {
+      setAllPosts(cached)
+      setIsLoading(false)
+    } else {
       setError("글 목록을 불러오는 중 문제가 발생했습니다.")
       setIsLoading(false)
     }
@@ -344,7 +362,7 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 1. 기본 3열 × 2행 (총 6개) 주요 카드 그리드 */}
+        {/* 1. 기본 3열 × 2행 (상위 6개) 주요 카드 그리드 */}
         {mainCards.length > 0 && (
           <div
             className={`research-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2 ${
@@ -383,7 +401,7 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 2. '더보기' 활성화 시 펼쳐지는 아카이브 리스트 */}
+        {/* 2. '더보기' 활성화 시 펼쳐지는 전체 아카이브 리스트 */}
         {isExpanded && extendedPosts.length > 0 && (
           <div className="mt-8 rounded-2xl bg-stone-900/30 backdrop-blur-md border border-white/10 p-4 sm:p-6 divide-y divide-white/5 animate-fadeIn">
             <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">

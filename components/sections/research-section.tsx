@@ -107,9 +107,10 @@ export function ResearchSection() {
       setIsLoading(false)
     }
 
-    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
+    // 네이버 RSS 최대 요청 건수 파라미터 추가
+    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml?count=100`
 
-    // 1. Next.js 내부 API 라우트가 존재할 경우 우선 시도
+    // 1. Next.js 내부 API 라우트 우선 확인
     try {
       const localRes = await fetchWithTimeout("/api/blog-rss", 3000)
       if (localRes.ok) {
@@ -123,13 +124,13 @@ export function ResearchSection() {
         }
       }
     } catch {
-      /* 내부 API 부재 시 외부 다중 프록시로 순차 폴백 */
+      /* 내부 API 부재 시 프록시 폴백 */
     }
 
-    // 2. RSS to JSON 공용 API 시도
+    // 2. RSS to JSON API 호출 (count=100 적용)
     try {
       const jsonRes = await fetchWithTimeout(
-        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=100`,
         5000
       )
       if (jsonRes.ok) {
@@ -175,9 +176,8 @@ export function ResearchSection() {
       }
     }
 
-    // 모든 시도 실패 시
     if (!cached) {
-      setError("연구활동 글 목록을 불러오는 중 문제가 발생했습니다.")
+      setError("글 목록을 불러오는 중 문제가 발생했습니다.")
       setIsLoading(false)
     }
   }, [blogId, getCachedPosts, setCachedPosts, parseXML])
@@ -387,7 +387,7 @@ export function ResearchSection() {
         {isExpanded && extendedPosts.length > 0 && (
           <div className="mt-8 rounded-2xl bg-stone-900/30 backdrop-blur-md border border-white/10 p-4 sm:p-6 divide-y divide-white/5 animate-fadeIn">
             <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
-              이전 연구활동 목록 ({extendedPosts.length})
+              이전 글 목록 ({extendedPosts.length})
             </div>
 
             <div className="divide-y divide-white/5">

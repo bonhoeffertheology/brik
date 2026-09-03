@@ -9,7 +9,7 @@ interface BlogPost {
   pubDate: string
 }
 
-const CACHE_KEY = "brik_blog_cache_v3"
+const CACHE_KEY = "brik_blog_cache_stable_v6"
 const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
@@ -130,7 +130,7 @@ export function ResearchSection() {
     try {
       const jsonRes = await fetchWithTimeout(
         `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
-        4000
+        4500
       )
       if (jsonRes.ok) {
         const data = await jsonRes.json()
@@ -151,10 +151,10 @@ export function ResearchSection() {
       /* 다음 단계 진행 */
     }
 
-    // 3. allorigins JSON 프록시 시도
+    // 3. allorigins 프록시 시도
     try {
       const allOriginsRes = await fetchWithTimeout(
-        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}&timestamp=${Date.now()}`,
         5000
       )
       if (allOriginsRes.ok) {
@@ -190,7 +190,7 @@ export function ResearchSection() {
         }
       }
     } catch {
-      /* 실패 시 캐시 유지 또는 에러 처리 */
+      /* 실패 시 캐시 데이터 유지 */
     }
 
     if (!cached) {
@@ -324,6 +324,20 @@ export function ResearchSection() {
         .research-grid-container .motion-card:hover {
           transform: translateY(-6px) translateZ(0) !important;
         }
+
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-card-appear {
+          animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
       `,
         }}
       />
@@ -361,7 +375,7 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 1. 기본 3열 × 2행 (상위 6개) 주요 카드 그리드 */}
+        {/* 1. 기본 상위 6개 주요 카드 그리드 */}
         {mainCards.length > 0 && (
           <div
             className={`research-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2 ${
@@ -400,43 +414,71 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 2. '더보기' 활성화 시 펼쳐지는 아카이브 리스트 */}
-        {isExpanded && extendedPosts.length > 0 && (
-          <div className="mt-8 rounded-2xl bg-stone-900/30 backdrop-blur-md border border-white/10 p-4 sm:p-6 divide-y divide-white/5 animate-fadeIn">
-            <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
+        {/* 2. '더보기' 활성화 시 펼쳐지는 추가 카드 배너 그리드 + '더 많은 글들' 카드 */}
+        {isExpanded && (
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="mb-6 px-1 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
               이전 글 목록 ({extendedPosts.length})
             </div>
 
-            <div className="divide-y divide-white/5">
-              {extendedPosts.map((post, index) => {
-                const reverseNumber = allPosts.length - (index + 6)
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {extendedPosts.map((post, index) => (
+                <a
+                  key={`ext-${index}`}
+                  href={post.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="animate-card-appear group flex flex-col justify-between rounded-2xl bg-stone-900/40 hover:bg-stone-900/70 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl border border-white/15 hover:border-amber-400/60 min-h-[220px] transition-all duration-300 transform hover:-translate-y-1.5"
+                  style={{
+                    animationDelay: `${(index % 6) * 0.05}s`,
+                  }}
+                >
+                  <div className="flex-1">
+                    <h3 className="font-serif text-[16.5px] font-bold leading-snug text-stone-100 group-hover:text-amber-300 transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
 
-                return (
-                  <a
-                    key={index}
-                    href={post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3.5 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
-                  >
-                    <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                      <span className="text-amber-500/70 text-xs font-mono shrink-0 pt-0.5 sm:pt-0">
-                        {String(reverseNumber).padStart(2, "0")}
-                      </span>
-                      <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors line-clamp-2 sm:line-clamp-1 break-keep leading-snug">
-                        {post.title}
-                      </h4>
-                    </div>
+                    <p className="mt-3 font-serif text-[13px] font-light leading-relaxed text-stone-300/85 line-clamp-3">
+                      {formatDescription(post.description)}
+                    </p>
+                  </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80 pl-7 sm:pl-0">
-                      <span>{formatDate(post.pubDate)}</span>
-                      <span className="text-stone-400 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all">
-                        →
-                      </span>
-                    </div>
-                  </a>
-                )
-              })}
+                  <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-xs font-sans tracking-wider text-stone-400">
+                    <span className="font-medium text-stone-300 group-hover:text-amber-300 transition-colors">
+                      한국본회퍼연구소장
+                    </span>
+                    <span className="text-stone-400/80">{formatDate(post.pubDate)}</span>
+                  </div>
+                </a>
+              ))}
+
+              {/* 동일한 모양의 '더 많은 글들' 바로가기 배너 카드 */}
+              <a
+                href={`https://blog.naver.com/${blogId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="animate-card-appear group flex flex-col justify-between rounded-2xl bg-stone-900/50 hover:bg-amber-950/30 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl border border-amber-500/30 hover:border-amber-400 min-h-[220px] transition-all duration-300 transform hover:-translate-y-1.5"
+                style={{
+                  animationDelay: `${(extendedPosts.length % 6) * 0.05}s`,
+                }}
+              >
+                <div className="flex-1 flex flex-col justify-center">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                    <h3 className="font-serif text-lg font-bold text-amber-300 group-hover:text-amber-200 transition-colors">
+                      더 많은 글들
+                    </h3>
+                  </div>
+                  <p className="mt-3 font-serif text-[13px] font-light leading-relaxed text-stone-300/85">
+                    한국본회퍼연구소 공식 네이버 블로그에서 연구소의 전체 글과 사상 나눔 자료를 모두 확인하실 수 있습니다.
+                  </p>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-xs font-sans tracking-wider text-amber-400 group-hover:text-amber-300">
+                  <span className="font-medium">공식 블로그 바로가기</span>
+                  <span className="text-base group-hover:translate-x-1 transition-transform">→</span>
+                </div>
+              </a>
             </div>
           </div>
         )}
@@ -455,29 +497,6 @@ export function ResearchSection() {
             </button>
           </div>
         )}
-
-        {/* 4. '더 많은 글들' 하단 배너 */}
-        <div className="mt-10">
-          <a
-            href={`https://blog.naver.com/${blogId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative flex items-center justify-between overflow-hidden rounded-2xl bg-stone-900/60 hover:bg-stone-900/90 backdrop-blur-md p-6 sm:p-8 border border-white/20 hover:border-amber-400 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            <div className="relative z-10 flex flex-col">
-              <span className="text-xs font-sans tracking-widest text-amber-400 uppercase font-medium mb-1">
-                BONHOEFFER RESEARCH ARCHIVE
-              </span>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-white group-hover:text-amber-300 transition-colors">
-                더 많은 글들
-              </h3>
-            </div>
-            <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-full bg-white/10 group-hover:bg-amber-500 group-hover:text-stone-950 text-white transition-all duration-300 shrink-0">
-              <span className="text-lg transform group-hover:translate-x-0.5 transition-transform">→</span>
-            </div>
-          </a>
-        </div>
       </div>
     </section>
   )

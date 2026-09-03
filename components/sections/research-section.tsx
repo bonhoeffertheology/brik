@@ -9,7 +9,7 @@ interface BlogPost {
   pubDate: string
 }
 
-const CACHE_KEY = "brik_blog_cache_full_v4"
+const CACHE_KEY = "brik_blog_cache_stable_v5"
 const CACHE_DURATION = 10 * 60 * 1000 // 10분
 
 export function ResearchSection() {
@@ -84,7 +84,7 @@ export function ResearchSection() {
     }
   }, [blogId])
 
-  const fetchWithTimeout = async (url: string, timeout = 7000): Promise<Response> => {
+  const fetchWithTimeout = async (url: string, timeout = 5000): Promise<Response> => {
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
     try {
@@ -107,99 +107,90 @@ export function ResearchSection() {
       setIsLoading(false)
     }
 
-    // 1. 네이버 블로그 전체보기 글 목록(PostTitleListAsync) 호출 (최대 100개 글 목록 로드)
-    const targetUrl = `https://blog.naver.com/PostTitleListAsync.naver?blogId=${blogId}&viewdate=&currentPage=1&categoryNo=0&parentCategoryNo=0&countPerPage=100`
-    
-    // allorigins get 프록시 (JSON Wrapper)
+    const rssUrl = `https://rss.blog.naver.com/${blogId}.xml?count=30`
+
+    // 1. Next.js 내부 API 라우트 우선 확인
     try {
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&timestamp=${Date.now()}`
-      const res = await fetchWithTimeout(proxyUrl, 6000)
-      
-      if (res.ok) {
-        const data = await res.json()
-        if (data && data.contents) {
-          // 네이버 비동기 API가 반환하는 JSON 형태 파싱
-          const rawContents = data.contents.replace(/\\'/g, "'").trim()
-          const json = JSON.parse(rawContents)
-
-          if (json && Array.isArray(json.postList) && json.postList.length > 0) {
-            const parsedPosts: BlogPost[] = json.postList.map((item: any) => {
-              let title = item.title || "제목 없음"
-              try {
-                title = decodeURIComponent(title.replace(/\+/g, " "))
-              } catch {
-                /* 디코딩 오류 시 원문 유지 */
-              }
-
-              const logNo = item.logNo || ""
-              const rawDate = item.addDate || ""
-
-              return {
-                title: decodeHtml(title),
-                link: `https://blog.naver.com/${blogId}/${logNo}`,
-                description: "한국본회퍼연구소 연구 자료 및 신학 사상 나눔 글입니다.",
-                pubDate: rawDate ? new Date(rawDate.replace(/\./g, "-")).toISOString() : new Date().toISOString(),
-              }
-            })
-
-            // 상위 10개 글에 대해 RSS를 추가 조회하여 상세 본문 요약문 덮어쓰기 (카드 UI용)
-            try {
-              const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
-              const rssRes = await fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`, 3000)
-              if (rssRes.ok) {
-                const rssXml = await rssRes.text()
-                const rssPosts = parseXML(rssXml)
-                if (rssPosts) {
-                  rssPosts.forEach((rp) => {
-                    const found = parsedPosts.find((p) => p.link.includes(rp.link) || rp.link.includes(p.link) || p.title === rp.title)
-                    if (found && rp.description) {
-                      found.description = rp.description
-                    }
-                  })
-                }
-              }
-            } catch {
-              /* RSS 본문 요약 보충 실패 시 기본 설명 유지 */
-            }
-
-            setAllPosts(parsedPosts)
-            setCachedPosts(parsedPosts)
-            setIsLoading(false)
-            return
-          }
+      const localRes = await fetchWithTimeout("/api/blog-rss", 2500)
+      if (localRes.ok) {
+        const text = await localRes.text()
+        const parsed = parseXML(text)
+        if (parsed && parsed.length > 0) {
+          setAllPosts(parsed)
+          setCachedPosts(parsed)
+          setIsLoading(false)
+          return
         }
       }
     } catch {
-      /* 프록시 실패 시 RSS 단독 폴백 진행 */
+      /* 다음 단계 진행 */
     }
 
-    // 2. 만약 포스트 목록 API가 차단되었을 경우 기존 RSS 폴백
+    // 2. rss2json API 시도 (가장 빠른 응답성)
     try {
-      const rssUrl = `https://rss.blog.naver.com/${blogId}.xml`
-      const proxyList = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-        `https://corsproxy.io/?url=${encodeURIComponent(rssUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
-      ]
-
-      for (const pUrl of proxyList) {
-        try {
-          const res = await fetchWithTimeout(pUrl, 4000)
-          if (!res.ok) continue
-          const xml = await res.text()
-          const posts = parseXML(xml)
-          if (posts && posts.length > 0) {
-            setAllPosts(posts)
-            setCachedPosts(posts)
-            setIsLoading(false)
-            return
-          }
-        } catch {
-          continue
+      const jsonRes = await fetchWithTimeout(
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`,
+        4500
+      )
+      if (jsonRes.ok) {
+        const data = await jsonRes.json()
+        if (data.status === "ok" && Array.isArray(data.items) && data.items.length > 0) {
+          const parsed: BlogPost[] = data.items.map((item: any) => ({
+            title: decodeHtml(item.title || "제목 없음"),
+            link: item.link || `https://blog.naver.com/${blogId}`,
+            description: decodeHtml(item.description || ""),
+            pubDate: item.pubDate || new Date().toISOString(),
+          }))
+          setAllPosts(parsed)
+          setCachedPosts(parsed)
+          setIsLoading(false)
+          return
         }
       }
     } catch {
-      /* 무시 */
+      /* 다음 단계 진행 */
+    }
+
+    // 3. allorigins 프록시 시도
+    try {
+      const allOriginsRes = await fetchWithTimeout(
+        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}&timestamp=${Date.now()}`,
+        5000
+      )
+      if (allOriginsRes.ok) {
+        const data = await allOriginsRes.json()
+        if (data.contents) {
+          const parsed = parseXML(data.contents)
+          if (parsed && parsed.length > 0) {
+            setAllPosts(parsed)
+            setCachedPosts(parsed)
+            setIsLoading(false)
+            return
+          }
+        }
+      }
+    } catch {
+      /* 다음 단계 진행 */
+    }
+
+    // 4. codetabs 프록시 시도
+    try {
+      const codetabsRes = await fetchWithTimeout(
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+        5000
+      )
+      if (codetabsRes.ok) {
+        const xmlText = await codetabsRes.text()
+        const parsed = parseXML(xmlText)
+        if (parsed && parsed.length > 0) {
+          setAllPosts(parsed)
+          setCachedPosts(parsed)
+          setIsLoading(false)
+          return
+        }
+      }
+    } catch {
+      /* 실패 시 캐시 데이터 유지 또는 에러 노출 */
     }
 
     if (!cached) {
@@ -293,6 +284,7 @@ export function ResearchSection() {
     return clean.length > 95 ? clean.substring(0, 95) + "..." : clean
   }
 
+  // 상위 6개 기본 표시, 더보기 클릭 시 표시할 나머지 글
   const mainCards = allPosts.slice(0, 6)
   const extendedPosts = allPosts.slice(6)
 
@@ -333,6 +325,20 @@ export function ResearchSection() {
         .research-grid-container .motion-card:hover {
           transform: translateY(-6px) translateZ(0) !important;
         }
+
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-card-appear {
+          animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
       `,
         }}
       />
@@ -370,7 +376,7 @@ export function ResearchSection() {
           <div className="text-center text-amber-400 py-16 font-sans">{error}</div>
         )}
 
-        {/* 1. 기본 3열 × 2행 (상위 6개) 주요 카드 그리드 */}
+        {/* 1. 기본 상위 6개 주요 카드 그리드 */}
         {mainCards.length > 0 && (
           <div
             className={`research-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2 ${
@@ -409,43 +415,43 @@ export function ResearchSection() {
           </div>
         )}
 
-        {/* 2. '더보기' 활성화 시 펼쳐지는 전체 아카이브 리스트 */}
+        {/* 2. '더보기' 활성화 시 동일한 카드 배너 형태로 펼쳐지는 이전 글 그리드 */}
         {isExpanded && extendedPosts.length > 0 && (
-          <div className="mt-8 rounded-2xl bg-stone-900/30 backdrop-blur-md border border-white/10 p-4 sm:p-6 divide-y divide-white/5 animate-fadeIn">
-            <div className="pb-3 px-3 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="mb-6 px-1 text-xs font-sans font-medium text-amber-400/90 tracking-wider">
               이전 글 목록 ({extendedPosts.length})
             </div>
 
-            <div className="divide-y divide-white/5 max-h-[600px] overflow-y-auto pr-1">
-              {extendedPosts.map((post, index) => {
-                const reverseNumber = allPosts.length - (index + 6)
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {extendedPosts.map((post, index) => (
+                <a
+                  key={`ext-${index}`}
+                  href={post.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="animate-card-appear group flex flex-col justify-between rounded-2xl bg-stone-900/40 hover:bg-stone-900/70 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl border border-white/15 hover:border-amber-400/60 min-h-[220px] transition-all duration-300 transform hover:-translate-y-1.5"
+                  style={{
+                    animationDelay: `${(index % 6) * 0.05}s`,
+                  }}
+                >
+                  <div className="flex-1">
+                    <h3 className="font-serif text-[16.5px] font-bold leading-snug text-stone-100 group-hover:text-amber-300 transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
 
-                return (
-                  <a
-                    key={index}
-                    href={post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-3.5 px-3 rounded-xl hover:bg-white/5 transition-all duration-200"
-                  >
-                    <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                      <span className="text-amber-500/70 text-xs font-mono shrink-0 pt-0.5 sm:pt-0">
-                        {String(reverseNumber).padStart(2, "0")}
-                      </span>
-                      <h4 className="font-serif text-[15px] font-medium text-stone-200 group-hover:text-amber-300 transition-colors line-clamp-2 sm:line-clamp-1 break-keep leading-snug">
-                        {post.title}
-                      </h4>
-                    </div>
+                    <p className="mt-3 font-serif text-[13px] font-light leading-relaxed text-stone-300/85 line-clamp-3">
+                      {formatDescription(post.description)}
+                    </p>
+                  </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 text-xs font-sans text-stone-400/80 pl-7 sm:pl-0">
-                      <span>{formatDate(post.pubDate)}</span>
-                      <span className="text-stone-400 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all">
-                        →
-                      </span>
-                    </div>
-                  </a>
-                )
-              })}
+                  <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-xs font-sans tracking-wider text-stone-400">
+                    <span className="font-medium text-stone-300 group-hover:text-amber-300 transition-colors">
+                      한국본회퍼연구소장
+                    </span>
+                    <span className="text-stone-400/80">{formatDate(post.pubDate)}</span>
+                  </div>
+                </a>
+              ))}
             </div>
           </div>
         )}

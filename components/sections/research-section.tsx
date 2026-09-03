@@ -470,7 +470,7 @@ export function ResearchSection() {
                     </h3>
                   </div>
                   <p className="mt-3 font-serif text-[13px] font-light leading-relaxed text-stone-300/85">
-                    한국본회퍼연구소 공식 네이버 블로그에서 연구소의 전체 글과 사상 나눔 자료를 모두 확인하실 수 있습니다.
+                    한국본회퍼연구소 공식 블로그에서 연구소의 전체 글들을 모두 확인하실 수 있습니다.
                   </p>
                 </div>
 

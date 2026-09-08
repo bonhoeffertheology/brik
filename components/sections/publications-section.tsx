@@ -164,7 +164,7 @@ export function PublicationsSection() {
                     {hasLink ? (
                       <>책을 클릭하시면<br />구매 사이트로 이동합니다</>
                     ) : (
-                      <>출간 예정 도서입니다</>
+                      <>추가 교정 작업중 입니다</>
                     )}
                   </p>
                 </div>

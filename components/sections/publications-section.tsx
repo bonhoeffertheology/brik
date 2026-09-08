@@ -9,6 +9,8 @@ interface PublicationBook {
   ebookLink?: string; 
 }
 
+const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
+
 /* 💡 navBtnClass: 책 표지가 15% 작아짐에 따라 버튼의 세로 정중앙 영점을 top-[41%]로 정밀 리밸런싱 */
 const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
@@ -17,12 +19,13 @@ export function PublicationsSection() {
     { title: "그리스도를 따라서 (1권)", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { 
       title: "그리스도를 따라서 (2권)", 
-      imageSrc: "images/vol2.jpg" // 링크 없음 (광고용 전용)
+      imageSrc: "images/vol2.jpg" // 링크 없음 (광고 전용 도서)
     },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -69,6 +72,7 @@ export function PublicationsSection() {
   }, []);
 
   const rotate = (dir: 1 | -1) => {
+    setActiveIdx(null);
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
@@ -113,6 +117,7 @@ export function PublicationsSection() {
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : 1;
             const hasLink = Boolean(book.purchaseLink || book.ebookLink);
+            const isActive = isCenter && activeIdx === i && hasLink;
 
             return (
               <div 
@@ -131,10 +136,9 @@ export function PublicationsSection() {
                   if (offset === 1) rotate(1);
                   else if (offset === books.length - 1) rotate(-1);
                   else {
-                    // 구매 링크가 존재하는 도서만 새 탭 이동 (2권처럼 없으면 동작 안함)
-                    const targetLink = book.purchaseLink || book.ebookLink;
-                    if (targetLink) {
-                      window.open(targetLink, "_blank", "noopener,noreferrer");
+                    // 링크가 있는 책만 오버레이 토글 (2권은 링크가 없으므로 반응 안 함)
+                    if (hasLink) {
+                      setActiveIdx(activeIdx === i ? null : i);
                     }
                   }
                 }}
@@ -143,15 +147,26 @@ export function PublicationsSection() {
                   <img 
                     src={book.imageSrc} 
                     alt={book.title} 
-                    className={`w-full h-full object-cover transition-transform duration-300 ${
-                      hasLink ? "hover:scale-105" : ""
-                    }`}
+                    className="w-full h-full object-cover" 
                     style={{ 
                       imageRendering: "-webkit-optimize-contrast",
                       WebkitTransform: "translateZ(0) scale(1.0001)",
                       transform: "translateZ(0) scale(1.0001)"
                     }}
                   />
+
+                  {/* 구매 링크가 존재하는 책만 오버레이가 올라옴 */}
+                  {hasLink && (
+                    <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
+                      <p className="text-white text-sm font-serif text-center">{book.title}</p>
+                      {book.purchaseLink && (
+                        <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>
+                      )}
+                      {book.ebookLink && (
+                        <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass}>E-Book</a>
+                      )}
+                    </div>
+                  )}
                 </div>
                 
                 <div 
@@ -164,7 +179,7 @@ export function PublicationsSection() {
                     {hasLink ? (
                       <>책을 클릭하시면<br />구매 사이트로 이동합니다</>
                     ) : (
-                      <>추가 교정 작업중 입니다</>
+                      <>출간 예정 도서입니다</>
                     )}
                   </p>
                 </div>

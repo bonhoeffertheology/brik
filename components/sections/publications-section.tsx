@@ -15,8 +15,7 @@ const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-m
 const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
-  const books: PublicationBook[] = [
-    { title: "그리스도를 따라서 (2권)", imageSrc: "images/vol2.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220871856/" },
+  const books: PublicationBook[] =
     { title: "그리스도를 따라서 (1권)", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
     { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
   ];

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 
 const navLinks = [
   { href: "#about", label: "연구소 소개" },
@@ -42,15 +41,9 @@ export function Navigation() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* 💡 [로고 이미지 교체] public/icon.png 파일을 렌더링합니다. */}
-            <div className="relative flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full transition-transform hover:scale-105">
-              <Image
-                src="/icon.png"
-                alt="한국본회퍼연구소 로고"
-                fill
-                className="object-cover"
-                priority
-              />
+            {/* 💡 FIX: Added rounded-full class to ensure the logo is a perfect circle */}
+            <div className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground transition-transform hover:scale-105">
+              BRIK
             </div>
             <div>
               <div className="text-xl font-bold text-primary">한국본회퍼연구소</div>

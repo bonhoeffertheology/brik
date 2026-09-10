@@ -25,7 +25,7 @@ export function PublicationsSection() {
     { 
       title: "그리스도를 따라서 (2권)", 
       imageSrc: "images/vol2.jpg", 
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220261173/" 
+      purchaseLink: " " 
     },
     { 
       title: "하나님과 함께 (전면개정판)", 

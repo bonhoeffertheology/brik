@@ -17,15 +17,15 @@ const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-       { 
-      title: "그리스도를 따라서 (2권)", 
-      imageSrc: "images/vol2.jpg", 
-      purchaseLink: " " 
-    },
-     { 
+    { 
       title: "그리스도를 따라서 (1권)", 
       imageSrc: "images/vol1.jpg", 
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" 
+    },
+    { 
+      title: "그리스도를 따라서 (2권)", 
+      imageSrc: "images/vol2.jpg", 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220261173/" 
     },
     { 
       title: "하나님과 함께 (전면개정판)", 
@@ -40,7 +40,8 @@ export function PublicationsSection() {
     },
   ];
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // 💡 초기 중앙값을 1(그리스도를 따라서 2권)로 설정 -> 좌: 1권 / 우: 전면개정판
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 

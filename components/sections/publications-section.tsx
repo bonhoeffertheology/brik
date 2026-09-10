@@ -17,15 +17,15 @@ const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { 
-      title: "그리스도를 따라서 (1권)", 
-      imageSrc: "images/vol1.jpg", 
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" 
-    },
-    { 
+       { 
       title: "그리스도를 따라서 (2권)", 
       imageSrc: "images/vol2.jpg", 
       purchaseLink: " " 
+    },
+     { 
+      title: "그리스도를 따라서 (1권)", 
+      imageSrc: "images/vol1.jpg", 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" 
     },
     { 
       title: "하나님과 함께 (전면개정판)", 

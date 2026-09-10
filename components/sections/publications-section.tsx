@@ -11,17 +11,32 @@ interface PublicationBook {
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
 
-/* 💡 navBtnClass: 책 표지가 15% 작아짐에 따라 버튼의 세로 정중앙 영점을 top-[41%]로 정밀 리밸런싱 */
+/* 💡 navBtnClass: 버튼의 세로 정중앙 영점 */
 const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
-    { title: "그리스도를 따라서 (1권)", imageSrc: "images/vol1.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" },
+    { 
+      title: "그리스도를 따라서 (1권)", 
+      imageSrc: "images/vol1.jpg", 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" 
+    },
     { 
       title: "그리스도를 따라서 (2권)", 
-      imageSrc: "images/vol2.jpg" // 링크 없음 (광고 전용 도서)
+      imageSrc: "images/vol2.jpg", 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220261173/" 
     },
-    { title: "하나님과 함께 (전면개정판)", imageSrc: "images/withr.jpg", purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" },
+    { 
+      title: "하나님과 함께 (전면개정판)", 
+      imageSrc: "images/withr.jpg", 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220042568/", 
+      ebookLink: "https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000012896681" 
+    },
+    { 
+      title: "하나님과 함께 (초판)", 
+      imageSrc: "images/with.jpg", 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000215033789/" 
+    },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -87,11 +102,11 @@ export function PublicationsSection() {
   return (
     <section 
       ref={sectionRef} 
-      id="publications"
+      id="publications" 
       className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900 scroll-mt-20"
     >
       <div 
-        ref={bgRef}
+        ref={bgRef} 
         className="absolute inset-x-0 top-[-20%] h-[140%] bg-cover bg-center opacity-40 will-change-transform" 
         style={{ backgroundImage: `url(${hero2Bg.src})` }} 
       />
@@ -115,7 +130,8 @@ export function PublicationsSection() {
             const isCenter = offset === 0;
             const xOffset = offset === 1 ? 320 : offset === books.length - 1 ? -320 : 0;
             const scale = isCenter ? 1 : 0.8;
-            const zIndex = isCenter ? 10 : 1;
+            const zIndex = isCenter ? 10 : offset === 1 || offset === books.length - 1 ? 5 : 1;
+            const isHidden = offset !== 0 && offset !== 1 && offset !== books.length - 1;
             const hasLink = Boolean(book.purchaseLink || book.ebookLink);
             const isActive = isCenter && activeIdx === i && hasLink;
 
@@ -123,6 +139,8 @@ export function PublicationsSection() {
               <div 
                 key={book.title} 
                 className={`absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] select-none ${
+                  isHidden ? "opacity-0 pointer-events-none" : "opacity-100"
+                } ${
                   hasLink || offset !== 0 ? "cursor-pointer" : "cursor-default"
                 }`}
                 style={{ 
@@ -135,11 +153,8 @@ export function PublicationsSection() {
                 onClick={() => {
                   if (offset === 1) rotate(1);
                   else if (offset === books.length - 1) rotate(-1);
-                  else {
-                    // 링크가 있는 책만 오버레이 토글 (2권은 링크가 없으므로 반응 안 함)
-                    if (hasLink) {
-                      setActiveIdx(activeIdx === i ? null : i);
-                    }
+                  else if (isCenter && hasLink) {
+                    setActiveIdx(activeIdx === i ? null : i);
                   }
                 }}
               >
@@ -155,7 +170,7 @@ export function PublicationsSection() {
                     }}
                   />
 
-                  {/* 구매 링크가 존재하는 책만 오버레이가 올라옴 */}
+                  {/* 구매 링크 오버레이 */}
                   {hasLink && (
                     <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                       <p className="text-white text-sm font-serif text-center">{book.title}</p>

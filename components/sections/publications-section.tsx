@@ -133,8 +133,8 @@ export function PublicationsSection() {
             const scale = isCenter ? 1 : 0.8;
             const zIndex = isCenter ? 10 : offset === 1 || offset === books.length - 1 ? 5 : 1;
             const isHidden = offset !== 0 && offset !== 1 && offset !== books.length - 1;
-            const hasLink = Boolean(book.purchaseLink || book.ebookLink);
-            const isActive = isCenter && activeIdx === i && hasLink;
+            const canOpenOverlay = Boolean(book.purchaseLink || book.ebookLink || book.isOutOfPrint);
+            const isActive = isCenter && activeIdx === i && canOpenOverlay;
 
             return (
               <div 
@@ -142,7 +142,7 @@ export function PublicationsSection() {
                 className={`absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] select-none ${
                   isHidden ? "opacity-0 pointer-events-none" : "opacity-100"
                 } ${
-                  hasLink || offset !== 0 ? "cursor-pointer" : "cursor-default"
+                  canOpenOverlay || offset !== 0 ? "cursor-pointer" : "cursor-default"
                 }`}
                 style={{ 
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
@@ -154,7 +154,7 @@ export function PublicationsSection() {
                 onClick={() => {
                   if (offset === 1) rotate(1);
                   else if (offset === books.length - 1) rotate(-1);
-                  else if (isCenter && hasLink) {
+                  else if (isCenter && canOpenOverlay) {
                     setActiveIdx(activeIdx === i ? null : i);
                   }
                 }}
@@ -171,15 +171,30 @@ export function PublicationsSection() {
                     }}
                   />
 
-                  {/* 구매 링크 오버레이 */}
-                  {hasLink && (
+                  {/* 오버레이 (구매 링크 또는 절판 안내) */}
+                  {canOpenOverlay && (
                     <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                       <p className="text-white text-sm font-serif text-center">{book.title}</p>
-                      {book.purchaseLink && (
-                        <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>
-                      )}
-                      {book.ebookLink && (
-                        <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass}>E-Book</a>
+                      
+                      {book.isOutOfPrint ? (
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <div className="px-3 py-1.5 font-sans text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/40 rounded-md tracking-wider">
+                            절판 도서
+                          </div>
+                          <p className="text-xs text-stone-300 text-center leading-relaxed mt-1 font-sans font-light">
+                            개정된 번역본인<br />
+                            <strong className="text-white font-medium">전면개정판</strong>을 확인해 주십시오.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          {book.purchaseLink && (
+                            <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>
+                          )}
+                          {book.ebookLink && (
+                            <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass}>E-Book</a>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
@@ -192,10 +207,8 @@ export function PublicationsSection() {
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
                 >
                   <p className="font-sans text-sm md:text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-                    {book.isOutOfPrint ? (
-                      <span className="text-stone-400">절판된 도서입니다<br />(전면개정판을 이용해 주십시오)</span>
-                    ) : hasLink ? (
-                      <>책을 클릭하시면<br />구매 사이트로 이동합니다</>
+                    {canOpenOverlay ? (
+                      <>책을 클릭하시면<br />상세 정보를 확인하실 수 있습니다</>
                     ) : (
                       <>추가 교정 작업 중입니다</>
                     )}

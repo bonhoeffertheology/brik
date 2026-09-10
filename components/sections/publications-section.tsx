@@ -7,6 +7,7 @@ interface PublicationBook {
   imageSrc: string; 
   purchaseLink?: string; 
   ebookLink?: string; 
+  isOutOfPrint?: boolean;
 }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
@@ -35,7 +36,7 @@ export function PublicationsSection() {
     { 
       title: "하나님과 함께 (초판)", 
       imageSrc: "images/with.jpg", 
-      purchaseLink: "https://product.kyobobook.co.kr/detail/S000215033789/" 
+      isOutOfPrint: true 
     },
   ];
 
@@ -191,7 +192,9 @@ export function PublicationsSection() {
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
                 >
                   <p className="font-sans text-sm md:text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-                    {hasLink ? (
+                    {book.isOutOfPrint ? (
+                      <span className="text-stone-400">절판된 도서입니다<br />(전면개정판을 이용해 주십시오)</span>
+                    ) : hasLink ? (
                       <>책을 클릭하시면<br />구매 사이트로 이동합니다</>
                     ) : (
                       <>추가 교정 작업 중입니다</>

@@ -11,8 +11,6 @@ interface PublicationBook {
 }
 
 const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
-
-/* 💡 navBtnClass: 버튼의 세로 정중앙 영점 */
 const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
@@ -40,15 +38,15 @@ export function PublicationsSection() {
     },
   ];
 
-  // 💡 인덱스 1(그리스도를 따르라 2권)이 초기 중앙에 배치됩니다.
   const [currentIndex, setCurrentIndex] = useState(1);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  
   const touchStartX = useRef<number | null>(null);
+  const isSwiping = useRef(false); // 💡 스와이프 여부 플래그 추가
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // 순수 자바스크립트 관성 패럴렉스 엔진
   useEffect(() => {
     const section = sectionRef.current;
     const bg = bgRef.current;
@@ -93,11 +91,19 @@ export function PublicationsSection() {
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => (touchStartX.current = e.touches[0].clientX);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    isSwiping.current = false;
+  };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) rotate(diff > 0 ? 1 : -1);
+    
+    if (Math.abs(diff) > 50) {
+      isSwiping.current = true; // 스와이프로 인식
+      rotate(diff > 0 ? 1 : -1);
+    }
     touchStartX.current = null;
   };
 
@@ -153,6 +159,12 @@ export function PublicationsSection() {
                   backfaceVisibility: "hidden"
                 }}
                 onClick={() => {
+                  // 💡 스와이프 직후 트리거된 잔여 클릭 이벤트 무시
+                  if (isSwiping.current) {
+                    isSwiping.current = false;
+                    return;
+                  }
+
                   if (offset === 1) rotate(1);
                   else if (offset === books.length - 1) rotate(-1);
                   else if (isCenter && canOpenOverlay) {
@@ -172,7 +184,6 @@ export function PublicationsSection() {
                     }}
                   />
 
-                  {/* 오버레이 (구매 링크 또는 절판 안내) */}
                   {canOpenOverlay && (
                     <div className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${isActive ? "translate-y-0" : "translate-y-full"}`}>
                       <p className="text-white text-sm font-serif text-center">{book.title}</p>

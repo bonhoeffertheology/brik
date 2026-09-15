@@ -18,14 +18,14 @@ const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-
 export function PublicationsSection() {
   const books: PublicationBook[] = [
     { 
-      title: "그리스도를 따라서 (1권)", 
+      title: "그리스도를 따르라 (1권)", 
       imageSrc: "images/vol1.jpg", 
       purchaseLink: "https://product.kyobobook.co.kr/detail/S000219852719/" 
     },
     { 
-      title: "그리스도를 따라서 (2권)", 
+      title: "그리스도를 따르라 (2권)", 
       imageSrc: "images/vol2.jpg", 
-      purchaseLink: " " 
+      purchaseLink: "https://product.kyobobook.co.kr/detail/S000220871856" 
     },
     { 
       title: "하나님과 함께 (전면개정판)", 
@@ -40,7 +40,7 @@ export function PublicationsSection() {
     },
   ];
 
-  // 💡 초기 중앙값을 1(그리스도를 따라서 2권)로 설정 -> 좌: 1권 / 우: 전면개정판
+  // 💡 인덱스 1(그리스도를 따르라 2권)이 초기 중앙에 배치됩니다.
   const [currentIndex, setCurrentIndex] = useState(1);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -93,7 +93,7 @@ export function PublicationsSection() {
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => touchStartX.current = e.touches[0].clientX;
+  const handleTouchStart = (e: React.TouchEvent) => (touchStartX.current = e.touches[0].clientX);
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
@@ -208,11 +208,7 @@ export function PublicationsSection() {
                   style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
                 >
                   <p className="font-sans text-sm md:text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
-                    {canOpenOverlay ? (
-                      <>책을 클릭하시면<br />상세 정보를 확인하실 수 있습니다</>
-                    ) : (
-                      <>추가 교정 작업 중입니다</>
-                    )}
+                    책을 클릭하시면<br />상세 정보를 확인하실 수 있습니다
                   </p>
                 </div>
               </div>

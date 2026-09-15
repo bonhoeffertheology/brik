@@ -10,8 +10,8 @@ interface PublicationBook {
   isOutOfPrint?: boolean;
 }
 
-const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md hover:bg-white hover:text-slate-900 transition-all duration-300";
-const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 hover:text-amber-500 hover:opacity-100 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
+const btnClass = "w-full max-w-[120px] py-2 text-center font-sans text-xs font-medium text-white bg-transparent border border-white/80 rounded-md active:bg-white active:text-slate-900 md:hover:bg-white md:hover:text-slate-900 transition-all duration-300";
+const navBtnClass = "absolute top-[41%] -translate-y-1/2 z-40 px-2 md:px-4 text-white/50 md:hover:text-amber-500 active:text-amber-500 transition-all duration-300 flex items-center justify-center font-extralight text-6xl md:text-9xl cursor-pointer h-fit select-none";
 
 export function PublicationsSection() {
   const books: PublicationBook[] = [
@@ -41,10 +41,8 @@ export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
-  // 스와이프 감지용 ref
-  const touchStartX = useRef<number>(0);
-  const touchStartY = useRef<number>(0);
-  const hasSwiped = useRef<boolean>(false);
+  // 포인터 제스처 추적용
+  const pointerStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -93,45 +91,43 @@ export function PublicationsSection() {
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-    hasSwiped.current = false;
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      time: Date.now()
+    };
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const diffX = touchStartX.current - e.touches[0].clientX;
-    const diffY = touchStartY.current - e.touches[0].clientY;
-    
-    // 수평 이동 거리가 30px 이상이고 수직보다 클 때만 스와이프로 확정
-    if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY)) {
-      hasSwiped.current = true;
-    }
-  };
+  const handleCardPointerUp = (
+    e: React.PointerEvent,
+    i: number,
+    offset: number,
+    isCenter: boolean,
+    canOpenOverlay: boolean
+  ) => {
+    if (!pointerStart.current) return;
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const diffX = touchStartX.current - e.changedTouches[0].clientX;
-    const diffY = touchStartY.current - e.changedTouches[0].clientY;
+    const diffX = pointerStart.current.x - e.clientX;
+    const diffY = pointerStart.current.y - e.clientY;
+    const duration = Date.now() - pointerStart.current.time;
+    pointerStart.current = null;
 
-    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+    // 1. 스와이프 제스처 (좌우 이동 35px 이상)
+    if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY)) {
       rotate(diffX > 0 ? 1 : -1);
-      hasSwiped.current = true;
-    }
-  };
-
-  const handleCardClick = (i: number, offset: number, isCenter: boolean, canOpenOverlay: boolean) => {
-    // 스와이프 직후 유입되는 클릭 방지
-    if (hasSwiped.current) {
-      hasSwiped.current = false;
       return;
     }
 
-    if (offset === 1) {
-      rotate(1);
-    } else if (offset === books.length - 1) {
-      rotate(-1);
-    } else if (isCenter && canOpenOverlay) {
-      setActiveIdx((prev) => (prev === i ? null : i));
+    // 2. 탭 / 클릭 제스처 (이동 거리 10px 미만 & 400ms 미만 터치) -> 1회 터치 즉시 반영
+    if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10 && duration < 400) {
+      if (offset === 1) {
+        rotate(1);
+      } else if (offset === books.length - 1) {
+        rotate(-1);
+      } else if (isCenter && canOpenOverlay) {
+        setActiveIdx((prev) => (prev === i ? null : i));
+      }
     }
   };
 
@@ -139,7 +135,7 @@ export function PublicationsSection() {
     <section 
       ref={sectionRef} 
       id="publications" 
-      className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900 scroll-mt-20"
+      className="relative w-full overflow-hidden py-24 md:py-32 bg-stone-900 scroll-mt-20 select-none"
     >
       <div 
         ref={bgRef} 
@@ -156,13 +152,7 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
-        {/* 컨테이너 레벨 터치 제스처 처리 */}
-        <div 
-          className="relative flex justify-center items-center h-[480px] md:h-[580px] w-full max-w-7xl mx-auto touch-pan-y"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
+        <div className="relative flex justify-center items-center h-[480px] md:h-[580px] w-full max-w-7xl mx-auto touch-pan-y">
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
@@ -176,7 +166,7 @@ export function PublicationsSection() {
             return (
               <div 
                 key={book.title} 
-                className={`absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] select-none ${
+                className={`absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] ${
                   isHidden ? "opacity-0 pointer-events-none" : "opacity-100"
                 } ${
                   canOpenOverlay || offset !== 0 ? "cursor-pointer" : "cursor-default"
@@ -184,9 +174,11 @@ export function PublicationsSection() {
                 style={{ 
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
+                  touchAction: "pan-y",
                   WebkitTapHighlightColor: "transparent"
                 }}
-                onClick={() => handleCardClick(i, offset, isCenter, canOpenOverlay)}
+                onPointerDown={handlePointerDown}
+                onPointerUp={(e) => handleCardPointerUp(e, i, offset, isCenter, canOpenOverlay)}
               >
                 <div className="relative w-full h-[388px] md:h-[480px] overflow-hidden shadow-2xl rounded-sm">
                   <img 
@@ -203,8 +195,8 @@ export function PublicationsSection() {
                           ? "opacity-100 translate-y-0 pointer-events-auto" 
                           : "opacity-0 translate-y-full pointer-events-none"
                       }`}
-                      onClick={(e) => {
-                        // 내부 링크가 아닌 오버레이 빈 곳을 누르면 오버레이를 닫음
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onPointerUp={(e) => {
                         e.stopPropagation();
                         setActiveIdx(null);
                       }}
@@ -224,7 +216,7 @@ export function PublicationsSection() {
                       ) : (
                         <div 
                           className="flex flex-col items-center gap-3 w-full"
-                          onClick={(e) => e.stopPropagation()} // 링크 컨테이너 영역은 닫힘 방지
+                          onPointerUp={(e) => e.stopPropagation()} // 링크 영역 탭 시 닫힘 방지
                         >
                           {book.purchaseLink && (
                             <a 
@@ -232,6 +224,7 @@ export function PublicationsSection() {
                               target="_blank" 
                               rel="noopener noreferrer" 
                               className={btnClass}
+                              onPointerDown={(e) => e.stopPropagation()}
                             >
                               종이책
                             </a>
@@ -242,6 +235,7 @@ export function PublicationsSection() {
                               target="_blank" 
                               rel="noopener noreferrer" 
                               className={btnClass}
+                              onPointerDown={(e) => e.stopPropagation()}
                             >
                               E-Book
                             </a>
@@ -266,8 +260,18 @@ export function PublicationsSection() {
             );
           })}
           
-          <button onClick={() => rotate(-1)} className={navBtnClass + " -left-4 sm:left-2 md:-left-20"}>‹</button>
-          <button onClick={() => rotate(1)} className={navBtnClass + " -right-4 sm:right-2 md:-right-20"}>›</button>
+          <button 
+            onClick={() => rotate(-1)} 
+            className={navBtnClass + " -left-4 sm:left-2 md:-left-20"}
+          >
+            ‹
+          </button>
+          <button 
+            onClick={() => rotate(1)} 
+            className={navBtnClass + " -right-4 sm:right-2 md:-right-20"}
+          >
+            ›
+          </button>
         </div> 
       </div>
     </section>

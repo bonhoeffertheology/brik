@@ -83,10 +83,10 @@ export function SupportSection() {
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
 
-          {/* 본문 설명 글씨체 색상 적용 영역 */}
+          {/* 본문 설명 글씨체 색상 통일 영역 */}
           <div className="mt-8 space-y-4 max-w-2xl mx-auto">
             <p className="leading-relaxed">
-              <span className="text-sm md:text-base font-light tracking-wider text-primary font-medium text-slate-200">
+              <span className="text-sm md:text-base font-light tracking-wider text-primary font-medium">
                 한국본회퍼연구소의 문서 선교 사역은 <br />
                 한국교회의 회복을 위한
               </span>
@@ -94,12 +94,12 @@ export function SupportSection() {
               <span className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
                 가장 중요한 사역
               </span>
-              <span className="text-sm md:text-base font-light tracking-wider text-primary font-medium text-slate-200">
+              <span className="text-sm md:text-base font-light tracking-wider text-primary font-medium">
                 입니다.<br />
                 이 귀한 선교사역에 든든한 동역자가 되어 주십시오.
               </span>
             </p>
-            <p className="text-sm md:text-base font-light leading-relaxed text-slate-200 tracking-wider">
+            <p className="text-sm md:text-base font-light leading-relaxed tracking-wider">
               <span className="text-primary font-medium">후원금은 본 연구소의 </span>
               <span className="text-white font-semibold border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크 등</span>
               <span className="text-primary font-medium"><br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.</span>

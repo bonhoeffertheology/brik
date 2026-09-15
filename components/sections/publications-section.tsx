@@ -41,8 +41,10 @@ export function PublicationsSection() {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
-  // 터치 시작 좌표 및 이동 거리 추적
-  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  // 스와이프 감지용 ref
+  const touchStartX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
+  const hasSwiped = useRef<boolean>(false);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -91,53 +93,39 @@ export function PublicationsSection() {
     setCurrentIndex((prev) => (prev + dir + books.length) % books.length);
   };
 
-  // 터치 시작
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartPos.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    hasSwiped.current = false;
   };
 
-  // 터치 종료 시 탭인지 스와이프인지 명확하게 구분 처리
-  const handleTouchEnd = (
-    e: React.TouchEvent, 
-    i: number, 
-    offset: number, 
-    isCenter: boolean, 
-    canOpenOverlay: boolean
-  ) => {
-    if (!touchStartPos.current) return;
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const diffX = touchStartX.current - e.touches[0].clientX;
+    const diffY = touchStartY.current - e.touches[0].clientY;
+    
+    // 수평 이동 거리가 30px 이상이고 수직보다 클 때만 스와이프로 확정
+    if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY)) {
+      hasSwiped.current = true;
+    }
+  };
 
-    const diffX = touchStartPos.current.x - e.changedTouches[0].clientX;
-    const diffY = touchStartPos.current.y - e.changedTouches[0].clientY;
-    touchStartPos.current = null;
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diffX = touchStartX.current - e.changedTouches[0].clientX;
+    const diffY = touchStartY.current - e.changedTouches[0].clientY;
 
-    // 1. 좌우 40px 이상 이동한 경우: 스와이프로 처리
     if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
       rotate(diffX > 0 ? 1 : -1);
+      hasSwiped.current = true;
+    }
+  };
+
+  const handleCardClick = (i: number, offset: number, isCenter: boolean, canOpenOverlay: boolean) => {
+    // 스와이프 직후 유입되는 클릭 방지
+    if (hasSwiped.current) {
+      hasSwiped.current = false;
       return;
     }
 
-    // 2. 15px 미만 이동한 경우: 순수 탭(터치 클릭)으로 즉시 처리
-    if (Math.abs(diffX) < 15 && Math.abs(diffY) < 15) {
-      if (offset === 1) {
-        rotate(1);
-      } else if (offset === books.length - 1) {
-        rotate(-1);
-      } else if (isCenter && canOpenOverlay) {
-        setActiveIdx((prev) => (prev === i ? null : i));
-      }
-    }
-  };
-
-  // 마우스 클릭 (데스크톱 전용 fallback)
-  const handleClick = (
-    i: number, 
-    offset: number, 
-    isCenter: boolean, 
-    canOpenOverlay: boolean
-  ) => {
     if (offset === 1) {
       rotate(1);
     } else if (offset === books.length - 1) {
@@ -168,14 +156,19 @@ export function PublicationsSection() {
           <p className="mt-5 font-sans text-base font-light tracking-wide text-stone-200">엄선하여 선보이는 저서들을 만나보십시오</p>
         </div>
 
-        {/* 부모 컨테이너에서는 터치 리스너를 제거하여 하위 카드로의 이벤트 전달 방해를 제거 */}
-        <div className="relative flex justify-center items-center h-[480px] md:h-[580px] w-full max-w-7xl mx-auto">
+        {/* 컨테이너 레벨 터치 제스처 처리 */}
+        <div 
+          className="relative flex justify-center items-center h-[480px] md:h-[580px] w-full max-w-7xl mx-auto touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {books.map((book, i) => {
             const offset = (i - currentIndex + books.length) % books.length;
             const isCenter = offset === 0;
             const xOffset = offset === 1 ? 320 : offset === books.length - 1 ? -320 : 0;
             const scale = isCenter ? 1 : 0.8;
-            const zIndex = isCenter ? 10 : offset === 1 || offset === books.length - 1 ? 5 : 1;
+            const zIndex = isCenter ? 20 : offset === 1 || offset === books.length - 1 ? 10 : 1;
             const isHidden = offset !== 0 && offset !== 1 && offset !== books.length - 1;
             const canOpenOverlay = Boolean(book.purchaseLink || book.ebookLink || book.isOutOfPrint);
             const isActive = isCenter && activeIdx === i && canOpenOverlay;
@@ -183,7 +176,7 @@ export function PublicationsSection() {
             return (
               <div 
                 key={book.title} 
-                className={`absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] select-none touch-manipulation ${
+                className={`absolute transition-all duration-500 ease-out w-[255px] h-[440px] md:w-[316px] md:h-[540px] select-none ${
                   isHidden ? "opacity-0 pointer-events-none" : "opacity-100"
                 } ${
                   canOpenOverlay || offset !== 0 ? "cursor-pointer" : "cursor-default"
@@ -191,33 +184,30 @@ export function PublicationsSection() {
                 style={{ 
                   transform: `translate3d(${xOffset}px, 0, 0) scale(${scale})`, 
                   zIndex,
-                  transformStyle: "preserve-3d",
-                  WebkitBackfaceVisibility: "hidden",
-                  backfaceVisibility: "hidden"
+                  WebkitTapHighlightColor: "transparent"
                 }}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={(e) => handleTouchEnd(e, i, offset, isCenter, canOpenOverlay)}
-                onClick={() => handleClick(i, offset, isCenter, canOpenOverlay)}
+                onClick={() => handleCardClick(i, offset, isCenter, canOpenOverlay)}
               >
-                <div className="relative w-full h-[388px] md:h-[480px] overflow-hidden shadow-2xl" style={{ transform: "translateZ(0)" }}>
+                <div className="relative w-full h-[388px] md:h-[480px] overflow-hidden shadow-2xl rounded-sm">
                   <img 
                     src={book.imageSrc} 
                     alt={book.title} 
-                    className="w-full h-full object-cover" 
-                    style={{ 
-                      imageRendering: "-webkit-optimize-contrast",
-                      WebkitTransform: "translateZ(0) scale(1.0001)",
-                      transform: "translateZ(0) scale(1.0001)"
-                    }}
+                    className="w-full h-full object-cover pointer-events-none" 
                   />
 
-                  {/* 오버레이 (구매 링크 또는 절판 안내) */}
+                  {/* 오버레이 메뉴 */}
                   {canOpenOverlay && (
                     <div 
-                      className={`absolute left-0 top-0 w-full h-full bg-stone-900/90 flex flex-col items-center justify-center gap-4 p-6 transition-transform duration-700 ease-in-out ${
-                        isActive ? "translate-y-0" : "translate-y-full pointer-events-none"
+                      className={`absolute inset-0 w-full h-full bg-stone-950/95 flex flex-col items-center justify-center gap-4 p-6 transition-all duration-500 ease-in-out ${
+                        isActive 
+                          ? "opacity-100 translate-y-0 pointer-events-auto" 
+                          : "opacity-0 translate-y-full pointer-events-none"
                       }`}
-                      onClick={(e) => e.stopPropagation()} // 오버레이 내부 링크 클릭 시 카드 닫힘 방지
+                      onClick={(e) => {
+                        // 내부 링크가 아닌 오버레이 빈 곳을 누르면 오버레이를 닫음
+                        e.stopPropagation();
+                        setActiveIdx(null);
+                      }}
                     >
                       <p className="text-white text-sm font-serif text-center">{book.title}</p>
                       
@@ -232,14 +222,31 @@ export function PublicationsSection() {
                           </p>
                         </div>
                       ) : (
-                        <>
+                        <div 
+                          className="flex flex-col items-center gap-3 w-full"
+                          onClick={(e) => e.stopPropagation()} // 링크 컨테이너 영역은 닫힘 방지
+                        >
                           {book.purchaseLink && (
-                            <a href={book.purchaseLink} target="_blank" rel="noopener noreferrer" className={btnClass}>종이책</a>
+                            <a 
+                              href={book.purchaseLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className={btnClass}
+                            >
+                              종이책
+                            </a>
                           )}
                           {book.ebookLink && (
-                            <a href={book.ebookLink} target="_blank" rel="noopener noreferrer" className={btnClass}>E-Book</a>
+                            <a 
+                              href={book.ebookLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className={btnClass}
+                            >
+                              E-Book
+                            </a>
                           )}
-                        </>
+                        </div>
                       )}
                     </div>
                   )}
@@ -249,7 +256,7 @@ export function PublicationsSection() {
                   className={`mt-6 w-full transition-opacity duration-500 ease-out ${
                     isCenter ? "opacity-100" : "opacity-0"
                   }`}
-                  style={{ transitionDelay: isCenter ? "1000ms" : "0ms" }}
+                  style={{ transitionDelay: isCenter ? "500ms" : "0ms" }}
                 >
                   <p className="font-sans text-sm md:text-base font-light tracking-wide text-stone-200 text-center leading-relaxed">
                     책을 클릭하시면<br />상세 정보를 확인하실 수 있습니다

@@ -91,7 +91,10 @@ export function SupportSection() {
                 한국교회의 회복을 위한 
               </span>
               <span className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
-                가장 중요한 사역입니다.<br />
+                가장 중요한 사역
+              </span>
+              <span className="text-sm md:text-base font-light tracking-wider text-primary font-medium">
+                입니다.<br />
                 이 귀한 선교사역에 든든한 동역자가 되어 주십시오.
               </span>
             </p>

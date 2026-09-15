@@ -83,16 +83,20 @@ export function SupportSection() {
             <div className="h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/80 to-transparent" />
           </div>
 
-          {/* 본문 설명 글씨체 색상 강화 */}
+          {/* 본문 설명 글씨체 색상 적용 영역 */}
           <div className="mt-8 space-y-4 max-w-2xl mx-auto">
-            <p className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
-              한국본회퍼연구소의 문서 선교 사역은 <br />
-              한국교회의 회복을 위한 가장 중요한 사역입니다.<br />
-              이 귀한 선교사역에 든든한 동역자가 되어 주십시오.
+            <p className="leading-relaxed">
+              <span className="text-sm md:text-base font-light tracking-wider text-primary font-medium">
+                한국본회퍼연구소의 문서 선교 사역은 <br />
+                한국교회의 회복을 위한 
+              </span>
+              <span className="text-lg md:text-xl font-normal leading-relaxed text-white tracking-wide">
+                가장 중요한 사역입니다.<br />
+                이 귀한 선교사역에 든든한 동역자가 되어 주십시오.
+              </span>
             </p>
             <p className="text-sm md:text-base font-light leading-relaxed text-slate-200 tracking-wider">
               <span className="text-primary font-medium">후원금은 본 연구소의 </span>
-              {/* 수정 부분: ' 등'을 span 내부로 이동하여 흰색, 세미볼드, 밑줄을 함께 적용 */}
               <span className="text-white font-semibold border-b border-accent/80 pb-0.5">학술연구, 번역, 출판, 네트워크 등</span>
               <span className="text-primary font-medium"><br className="hidden sm:inline" /> 교회와 사회를 온전히 세워가는 모든 사역의 운영에 사용됩니다.</span>
             </p>
@@ -113,20 +117,18 @@ export function SupportSection() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
               {/* 은행 및 계좌번호 */}
               <div className="text-center md:text-left space-y-1">
-                {/* 수정 부분: '신한'을 굵게(font-semibold), 그리고 크기를 text-base -> text-lg로 확장 */}
                 <p className="text-lg tracking-wider text-slate-100 font-semibold">신한</p>
                 <p className="text-2xl md:text-3xl font-bold tracking-wider text-white font-mono">
                   339-04-745500
                 </p>
               </div>
 
-              {/* 경계선 가독성을 위해 bg-white/10 -> bg-white/20으로 변경 */}
+              {/* 경계선 */}
               <div className="hidden md:block h-10 w-[1px] bg-white/20" />
               <div className="block md:hidden h-[1px] w-12 bg-white/20" />
 
               {/* 예금주 정보 */}
               <div className="text-center md:text-right space-y-1">
-                {/* 수정 부분: '예금주'의 크기를 text-sm -> text-base로 한 단계 확장 */}
                 <p className="text-base tracking-wider text-primary font-normal">예금주</p>
                 <p className="text-lg md:text-xl font-normal tracking-wide text-slate-100">
                   한국본회퍼연구소장 양석진

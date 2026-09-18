@@ -209,7 +209,7 @@ export function PublicationsSection() {
                             절판 도서
                           </div>
                           <p className="text-xs text-stone-300 text-center leading-relaxed mt-1 font-sans font-light">
-                            개정된 번역본인<br />
+                            <br />
                             <strong className="text-white font-medium">전면개정판</strong>을 확인해 주십시오.
                           </p>
                         </div>
